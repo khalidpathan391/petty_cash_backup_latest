@@ -5,8 +5,6 @@ import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/d
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/my_account_details.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/user_profile.dart';
 
-import 'package:petty_cash/view/home_module/dashboard_screen.dart/dashboard.dart';
-import 'package:petty_cash/view/home_module/task_status_screen.dart';
 import 'package:petty_cash/view/login/ActivateQRCode.dart';
 import 'package:petty_cash/view/login/ChooseLoginTypePage.dart';
 import 'package:petty_cash/view/login/CompanyIdActivationPage.dart';
@@ -16,6 +14,7 @@ import 'package:petty_cash/view/login/ScanQRCodePage.dart';
 import 'package:petty_cash/view/login/SystemURLPage.dart';
 import 'package:petty_cash/view/login/ValidateIDKeyPage.dart';
 import 'package:petty_cash/view/po_transaction/po_transaction.dart';
+import 'package:petty_cash/view/purchase_order_dashboard/po_dashboard.dart';
 
 import 'package:petty_cash/view/startup_module/splash_screen.dart';
 
@@ -36,15 +35,10 @@ class AppRoutes {
           ),
       DigitalDocuments.id: (context) => const DigitalDocuments(),
       SystemUrl.Id: (context) => const SystemUrl(),
-      "dashboard": (context) => const DashboardScreen(),
       "my_account_details": (context) => const MyAccountDetails(),
       "user_profile": (context) => const UserProfile(),
       'po_transaction': (context) => const PoTransaction(),
-      "list_screen": (context) {
-        final args = ModalRoute.of(context)!.settings.arguments;
-        final status = args is String ? args : 'default';
-        return ListScreen(status: status);
-      },
+      'po_dashboard': (context) => const DashboardScreen(),
     };
   }
 }

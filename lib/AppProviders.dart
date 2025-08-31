@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,7 +13,7 @@ import 'package:petty_cash/view_model/HomePage/HomeVM.dart';
 import 'package:petty_cash/view_model/HomePage/ProfileAndSettings/profile_settings_vm.dart';
 import 'package:petty_cash/view_model/company/CompanyVM.dart';
 import 'package:petty_cash/view_model/purchase_order/purchase_order_vm.dart';
-
+import 'package:petty_cash/view_model/purchase_order_dashnboard/po_dashboard_vm.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +42,7 @@ class AppProviders {
         ChangeNotifierProvider(create: (_) => CompanyVM()),
         ChangeNotifierProvider(create: (_) => CompanyVM()),
         ChangeNotifierProvider(create: (_) => PoApplicationVm()),
+        ChangeNotifierProvider(create: (_) => PoDashboardVm()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

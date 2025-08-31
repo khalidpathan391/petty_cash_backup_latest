@@ -46,4 +46,7 @@ class ApiUrl {
   static var docNoref = 'erp_api/common_reference_doc_no_list/';
   static var commonSearch = 'erp_api/common_search/';
   static var getPrReference = 'erp_api/ReferencePRPopup/';
+  static var getPettyCashAnalysis = 'erp_api/PettyCashAnalysis/';
+  static var getPRAnalysis = 'erp_api/PRDashboardInPO/';
+  static var getGrnnalysis = 'erp_api/GRNDashboardInPO/';
 }

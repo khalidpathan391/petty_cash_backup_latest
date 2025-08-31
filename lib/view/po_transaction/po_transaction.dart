@@ -1157,7 +1157,7 @@ class _HeaderSummary extends StatelessWidget {
           child: TransactionStart(
             label: 'Doc. No.*',
             labelVal: vm.docNoCtrl.text,
-            label2: vm.statusCtrl.text.isEmpty ? 'Draft' : vm.statusCtrl.text,
+            label2: vm.statusCtrl.text.isEmpty ? 'New' : vm.statusCtrl.text,
             label2Color: Colors.green,
           ),
         ),

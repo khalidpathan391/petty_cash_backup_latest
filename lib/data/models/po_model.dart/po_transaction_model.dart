@@ -52,8 +52,8 @@ class PurchaseOrderModel {
     uniqueVal = json['unique_val'];
     headerId = json['header_id'];
     headerTab = json['header_tab'] != null
-        ? HeaderTab.fromJson(json['header_tab'])
-        : HeaderTab(); // fallback to empty
+        ? new HeaderTab.fromJson(json['header_tab'])
+        : null;
     // if (json['header_attachment_lst'] != null) {
     //   headerAttachmentLst = <Null>[];
     //   json['header_attachment_lst'].forEach((v) {
@@ -153,7 +153,6 @@ class PurchaseOrderModel {
 }
 
 class HeaderTab {
-  int? headerId;
   String? docDate;
   int? docLocId;
   String? docLocCode;
@@ -173,7 +172,7 @@ class HeaderTab {
   String? supplierName;
   String? supplierOfferNo;
   String? supplierOfferDate;
-  String? currencyId;
+  int? currencyId;
   String? currencyCode;
   String? currencyDescription;
   String? exchangeRate;
@@ -215,8 +214,7 @@ class HeaderTab {
   String? headerTermPopup;
 
   HeaderTab(
-      {this.headerId,
-      this.docDate,
+      {this.docDate,
       this.docLocId,
       this.docLocCode,
       this.docLocDesc,
@@ -277,7 +275,6 @@ class HeaderTab {
       this.headerTermPopup});
 
   HeaderTab.fromJson(Map<String, dynamic> json) {
-    headerId = json['header_id'];
     docDate = json['doc_date'];
     docLocId = json['doc_loc_id'];
     docLocCode = json['doc_loc_code'];
@@ -341,7 +338,6 @@ class HeaderTab {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['header_id'] = this.headerId;
     data['doc_date'] = this.docDate;
     data['doc_loc_id'] = this.docLocId;
     data['doc_loc_code'] = this.docLocCode;
@@ -488,7 +484,7 @@ class ItemDetailsTab {
   String? discountPer;
   String? discountVal;
   String? netValue;
-  String? mnfId;
+  int? mnfId;
   String? mnfDesc;
   int? chargeTypeId;
   String? chargeTypeCode;

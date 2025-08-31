@@ -1,8 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
-
-import 'package:petty_cash/view_model/home_module_vm/dashboard_vm.dart';
+import 'package:petty_cash/view_model/purchase_order_dashnboard/po_dashboard_vm.dart';
 
 import 'package:provider/provider.dart';
 
@@ -46,7 +45,7 @@ class CustomRefresher extends StatelessWidget {
               ),
               Align(
                 alignment: Alignment.centerRight,
-                child: Consumer<DashboardVm>(
+                child: Consumer<PoDashboardVm>(
                   builder: (context, homeProvider, widget) {
                     return GestureDetector(
                       onTap: () {

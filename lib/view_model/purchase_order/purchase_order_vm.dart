@@ -3,14 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
-import 'package:petty_cash/data/models/po_model.dart/po_default_transaction_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/po_transaction_model.dart';
 import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/global.dart';
 
 import 'package:petty_cash/data/repository/general_rep.dart';
-// import 'package:petty_cash/global.dart';
-// import 'package:petty_cash/resources/api_url.dart';
 
 class PoApplicationVm extends ChangeNotifier {
   final GeneralRepository _myRepo = GeneralRepository();
@@ -129,7 +126,7 @@ class PoApplicationVm extends ChangeNotifier {
   bool isApiLoading = false;
   bool hasDataLoaded = false;
   PurchaseOrderModel? purchaseOrderModel;
-  PoDefaultModel? poDefaultModel;
+
   // Reference PR specific fields
   bool isReferenceLoading = false;
   PurchaserequestReferenceModel referencePRModel =
@@ -198,10 +195,10 @@ class PoApplicationVm extends ChangeNotifier {
 
       if (response != null) {
         // Parse API response into model
-        poDefaultModel = PoDefaultModel.fromJson(response);
+        purchaseOrderModel = PurchaseOrderModel.fromJson(response);
 
-        if (poDefaultModel?.headerTab != null) {
-          _applyHeaderData(poDefaultModel!.headerTab!.toJson());
+        if (purchaseOrderModel?.headerTab != null) {
+          _applyHeaderData(purchaseOrderModel!.headerTab!.toJson());
           hasDataLoaded = true;
         } else {
           // Fallback empty HeaderTab to avoid UI issues
