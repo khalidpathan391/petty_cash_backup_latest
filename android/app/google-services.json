@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "865959042909",
+    "project_id": "phoneauth-7b0d1",
+    "storage_bucket": "phoneauth-7b0d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:865959042909:android:aa25e66db827a0ab2912b4",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaa-dj5hFhw5H2yziBvG-8py90YyFpI4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:865959042909:android:63eebd9a1cc0bbed2912b4",
+        "android_client_info": {
+          "package_name": "com.example.petty_cash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaa-dj5hFhw5H2yziBvG-8py90YyFpI4s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

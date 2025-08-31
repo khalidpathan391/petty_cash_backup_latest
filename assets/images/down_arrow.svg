@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="14.5" height="7.971" viewBox="0 0 14.5 7.971">
+    <path id="back_button" data-name="back button"
+        d="M92.606,58.67a1.067,1.067,0,0,0,0-1.656,1.48,1.48,0,0,0-1.887,0L86,61.154l-4.727-4.139a1.48,1.48,0,0,0-1.887,0,1.079,1.079,0,0,0,0,1.656l5.67,4.975a1.48,1.48,0,0,0,1.887,0Z"
+        transform="translate(-78.75 -56.344)" fill="rgba(0,0,0,0.5)" stroke="rgba(0,0,0,0)"
+        stroke-width="0.5" />
+</svg>

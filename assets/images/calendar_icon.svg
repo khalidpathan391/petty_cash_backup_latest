@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g id="Group_488" data-name="Group 488" transform="translate(-1201 6531)">
+    <g id="Calendar" transform="translate(1206.811 -6531)">
+      <g id="Group_187" data-name="Group 187" transform="translate(0 11.79)">
+        <rect id="Rectangle_1513" data-name="Rectangle 1513" width="88.919" height="86.3" rx="16" transform="translate(-0.27 0.211)" fill="#080808"/>
+        <g id="Group_186" data-name="Group 186" transform="translate(14.73 20.211)">
+          <rect id="Rectangle_1514" data-name="Rectangle 1514" width="14.73" height="15.72" fill="#fff"/>
+          <rect id="Rectangle_1517" data-name="Rectangle 1517" width="14.73" height="15.72" transform="translate(0 23.58)" fill="#fff"/>
+          <rect id="Rectangle_1515" data-name="Rectangle 1515" width="14.73" height="15.72" transform="translate(22.095)" fill="#fff"/>
+          <rect id="Rectangle_1518" data-name="Rectangle 1518" width="14.73" height="15.72" transform="translate(22.095 23.58)" fill="#fff"/>
+          <rect id="Rectangle_1516" data-name="Rectangle 1516" width="14.73" height="15.72" transform="translate(44.189)" fill="#fff"/>
+        </g>
+      </g>
+      <line id="Line_40" data-name="Line 40" y2="15.72" transform="translate(18.412)" fill="none" stroke="#000" stroke-width="6"/>
+      <line id="Line_41" data-name="Line 41" y2="15.72" transform="translate(69.966)" fill="none" stroke="#000" stroke-width="6"/>
+    </g>
+    <rect id="Rectangle_1765" data-name="Rectangle 1765" width="100" height="100" transform="translate(1201 -6531)" fill="none"/>
+  </g>
+</svg>

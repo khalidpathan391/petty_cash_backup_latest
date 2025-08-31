@@ -1,0 +1,14 @@
+<svg id="Calendar" xmlns="http://www.w3.org/2000/svg" width="12" height="12.539" viewBox="0 0 12 12.539">
+  <g id="Group_187" data-name="Group 187" transform="translate(0 1.887)">
+    <path id="Rectangle_1513" data-name="Rectangle 1513" d="M1,0H11a1,1,0,0,1,1,1V8.5A2.5,2.5,0,0,1,9.5,11h-7A2.5,2.5,0,0,1,0,8.5V1A1,1,0,0,1,1,0Z" transform="translate(0 -0.349)" fill="#fff"/>
+    <g id="Group_186" data-name="Group 186" transform="translate(2 2.184)">
+      <rect id="Rectangle_1514" data-name="Rectangle 1514" width="2" height="2" fill="#284e65"/>
+      <rect id="Rectangle_1517" data-name="Rectangle 1517" width="2" height="2" transform="translate(0 3)" fill="#284e65"/>
+      <rect id="Rectangle_1515" data-name="Rectangle 1515" width="2" height="2" transform="translate(3)" fill="#284e65"/>
+      <rect id="Rectangle_1518" data-name="Rectangle 1518" width="2" height="2" transform="translate(3 3)" fill="#284e65"/>
+      <rect id="Rectangle_1516" data-name="Rectangle 1516" width="2" height="2" transform="translate(6)" fill="#284e65"/>
+    </g>
+  </g>
+  <line id="Line_40" data-name="Line 40" y2="2" transform="translate(2.5)" fill="none" stroke="#fff" stroke-width="1"/>
+  <line id="Line_41" data-name="Line 41" y2="2" transform="translate(9.5)" fill="none" stroke="#fff" stroke-width="1"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+  <g id="Submit" transform="translate(-246 -190)">
+    <g id="Ellipse_34" data-name="Ellipse 34" transform="translate(246 190)" fill="#fff" stroke="#000" stroke-width="1">
+      <circle cx="50" cy="50" r="50" stroke="none"/>
+      <circle cx="50" cy="50" r="49.5" fill="none"/>
+    </g>
+    <path id="email2" d="M31.419,39.093,29.144,62.021l13.9-17.488,13.3,6.114,13.6-47.979ZM69.942,2.668,0,31.944l16.513,3.368L29.144,62.021,20.036,35.312,69.942,2.666Z" transform="translate(258.717 208.544)" fill="#101010"/>
+  </g>
+</svg>
