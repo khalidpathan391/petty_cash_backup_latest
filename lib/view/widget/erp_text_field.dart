@@ -31,6 +31,7 @@ class CommonTextFormField extends StatelessWidget {
   final Function(String)? onFieldSubmitted;
   final TextInputAction? textInputAction;
   final double? hintFontSize;
+  final double? fontSize; // New parameter for font size
 
   const CommonTextFormField({
     super.key,
@@ -50,7 +51,7 @@ class CommonTextFormField extends StatelessWidget {
     this.maxLength,
     this.counterText,
     this.margin,
-    this.suffixIcon = false, //context.resources.dimension.verySmallMargin
+    this.suffixIcon = false,
     this.textColor = Colors.black,
     this.prefixWidget,
     this.suffixWidget,
@@ -60,6 +61,7 @@ class CommonTextFormField extends StatelessWidget {
     this.onFieldSubmitted,
     this.textInputAction,
     this.hintFontSize,
+    this.fontSize, // Initialize the new parameter
   });
 
   @override
@@ -77,95 +79,97 @@ class CommonTextFormField extends StatelessWidget {
             UpperCaseTextFormatter(allCaps),
             LengthLimitingTextInputFormatter(maxLength),
           ],
-          // maxLength: maxLength,
           onChanged: onChanged,
           maxLines: maxLines,
           cursorColor: cursorColor,
           style: TextStyle(
             color: textColor,
-            fontSize: context.resources.dimension.appBigText,
+            fontSize: fontSize ??
+                context.resources.dimension
+                    .appBigText, // Use the new fontSize parameter
             fontFamily: font,
           ),
           textInputAction: textInputAction,
           onFieldSubmitted: onFieldSubmitted,
           decoration: InputDecoration(
-              isDense: false,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              fillColor: context.resources.color.colorTextFormFieldFill,
-              focusedBorder: isBorderUnderLine
-                  ? UnderlineInputBorder(
-                      borderSide: isBorderSideNone
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: context.resources.color.themeColor
-                                  .withOpacity(0.8),
-                              width: 1.5,
-                            ),
-                    )
-                  : OutlineInputBorder(
-                      borderSide: isBorderSideNone
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: context.resources.color.themeColor
-                                  .withOpacity(0.8),
-                              width: 1.5),
-                    ),
-              enabledBorder: isBorderUnderLine
-                  ? UnderlineInputBorder(
-                      borderSide: isBorderSideNone
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: context.resources.color.themeColor
-                                  .withOpacity(0.3),
-                              width: 1,
-                            ),
-                    )
-                  : OutlineInputBorder(
-                      borderSide: isBorderSideNone
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: context.resources.color.themeColor
-                                  .withOpacity(0.3),
-                              width: 1,
-                            ),
-                    ),
-              labelText: showLabel ? label : null,
-              labelStyle: getStyle1(context),
-              hintText: label,
-              hintStyle: getStyle(context),
-              counterText: counterText,
-              suffixIcon: suffixIcon
-                  ? IconButton(
-                      onPressed: () {
-                        commonProvider.setObscureText();
-                      },
-                      icon: Icon(commonProvider.obscureText
-                          ? Icons.visibility_off
-                          : Icons.visibility))
-                  : suffixWidget,
-              prefixIcon: prefixWidget,
-              counterStyle: getStyle(context),
-              disabledBorder: isBorderUnderLine
-                  ? UnderlineInputBorder(
-                      borderSide: isBorderSideNone
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: context.resources.color.themeColor
-                                  .withOpacity(0.3),
-                              width: 1,
-                            ),
-                    )
-                  : OutlineInputBorder(
-                      borderSide: isBorderSideNone
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: context.resources.color.themeColor
-                                  .withOpacity(0.3),
-                              width: 1,
-                            ),
-                    ),
-              enabled: enabled),
+            isDense: false,
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            fillColor: context.resources.color.colorTextFormFieldFill,
+            focusedBorder: isBorderUnderLine
+                ? UnderlineInputBorder(
+                    borderSide: isBorderSideNone
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: context.resources.color.themeColor
+                                .withOpacity(0.8),
+                            width: 1.5,
+                          ),
+                  )
+                : OutlineInputBorder(
+                    borderSide: isBorderSideNone
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: context.resources.color.themeColor
+                                .withOpacity(0.8),
+                            width: 1.5),
+                  ),
+            enabledBorder: isBorderUnderLine
+                ? UnderlineInputBorder(
+                    borderSide: isBorderSideNone
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: context.resources.color.themeColor
+                                .withOpacity(0.3),
+                            width: 1,
+                          ),
+                  )
+                : OutlineInputBorder(
+                    borderSide: isBorderSideNone
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: context.resources.color.themeColor
+                                .withOpacity(0.3),
+                            width: 1,
+                          ),
+                  ),
+            labelText: showLabel ? label : null,
+            labelStyle: getStyle1(context),
+            hintText: label,
+            hintStyle: getStyle(context),
+            counterText: counterText,
+            suffixIcon: suffixIcon
+                ? IconButton(
+                    onPressed: () {
+                      commonProvider.setObscureText();
+                    },
+                    icon: Icon(commonProvider.obscureText
+                        ? Icons.visibility_off
+                        : Icons.visibility))
+                : suffixWidget,
+            prefixIcon: prefixWidget,
+            counterStyle: getStyle(context),
+            disabledBorder: isBorderUnderLine
+                ? UnderlineInputBorder(
+                    borderSide: isBorderSideNone
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: context.resources.color.themeColor
+                                .withOpacity(0.3),
+                            width: 1,
+                          ),
+                  )
+                : OutlineInputBorder(
+                    borderSide: isBorderSideNone
+                        ? BorderSide.none
+                        : BorderSide(
+                            color: context.resources.color.themeColor
+                                .withOpacity(0.3),
+                            width: 1,
+                          ),
+                  ),
+            enabled: enabled,
+          ),
         ),
       );
     });

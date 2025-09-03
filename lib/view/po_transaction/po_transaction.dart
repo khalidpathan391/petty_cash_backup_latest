@@ -1,11 +1,11 @@
-// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously
+// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 
 // import 'package:easy_localization/easy_localization.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
-import 'package:petty_cash/globalSize.dart';
+
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:petty_cash/utils/app_utils.dart';
 import 'package:petty_cash/view/base/BaseGestureTouchSafeArea.dart';
@@ -19,6 +19,8 @@ import 'package:petty_cash/view/widget/common_shimmer_view.dart';
 import 'package:petty_cash/view/widget/common_text.dart';
 
 import 'package:petty_cash/view/widget/erp_text_field.dart';
+import 'package:petty_cash/view/widget/custom_view_table.dart';
+import 'package:petty_cash/view/widget/common_empty_list copy.dart';
 import 'package:petty_cash/view/widget/quill_text_field.dart';
 import 'package:petty_cash/view_model/purchase_order/purchase_order_vm.dart';
 
@@ -89,7 +91,7 @@ class _PoTransactionState extends State<PoTransaction>
 
     dW = MediaQuery.of(context).size.width;
     dH = MediaQuery.of(context).size.height;
-    tS = dW * 0.045;
+    tS = dW * 0.035; // Decreased text size multiplier
 
     provider = Provider.of<PoApplicationVm>(context);
 
@@ -155,8 +157,10 @@ class _PoTransactionState extends State<PoTransaction>
                         : Column(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    right: 10, left: 15, top: 15),
+                                padding: EdgeInsets.only(
+                                    right: dW * 0.025,
+                                    left: dW * 0.04,
+                                    top: dH * 0.02),
                                 child: _HeaderSummary(),
                               ),
                               TabBar(
@@ -166,11 +170,10 @@ class _PoTransactionState extends State<PoTransaction>
                                   return Tab(
                                     child: CommonTextView(
                                       label: provider.tabHeaders[index],
-                                      fontSize: context
-                                          .resources.dimension.appBigText,
+                                      fontSize: tS * 1.2,
                                       color: themeColor,
                                       margin: EdgeInsets.symmetric(
-                                          horizontal: AppWidth(10)),
+                                          horizontal: dW * 0.025),
                                     ),
                                   );
                                 }),
@@ -178,10 +181,12 @@ class _PoTransactionState extends State<PoTransaction>
                                 labelColor: themeColor,
                                 unselectedLabelColor:
                                     themeColor.withOpacity(0.5),
-                                labelStyle: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                                unselectedLabelStyle: const TextStyle(
-                                    fontWeight: FontWeight.normal),
+                                labelStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: tS * 0.6), // Decreased text size
+                                unselectedLabelStyle: TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: tS * 0.5), // Decreased text size
                                 indicatorPadding: const EdgeInsets.all(0),
                                 padding: const EdgeInsets.all(0),
                                 tabAlignment: TabAlignment.start,
@@ -189,16 +194,15 @@ class _PoTransactionState extends State<PoTransaction>
                                   color: Colors.white,
                                   border: Border(
                                     bottom: BorderSide(
-                                      color: context.resources.color.themeColor,
-                                      width: 2,
+                                      color: themeColor,
+                                      width: dW * 0.005,
                                     ),
                                   ),
                                 ),
                                 overlayColor:
                                     MaterialStateColor.resolveWith((states) {
                                   if (states.contains(MaterialState.pressed)) {
-                                    return context.resources.color.themeColor
-                                        .withOpacity(.2);
+                                    return themeColor.withOpacity(.2);
                                   }
                                   return Colors.white;
                                 }),
@@ -259,6 +263,7 @@ class _HeaderTabState extends State<_HeaderTab> {
 
   /// --- Show Reference PR Bottom Sheet ---
   void _showReferencePRSheet() async {
+    Color themeColor = context.resources.color.themeColor;
     final vm = Provider.of<PoApplicationVm>(context, listen: false);
 
     // Fetch PR list from API
@@ -304,69 +309,70 @@ class _HeaderTabState extends State<_HeaderTab> {
                                   (pr.priSupplierPopup?.isNotEmpty ?? false);
 
                           return Card(
-                            margin: EdgeInsets.symmetric(
-                              vertical:
-                                  MediaQuery.of(context).size.height * 0.008,
-                              horizontal:
-                                  MediaQuery.of(context).size.width * 0.02,
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.all(
-                                  MediaQuery.of(context).size.width * 0.03),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Checkbox(
-                                    value: selectedItems[pr.srNo] ?? false,
-                                    onChanged: (val) {
-                                      setStateBottomSheet(() {
-                                        selectedItems[pr.srNo!] = val ?? false;
-                                      });
-                                    },
-                                  ),
-                                  Expanded(
-                                    flex: 4,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        CommonTextView(
-                                          label:
-                                              '${pr.priItemCode ?? '-'} - ${pr.priItemDesc ?? '-'}',
-                                          fontSize: context.resources.dimension
-                                              .appMediumText,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        CommonTextView(
-                                          label: 'Qty: ${pr.priItemQty ?? '-'}',
-                                          fontSize: context.resources.dimension
-                                                  .appMediumText -
-                                              2,
-                                          color: Colors.grey[700],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        CommonTextView(
-                                          label:
-                                              'Note to Buyer: ${pr.priNoteToBuyer ?? '-'}',
-                                          fontSize: context.resources.dimension
-                                                  .appMediumText -
-                                              2,
-                                          color: Colors.grey[700],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (hasInfo)
-                                    IconButton(
-                                      icon: const Icon(Icons.info_outline),
-                                      onPressed: () {
-                                        _showManufacturerSupplierSheet(pr);
+                              margin: EdgeInsets.symmetric(
+                                vertical:
+                                    MediaQuery.of(context).size.height * 0.008,
+                                horizontal:
+                                    MediaQuery.of(context).size.width * 0.02,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(
+                                    MediaQuery.of(context).size.width * 0.03),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Checkbox(
+                                      value: selectedItems[pr.srNo] ?? false,
+                                      onChanged: (val) {
+                                        setStateBottomSheet(() {
+                                          selectedItems[pr.srNo!] =
+                                              val ?? false;
+                                        });
                                       },
                                     ),
-                                ],
-                              ),
-                            ),
-                          );
+                                    Expanded(
+                                      flex: 4,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          CommonTextView(
+                                            label:
+                                                '${pr.priItemCode ?? '-'} - ${pr.priItemDesc ?? '-'}',
+                                            fontSize: context.resources
+                                                .dimension.appMediumText,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          CommonTextView(
+                                            label:
+                                                'Qty: ${pr.priItemQty ?? '-'}',
+                                            fontSize: context.resources
+                                                    .dimension.appMediumText -
+                                                2,
+                                            color: Colors.grey[700],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          CommonTextView(
+                                            label:
+                                                'Note to Buyer: ${pr.priNoteToBuyer ?? '-'}',
+                                            fontSize: context.resources
+                                                    .dimension.appMediumText -
+                                                2,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (hasInfo)
+                                      IconButton(
+                                        icon: const Icon(Icons.info_outline),
+                                        onPressed: () {
+                                          _showManufacturerSupplierSheet(pr);
+                                        },
+                                      ),
+                                  ],
+                                ),
+                              ));
                         },
                       ),
                     ),
@@ -583,23 +589,44 @@ class _HeaderTabState extends State<_HeaderTab> {
           bool showSearch = true,
         }) {
           final controller = TextEditingController(
-            text: code.text.isNotEmpty
-                ? (desc.text.isNotEmpty
-                    ? '${code.text} - ${desc.text}'
-                    : code.text)
-                : desc.text,
-          );
+              text: code.text.isNotEmpty
+                  ? (desc.text.isNotEmpty
+                      ? '${code.text} - ${desc.text}'
+                      : code.text)
+                  : desc.text);
+          void handleTap() {
+            if (label == 'Reference*') {
+              Provider.of<PoApplicationVm>(context, listen: false)
+                  .searchReference(context);
+            } else {
+              Provider.of<PoApplicationVm>(context, listen: false)
+                  .searchField(context, label);
+            }
+          }
+
           return labelWithField(
-            label: label,
-            field: CommonTextFormField(
               label: label,
-              controller: controller,
-              enabled: false,
-              height: 36,
-              hintFontSize: 12,
-              suffixWidget: showSearch ? const Icon(Icons.search) : null,
-            ),
-          );
+              field: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: showSearch ? handleTap : null,
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: CommonTextFormField(
+                    label: label,
+                    controller: controller,
+                    enabled: false,
+                    height: 36,
+                    hintFontSize: 12,
+                    suffixWidget: showSearch
+                        ? const Icon(
+                            Icons.search,
+                            size:
+                                12, // Decrease the size of the search icon here
+                          )
+                        : null,
+                  ),
+                ),
+              ));
         }
 
         return Padding(
@@ -847,15 +874,21 @@ class _HeaderTabState extends State<_HeaderTab> {
     dH = MediaQuery.of(context).size.height;
     tS = dW * 0.045;
     final vm = Provider.of<PoApplicationVm>(context);
-    InputDecoration deco(String hint, {Widget? suffix}) =>
-        const InputDecoration();
+
+    InputDecoration deco(String hint, {Widget? suffix}) => InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(
+            fontSize: tS * 0.6,
+          ),
+          suffixIcon: suffix,
+        );
 
     Widget labelWithField({
       required String label,
       required Widget field,
     }) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        padding: EdgeInsets.symmetric(vertical: dH * 0.01),
         child: Row(children: [
           Expanded(
               flex: 3,
@@ -863,7 +896,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                 label: label,
                 maxLine: 1,
                 overFlow: TextOverflow.ellipsis,
-                fontSize: context.resources.dimension.appSmallText,
+                fontSize: tS * 0.75,
               )),
           Expanded(flex: 7, child: field),
         ]),
@@ -882,20 +915,43 @@ class _HeaderTabState extends State<_HeaderTab> {
                   ? '${code.text} - ${desc.text}'
                   : code.text)
               : desc.text);
+      void handleTap() {
+        if (label == 'Reference*') {
+          Provider.of<PoApplicationVm>(context, listen: false)
+              .searchReference(context);
+        } else {
+          Provider.of<PoApplicationVm>(context, listen: false)
+              .searchField(context, label);
+        }
+      }
+
       return labelWithField(
           label: label,
-          field: CommonTextFormField(
-            label: label,
-            controller: controller,
-            enabled: false,
-            height: 36,
-            hintFontSize: 12,
-            suffixWidget: showSearch ? const Icon(Icons.search) : null,
+          field: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: showSearch ? handleTap : null,
+            child: AbsorbPointer(
+              absorbing: true,
+              child: CommonTextFormField(
+                label: label,
+                controller: controller,
+                enabled: false,
+                height: dH * 0.05,
+                hintFontSize: tS * 0.75,
+                fontSize: tS * 0.75,
+                suffixWidget: showSearch
+                    ? Icon(
+                        Icons.search,
+                        size: tS * 1.2,
+                      )
+                    : null,
+              ),
+            ),
           ));
     }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(dW * 0.04),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -904,22 +960,22 @@ class _HeaderTabState extends State<_HeaderTab> {
               alignment: Alignment.centerLeft,
               child: CommonButton(
                 width: dW / 2.5,
-                height: 35,
+                height: dH * 0.05,
                 text: "Reference PR",
-                fontSize: context.resources.dimension.appMediumText,
+                fontSize: tS * 0.7,
                 onPressed: () {
                   _showReferencePRSheet();
                 },
-                borderRadius: 8.0,
+                borderRadius: dW * 0.02,
                 disable: false,
-                color: context.resources.color.themeColor,
+                // color: themeColor, // Use the locally defined themeColor
               ),
             ),
             PopupMenuButton<String>(
               icon: Icon(
                 Icons.more_vert,
-                color: context.resources.color.themeColor,
-                size: 20,
+                // color: themeColor,
+                size: tS * 1.5,
               ),
               onSelected: (value) {
                 if (value == 'create_supplier') {
@@ -929,13 +985,19 @@ class _HeaderTabState extends State<_HeaderTab> {
                 }
               },
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'create_supplier',
-                  child: CommonTextView(label: 'Create Supplier'),
+                  child: CommonTextView(
+                    label: 'Create Supplier',
+                    fontSize: tS * 0.9,
+                  ),
                 ),
-                const PopupMenuItem<String>(
+                PopupMenuItem<String>(
                   value: 'net_value',
-                  child: CommonTextView(label: 'Net Value'),
+                  child: CommonTextView(
+                    label: 'Net Value',
+                    fontSize: tS * 0.9,
+                  ),
                 ),
               ],
             )
@@ -954,23 +1016,67 @@ class _HeaderTabState extends State<_HeaderTab> {
             label: 'Ref. Doc.*',
             field: Row(children: [
               Expanded(
-                  child: CommonTextFormField(
-                label: 'Ref Doc Code',
-                controller: vm.refDocCodeCtrl,
-                enabled: !vm.isReferenceDirect,
-                height: 36,
-                hintFontSize: 12,
-                suffixWidget: const Icon(Icons.search),
-              )),
-              const SizedBox(width: 8),
+                  flex: 2,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: vm.isReferenceDirect
+                        ? null
+                        : () {
+                            Provider.of<PoApplicationVm>(context, listen: false)
+                                .searchRefTxnCode(context);
+                          },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Opacity(
+                        opacity: vm.isReferenceDirect ? 0.5 : 1.0,
+                        child: CommonTextFormField(
+                          label: 'Ref Doc Code',
+                          controller: vm.refDocCodeCtrl,
+                          enabled: false,
+                          height: dH * 0.05,
+                          hintFontSize: tS * 0.75,
+                          fontSize: tS * 0.75,
+                          suffixWidget: Icon(
+                            Icons.search,
+                            size: tS * 1.2,
+                            color: vm.isReferenceDirect ? Colors.grey : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )),
+              const SizedBox(width: 4),
               Expanded(
-                  child: CommonTextFormField(
-                label: 'Ref Doc No',
-                controller: vm.refDocNoCtrl,
-                enabled: !vm.isReferenceDirect,
-                height: 36,
-                hintFontSize: 12,
-              )),
+                  flex: 3,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: vm.isReferenceDirect
+                        ? null
+                        : () {
+                            Provider.of<PoApplicationVm>(context, listen: false)
+                                .searchRefDocNo(context);
+                          },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Opacity(
+                        opacity: vm.isReferenceDirect ? 0.5 : 1.0,
+                        child: CommonTextFormField(
+                          label: 'Ref Doc No',
+                          controller: vm.refDocNoCtrl,
+                          enabled: false,
+                          height: dH * 0.05,
+                          hintFontSize: tS * 0.75,
+                          fontSize: tS * 0.75,
+                          suffixWidget: vm.isReferenceDirect
+                              ? null
+                              : Icon(
+                                  Icons.search,
+                                  size: tS * 1.2,
+                                ),
+                        ),
+                      ),
+                    ),
+                  )),
             ])),
         combinedSearchField(
             label: 'Supplier*',
@@ -983,8 +1089,9 @@ class _HeaderTabState extends State<_HeaderTab> {
               label: 'Sup Offer No.',
               controller: vm.supOfferNoCtrl,
               enabled: false,
-              height: 36,
-              hintFontSize: 12,
+              height: dH * 0.05,
+              hintFontSize: tS * 0.75,
+              fontSize: tS * 0.75,
             )),
         labelWithField(
             label: 'Sup Offer Date*',
@@ -993,8 +1100,9 @@ class _HeaderTabState extends State<_HeaderTab> {
               controller: vm.supOfferDateCtrl,
               enabled: false,
               suffixWidget: const Icon(Icons.calendar_month),
-              height: 36,
-              hintFontSize: 12,
+              height: dH * 0.05,
+              hintFontSize: tS * 0.75,
+              fontSize: tS * 0.75,
             )),
         combinedSearchField(
             label: 'Currency*',
@@ -1007,8 +1115,9 @@ class _HeaderTabState extends State<_HeaderTab> {
               label: 'Exchange Rate*',
               controller: vm.exchangeRateCtrl,
               enabled: false,
-              height: 36,
-              hintFontSize: 12,
+              height: dH * 0.05,
+              hintFontSize: tS * 0.75,
+              fontSize: tS * 0.75,
             )),
         labelWithField(
             label: 'Discount / Value',
@@ -1018,8 +1127,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                 label: 'Discount',
                 controller: vm.discountCtrl,
                 enabled: true,
-                height: 36,
-                hintFontSize: 12,
+                height: dH * 0.05,
+                hintFontSize: tS * 0.75,
+                fontSize: tS * 0.75,
                 keyboardType: TextInputType.number,
                 onChanged: vm.onDiscountChanged,
               )),
@@ -1029,39 +1139,67 @@ class _HeaderTabState extends State<_HeaderTab> {
                 label: 'Value',
                 controller: vm.valueCtrl,
                 enabled: false,
-                height: 36,
-                hintFontSize: 12,
+                height: dH * 0.05,
+                hintFontSize: tS * 0.75,
+                fontSize: tS * 0.75,
               )),
             ])),
         labelWithField(
             label: 'Payment Term*',
-            field: CommonTextFormField(
-              label: 'Payment Term*',
-              controller: vm.paymentTermCtrl,
-              enabled: false,
-              suffixWidget: const Icon(Icons.search),
-              height: 36,
-              hintFontSize: 12,
+            field: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Provider.of<PoApplicationVm>(context, listen: false)
+                  .searchField(context, 'Payment Term*'),
+              child: AbsorbPointer(
+                absorbing: true,
+                child: CommonTextFormField(
+                  label: 'Payment Term*',
+                  controller: vm.paymentTermCtrl,
+                  enabled: false,
+                  suffixWidget: const Icon(Icons.search),
+                  height: dH * 0.05,
+                  hintFontSize: tS * 0.75,
+                  fontSize: tS * 0.75,
+                ),
+              ),
             )),
         labelWithField(
             label: 'Mode of Shipment*',
-            field: CommonTextFormField(
-              label: 'Mode of Shipment*',
-              controller: vm.modeShipmentCtrl,
-              enabled: false,
-              suffixWidget: const Icon(Icons.search),
-              height: 36,
-              hintFontSize: 12,
+            field: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Provider.of<PoApplicationVm>(context, listen: false)
+                  .searchField(context, 'Mode of Shipment*'),
+              child: AbsorbPointer(
+                absorbing: true,
+                child: CommonTextFormField(
+                  label: 'Mode of Shipment*',
+                  controller: vm.modeShipmentCtrl,
+                  enabled: false,
+                  suffixWidget: const Icon(Icons.search),
+                  height: dH * 0.05,
+                  hintFontSize: tS * 0.75,
+                  fontSize: tS * 0.75,
+                ),
+              ),
             )),
         labelWithField(
             label: 'Mode of Payment*',
-            field: CommonTextFormField(
-              label: 'Mode of Payment*',
-              controller: vm.modePaymentCtrl,
-              enabled: false,
-              suffixWidget: const Icon(Icons.search),
-              height: 36,
-              hintFontSize: 12,
+            field: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Provider.of<PoApplicationVm>(context, listen: false)
+                  .searchField(context, 'Mode of Payment*'),
+              child: AbsorbPointer(
+                absorbing: true,
+                child: CommonTextFormField(
+                  label: 'Mode of Payment*',
+                  controller: vm.modePaymentCtrl,
+                  enabled: false,
+                  suffixWidget: const Icon(Icons.search),
+                  height: dH * 0.05,
+                  hintFontSize: tS * 0.75,
+                  fontSize: tS * 0.75,
+                ),
+              ),
             )),
         combinedSearchField(
             label: 'Charge Type*',
@@ -1100,8 +1238,9 @@ class _HeaderTabState extends State<_HeaderTab> {
               controller: vm.etaCtrl,
               enabled: false,
               suffixWidget: const Icon(Icons.calendar_month),
-              height: 36,
-              hintFontSize: 12,
+              height: dH * 0.05,
+              hintFontSize: tS * 0.75,
+              fontSize: tS * 0.75,
             )),
         combinedSearchField(
             label: 'Delivery Term*',
@@ -1115,13 +1254,16 @@ class _HeaderTabState extends State<_HeaderTab> {
               controller: vm.needByDateCtrl,
               enabled: false,
               suffixWidget: const Icon(Icons.calendar_month),
-              height: 36,
-              hintFontSize: 12,
+              height: dH * 0.05,
+              hintFontSize: tS * 0.75,
+              fontSize: tS * 0.75,
             )),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 6),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
           child: CommonTextView(
             label: 'Remark',
+            height: dH * 0.03,
+            fontSize: tS * 0.75,
             maxLine: 1,
             overFlow: TextOverflow.ellipsis,
           ),
@@ -1170,6 +1312,67 @@ class _HeaderSummary extends StatelessWidget {
 class _ItemDetailsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('Item details will be here'));
+    final vm = Provider.of<PoApplicationVm>(context);
+    final items = vm.purchaseOrderModel?.itemDetailsTab ?? [];
+    if (items.isEmpty) {
+      return const CommonEmptyList();
+    }
+
+    return SingleChildScrollView(
+      child: CustomViewOnlyTable(
+        data: items,
+        header1: 'Item Code',
+        header2: 'Item Desc',
+        isScrollable: false,
+        onOpen: (index) => vm.toggleItemOpen(index),
+        getHeader1: (data) => data.itemCode ?? '',
+        getHeader2: (data) => data.itemDesc ?? '',
+
+        // Rows
+        isRow1: true,
+        row1Title: 'UOM',
+        row1Label: (data) => data.uom ?? '',
+
+        isRow2: true,
+        row2Title: 'Quantity',
+        row2Label: (data) => data.quantity ?? '',
+
+        isRow3: true,
+        row3Title: 'Unit Price',
+        row3Label: (data) => data.unitPrice ?? '',
+
+        isRow4: true,
+        row4Title: 'Gross Value',
+        row4Label: (data) => data.grossValue ?? '',
+
+        isRow5: true,
+        row5Title: 'Discount %',
+        row5Label: (data) => data.discountPer ?? '',
+
+        isRow6: true,
+        row6Title: 'Discount Val',
+        row6Label: (data) => data.discountVal ?? '',
+
+        isRow7: true,
+        row7Title: 'Net Value',
+        row7Label: (data) => data.netValue ?? '',
+
+        isRow8: true,
+        row8Title: 'GL Code',
+        row8Label: (data) => data.glCode ?? '',
+
+        isRow9: true,
+        row9Title: 'GL Desc',
+        row9Label: (data) => data.glDesc ?? '',
+
+        isRow10: true,
+        row10Title: 'Need By',
+        row10Label: (data) => data.needByDt ?? '',
+
+        isRow11: true,
+        row11Title: 'ETA',
+        row11Label: (data) => data.etaDate ?? '',
+      ),
+    );
   }
 }

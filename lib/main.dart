@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // Import for SystemChrome
 import 'package:petty_cash/AppProviders.dart';
 import 'package:petty_cash/data/sources/my_http_overrides.dart';
 import 'package:petty_cash/fcm/firebase_api.dart';
@@ -16,7 +17,14 @@ import 'package:petty_cash/utils/app_utils.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // init firebase
+
+  // Lock the app in portrait mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
+  // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseApi().initNotifications();
 

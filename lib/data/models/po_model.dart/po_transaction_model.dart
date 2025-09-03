@@ -1,4 +1,7 @@
-// ignore_for_file: unnecessary_new, prefer_collection_literals, unnecessary_this
+// ignore_for_file: unnecessary_this, unnecessary_new, prefer_collection_literals
+
+import 'package:petty_cash/data/models/common/common_work_flow_model.dart';
+import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 
 class PurchaseOrderModel {
   bool? error;
@@ -8,12 +11,12 @@ class PurchaseOrderModel {
   String? uniqueVal;
   int? headerId;
   HeaderTab? headerTab;
-  List<Null>? headerAttachmentLst;
-  List<Null>? createSupplier;
-  List<Null>? referencePR;
+  List<HeaderAttchLst>? headerAttachmentLst;
+  List<CreateSupplier>? createSupplier;
+  List<PurchaserequestReferenceModel>? referencePR;
   List<HeaderNetValPopup>? headerNetValPopup;
   List<ItemDetailsTab>? itemDetailsTab;
-  List<Null>? apprvlLvlStatus;
+  List<ApprvlLvlStatus>? apprvlLvlStatus;
   String? workFlowPendingUser;
   String? wfSubject;
   int? parentNotificationType;
@@ -54,24 +57,24 @@ class PurchaseOrderModel {
     headerTab = json['header_tab'] != null
         ? new HeaderTab.fromJson(json['header_tab'])
         : null;
-    // if (json['header_attachment_lst'] != null) {
-    //   headerAttachmentLst = <Null>[];
-    //   json['header_attachment_lst'].forEach((v) {
-    //     headerAttachmentLst!.add(new Null.fromJson(v));
-    //   });
-    // }
-    // if (json['create_supplier'] != null) {
-    //   createSupplier = <Null>[];
-    //   json['create_supplier'].forEach((v) {
-    //     createSupplier!.add(new Null.fromJson(v));
-    //   });
-    // }
-    // if (json['Reference_PR'] != null) {
-    //   referencePR = <Null>[];
-    //   json['Reference_PR'].forEach((v) {
-    //     referencePR!.add(new Null.fromJson(v));
-    //   });
-    // }
+    if (json['header_attachment_lst'] != null) {
+      headerAttachmentLst = <HeaderAttchLst>[];
+      json['header_attachment_lst'].forEach((v) {
+        headerAttachmentLst!.add(new HeaderAttchLst.fromJson(v));
+      });
+    }
+    if (json['create_supplier'] != null) {
+      createSupplier = <CreateSupplier>[];
+      json['create_supplier'].forEach((v) {
+        createSupplier!.add(new CreateSupplier.fromJson(v));
+      });
+    }
+    if (json['Reference_PR'] != null) {
+      referencePR = <PurchaserequestReferenceModel>[];
+      json['Reference_PR'].forEach((v) {
+        referencePR!.add(new PurchaserequestReferenceModel.fromJson(v));
+      });
+    }
     if (json['header_net_val_popup'] != null) {
       headerNetValPopup = <HeaderNetValPopup>[];
       json['header_net_val_popup'].forEach((v) {
@@ -84,12 +87,12 @@ class PurchaseOrderModel {
         itemDetailsTab!.add(new ItemDetailsTab.fromJson(v));
       });
     }
-    // if (json['apprvl_lvl_status'] != null) {
-    //   apprvlLvlStatus = <Null>[];
-    //   json['apprvl_lvl_status'].forEach((v) {
-    //     apprvlLvlStatus!.add(new Null.fromJson(v));
-    //   });
-    // }
+    if (json['apprvl_lvl_status'] != null) {
+      apprvlLvlStatus = <ApprvlLvlStatus>[];
+      json['apprvl_lvl_status'].forEach((v) {
+        apprvlLvlStatus!.add(new ApprvlLvlStatus.fromJson(v));
+      });
+    }
     workFlowPendingUser = json['work_flow_pending_user'];
     wfSubject = json['wf_subject'];
     parentNotificationType = json['parent_notification_type'];
@@ -115,17 +118,17 @@ class PurchaseOrderModel {
     if (this.headerTab != null) {
       data['header_tab'] = this.headerTab!.toJson();
     }
-    // if (this.headerAttachmentLst != null) {
-    //   data['header_attachment_lst'] =
-    //       this.headerAttachmentLst!.map((v) => v.toJson()).toList();
-    // }
-    // if (this.createSupplier != null) {
-    //   data['create_supplier'] =
-    //       this.createSupplier!.map((v) => v.toJson()).toList();
-    // }
-    // if (this.referencePR != null) {
-    //   data['Reference_PR'] = this.referencePR!.map((v) => v.toJson()).toList();
-    // }
+    if (this.headerAttachmentLst != null) {
+      data['header_attachment_lst'] =
+          this.headerAttachmentLst!.map((v) => v.toJson()).toList();
+    }
+    if (this.createSupplier != null) {
+      data['create_supplier'] =
+          this.createSupplier!.map((v) => v.toJson()).toList();
+    }
+    if (this.referencePR != null) {
+      data['Reference_PR'] = this.referencePR!.map((v) => v.toJson()).toList();
+    }
     if (this.headerNetValPopup != null) {
       data['header_net_val_popup'] =
           this.headerNetValPopup!.map((v) => v.toJson()).toList();
@@ -134,10 +137,10 @@ class PurchaseOrderModel {
       data['item_details_tab'] =
           this.itemDetailsTab!.map((v) => v.toJson()).toList();
     }
-    // if (this.apprvlLvlStatus != null) {
-    //   data['apprvl_lvl_status'] =
-    //       this.apprvlLvlStatus!.map((v) => v.toJson()).toList();
-    // }
+    if (this.apprvlLvlStatus != null) {
+      data['apprvl_lvl_status'] =
+          this.apprvlLvlStatus!.map((v) => v.toJson()).toList();
+    }
     data['work_flow_pending_user'] = this.workFlowPendingUser;
     data['wf_subject'] = this.wfSubject;
     data['parent_notification_type'] = this.parentNotificationType;
@@ -401,6 +404,92 @@ class HeaderTab {
   }
 }
 
+class CreateSupplier {
+  String? crSuppCode;
+  String? crSuppDesc;
+  int? crSuppTypeId;
+  String? crSuppTypeCode;
+  String? crSuppTypeDesc;
+  int? crSuppAddressId;
+  String? crSuppAddressCode;
+  String? crSuppAddressDesc;
+  List<SuppValidation>? suppValidation;
+
+  CreateSupplier(
+      {this.crSuppCode,
+      this.crSuppDesc,
+      this.crSuppTypeId,
+      this.crSuppTypeCode,
+      this.crSuppTypeDesc,
+      this.crSuppAddressId,
+      this.crSuppAddressCode,
+      this.crSuppAddressDesc,
+      this.suppValidation});
+
+  CreateSupplier.fromJson(Map<String, dynamic> json) {
+    crSuppCode = json['cr_supp_code'];
+    crSuppDesc = json['cr_supp_desc'];
+    crSuppTypeId = json['cr_supp_type_id'];
+    crSuppTypeCode = json['cr_supp_type_code'];
+    crSuppTypeDesc = json['cr_supp_type_desc'];
+    crSuppAddressId = json['cr_supp_address_id'];
+    crSuppAddressCode = json['cr_supp_address_code'];
+    crSuppAddressDesc = json['cr_supp_address_desc'];
+    if (json['supp_validation'] != null) {
+      suppValidation = <SuppValidation>[];
+      json['supp_validation'].forEach((v) {
+        suppValidation!.add(new SuppValidation.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['cr_supp_code'] = this.crSuppCode;
+    data['cr_supp_desc'] = this.crSuppDesc;
+    data['cr_supp_type_id'] = this.crSuppTypeId;
+    data['cr_supp_type_code'] = this.crSuppTypeCode;
+    data['cr_supp_type_desc'] = this.crSuppTypeDesc;
+    data['cr_supp_address_id'] = this.crSuppAddressId;
+    data['cr_supp_address_code'] = this.crSuppAddressCode;
+    data['cr_supp_address_desc'] = this.crSuppAddressDesc;
+    if (this.suppValidation != null) {
+      data['supp_validation'] =
+          this.suppValidation!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class SuppValidation {
+  int? validationTypeId;
+  String? validationTypeName;
+  String? validationNumber;
+  String? validationExpyDate;
+
+  SuppValidation(
+      {this.validationTypeId,
+      this.validationTypeName,
+      this.validationNumber,
+      this.validationExpyDate});
+
+  SuppValidation.fromJson(Map<String, dynamic> json) {
+    validationTypeId = json['validation_type_id'];
+    validationTypeName = json['validation_type_name'];
+    validationNumber = json['validation_number'];
+    validationExpyDate = json['validation_expy_date'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['validation_type_id'] = this.validationTypeId;
+    data['validation_type_name'] = this.validationTypeName;
+    data['validation_number'] = this.validationNumber;
+    data['validation_expy_date'] = this.validationExpyDate;
+    return data;
+  }
+}
+
 class HeaderNetValPopup {
   String? itemGrossValue;
   String? itemDiscount;
@@ -499,7 +588,8 @@ class ItemDetailsTab {
   String? glDesc;
   String? noteToReceiver;
   List<TaxPopup>? taxPopup;
-  List<Null>? itemLineAttachment;
+  List<LineItemAttachment>? itemLineAttachment;
+  bool? isOpen;
 
   ItemDetailsTab(
       {this.srNo,
@@ -538,7 +628,8 @@ class ItemDetailsTab {
       this.glDesc,
       this.noteToReceiver,
       this.taxPopup,
-      this.itemLineAttachment});
+      this.itemLineAttachment,
+      this.isOpen});
 
   ItemDetailsTab.fromJson(Map<String, dynamic> json) {
     srNo = json['sr_no'];
@@ -582,12 +673,13 @@ class ItemDetailsTab {
         taxPopup!.add(new TaxPopup.fromJson(v));
       });
     }
-    // if (json['item_line_attachment'] != null) {
-    //   itemLineAttachment = <Null>[];
-    //   json['item_line_attachment'].forEach((v) {
-    //     itemLineAttachment!.add(new Null.fromJson(v));
-    //   });
-    // }
+    if (json['item_line_attachment'] != null) {
+      itemLineAttachment = <LineItemAttachment>[];
+      json['item_line_attachment'].forEach((v) {
+        itemLineAttachment!.add(new LineItemAttachment.fromJson(v));
+      });
+    }
+    isOpen = false;
   }
 
   Map<String, dynamic> toJson() {
@@ -630,10 +722,10 @@ class ItemDetailsTab {
     if (this.taxPopup != null) {
       data['tax_popup'] = this.taxPopup!.map((v) => v.toJson()).toList();
     }
-    // if (this.itemLineAttachment != null) {
-    //   data['item_line_attachment'] =
-    //       this.itemLineAttachment!.map((v) => v.toJson()).toList();
-    // }
+    if (this.itemLineAttachment != null) {
+      data['item_line_attachment'] =
+          this.itemLineAttachment!.map((v) => v.toJson()).toList();
+    }
     return data;
   }
 }
@@ -710,6 +802,102 @@ class WorkFlowIcons {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['name'] = this.name;
     data['icon'] = this.icon;
+    return data;
+  }
+}
+
+class HeaderAttchLst {
+  String? docAttachCode;
+  int? docAttachId;
+  String? docAttachName;
+  String? docAttachUrl;
+  String? docType;
+  int? docTypeId;
+  String? docTitle;
+  int type = 0;
+  String url = '';
+  String? lineId;
+
+  HeaderAttchLst(
+      {this.docAttachCode,
+      this.docAttachId,
+      this.docAttachName,
+      this.docAttachUrl,
+      this.docType,
+      this.docTypeId,
+      this.docTitle,
+      type,
+      url,
+      this.lineId});
+
+  HeaderAttchLst.fromJson(Map<String, dynamic> json) {
+    docAttachCode = json['doc_attach_code'];
+    docAttachId = json['doc_attach_id'];
+    docAttachName = json['doc_attach_name'];
+    docAttachUrl = json['doc_attach_url'];
+    docType = json['doc_type'];
+    docTypeId = json['doc_type_id'];
+    docTitle = json['doc_title'];
+    lineId = json['line_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['doc_attach_code'] = docAttachCode;
+    data['doc_attach_id'] = docAttachId;
+    data['doc_attach_name'] = docAttachName;
+    data['doc_attach_url'] = docAttachUrl;
+    data['doc_type'] = docType;
+    data['doc_type_id'] = docTypeId;
+    data['doc_title'] = docTitle;
+    data['line_id'] = lineId;
+    return data;
+  }
+}
+
+class LineItemAttachment {
+  String? docAttachCode;
+  int? docAttachId;
+  String? docAttachName;
+  String? docAttachUrl;
+  String? lineId;
+  String? docType;
+  int? docTypeId;
+  String? docTitle;
+
+  LineItemAttachment({
+    this.docAttachCode,
+    this.docAttachId,
+    this.docAttachName,
+    this.docAttachUrl,
+    this.lineId,
+    this.docType,
+    this.docTypeId,
+    this.docTitle,
+  });
+
+  // From JSON constructor
+  LineItemAttachment.fromJson(Map<String, dynamic> json)
+      : docAttachCode = json['doc_attach_code'],
+        docAttachId = json['doc_attach_id'],
+        docAttachName = json['doc_attach_name'],
+        docAttachUrl = json['doc_attach_url'],
+        lineId = json['line_id'],
+        docType = json['doc_type'],
+        docTypeId = json['doc_type_id'],
+        docTitle = json['doc_title'];
+
+  // To JSON method
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['doc_attach_code'] = this.docAttachCode;
+    data['doc_attach_id'] = this.docAttachId;
+    data['doc_attach_name'] = this.docAttachName;
+    data['doc_attach_url'] = this.docAttachUrl;
+    data['line_id'] = this.lineId;
+    data['doc_type'] = this.docType;
+    data['doc_type_id'] = this.docTypeId;
+    data['doc_title'] = this.docTitle;
     return data;
   }
 }

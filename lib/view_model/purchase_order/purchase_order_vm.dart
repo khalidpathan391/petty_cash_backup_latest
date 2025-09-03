@@ -1,13 +1,15 @@
-// ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously
+// ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:petty_cash/data/models/common/common_searching_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 import 'package:petty_cash/data/models/po_model.dart/po_transaction_model.dart';
 import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/global.dart';
 
 import 'package:petty_cash/data/repository/general_rep.dart';
+import 'package:petty_cash/view/po_transaction/common/CommonPaginationSearching.dart';
 
 class PoApplicationVm extends ChangeNotifier {
   final GeneralRepository _myRepo = GeneralRepository();
@@ -61,6 +63,8 @@ class PoApplicationVm extends ChangeNotifier {
   bool isWFTab = false;
   bool isLoanDetals = false;
   bool isPaymentDetails = false;
+  int supp_id = 0;
+  String chargeTypeCode = '';
 
   // Header controllers
   final TextEditingController docDateCtrl = TextEditingController();
@@ -200,6 +204,12 @@ class PoApplicationVm extends ChangeNotifier {
         if (purchaseOrderModel?.headerTab != null) {
           _applyHeaderData(purchaseOrderModel!.headerTab!.toJson());
           hasDataLoaded = true;
+        }
+        // Initialize isOpen for item lines to support UI expansion
+        if (purchaseOrderModel?.itemDetailsTab != null) {
+          for (final item in purchaseOrderModel!.itemDetailsTab!) {
+            item.isOpen = false;
+          }
         } else {
           // Fallback empty HeaderTab to avoid UI issues
           // poDefaultModel!.headerTab =
@@ -276,6 +286,214 @@ class PoApplicationVm extends ChangeNotifier {
   }
 
   String _s(dynamic v) => v == null ? '' : v.toString();
+
+  void toggleItemOpen(int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null) return;
+    if (index < 0 || index >= purchaseOrderModel!.itemDetailsTab!.length)
+      return;
+    final current = purchaseOrderModel!.itemDetailsTab![index].isOpen ?? false;
+    purchaseOrderModel!.itemDetailsTab![index].isOpen = !current;
+    if (!_isDisposed) notifyListeners();
+  }
+
+  // ===================== Reference Search Flow =====================
+  Future<void> searchReference(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaginationSearching(
+          url: ApiUrl.baseUrl! + ApiUrl.commonReferenceSearch,
+          searchType: '',
+          searchKeyWord: '',
+          txnType: 'PO',
+          isItem: true,
+        ),
+      ),
+    );
+
+    if (result != null && result is SearchList) {
+      referenceCtrl.text = result.code ?? '';
+      referenceDescCtrl.text = result.desc ?? '';
+      setReferenceSelected(
+          referenceDescCtrl.text.isEmpty ? 'DIRECT' : referenceDescCtrl.text);
+      // Clear dependent ref doc fields
+      refDocCodeCtrl.clear();
+      refDocNoCtrl.clear();
+      referenceId = result.id ?? 0;
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  Future<void> searchRefTxnCode(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaginationSearching(
+          url: ApiUrl.baseUrl! + ApiUrl.getCommonRefTxnCodeList,
+          searchType: '',
+          searchKeyWord: '',
+          txnType: '',
+          isItem: true,
+          isMenuId: true,
+          refId: referenceId.toString(),
+          refTxntype: '',
+        ),
+      ),
+    );
+
+    if (result != null && result is SearchList) {
+      refDocCodeCtrl.text = result.code ?? '';
+      refTxnType = result.code ?? '';
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  Future<void> searchRefDocNo(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaginationSearching(
+          url: ApiUrl.baseUrl! + ApiUrl.getRefDocNoList,
+          searchType: '',
+          searchKeyWord: '',
+          txnType: 'PO',
+          isItem: true,
+          isMenuId: true,
+          refId: '',
+          refTxntype: refTxnType.toString(),
+        ),
+      ),
+    );
+
+    if (result != null && result is SearchList) {
+      refDocNoCtrl.text = result.desc ?? '';
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  // ===================== Generic Searches =====================
+  Future<void> searchField(BuildContext context, String fieldName) async {
+    String searchType = '';
+
+    switch (fieldName) {
+      case 'Doc. Loc.*':
+        searchType = 'Location';
+        break;
+      case 'Supplier*':
+        searchType = 'Supplier';
+        break;
+      case 'Currency*':
+        searchType = 'Currency';
+
+        break;
+      case 'Payment Term*':
+        searchType = 'PAYMENT_TERM';
+        break;
+      case 'Mode of Shipment*':
+        searchType = 'MODE_OF_SHIPMENT';
+        break;
+      case 'Mode of Payment*':
+        searchType = 'MODE_OF_PAYMENT';
+        break;
+      case 'Charge Type*':
+        searchType = 'CHARGE_TYPE';
+        break;
+      case 'Charge To*':
+        searchType = 'CHARGE_TO';
+        break;
+      case 'Ship to Store Loc*':
+        searchType = 'STORE_LOCATION';
+        break;
+      case 'Purchase Type*':
+        searchType = 'PURCHASE_TYPE';
+        break;
+      case 'Petty Cash No*':
+        searchType = 'PETTY_CASH_NO';
+        break;
+      case 'Buyer ID*':
+        searchType = 'BUYER_ID';
+        break;
+      case 'Delivery Term*':
+        searchType = 'DELIVERY_TERM';
+        break;
+      default:
+        searchType = '';
+    }
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaginationSearching(
+          url: ApiUrl.baseUrl! + ApiUrl.commonSearching,
+          searchType: searchType,
+          searchKeyWord: '',
+          txnType: 'PO',
+          isItem: true,
+          isMenuId: true,
+          supp_id: supp_id.toString(),
+          chargeTypeCode: chargeTypeCode
+              .toString(), // Pass `chargeTypeCode` only if it's set
+        ),
+      ),
+    );
+
+    if (result != null && result is SearchList) {
+      switch (fieldName) {
+        case 'Doc. Loc.*':
+          docLocCodeCtrl.text = result.code ?? '';
+          docLocDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Supplier*':
+          supplierCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          supp_id = result.id ?? 0;
+          break;
+        case 'Currency*':
+          currencyCodeCtrl.text = result.code ?? '';
+          currencyDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Payment Term*':
+          paymentTermCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          break;
+        case 'Mode of Shipment*':
+          modeShipmentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          break;
+        case 'Mode of Payment*':
+          modePaymentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          break;
+        case 'Charge Type*':
+          chargeTypeCodeCtrl.text = result.code ?? '';
+          chargeTypeDescCtrl.text = result.desc ?? '';
+          chargeTypeCode = result.code ?? ''; // Update chargeTypeCode
+          break;
+        case 'Charge To*':
+          chargeToCodeCtrl.text = result.code ?? '';
+          chargeToDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Ship to Store Loc*':
+          shipToStoreCodeCtrl.text = result.code ?? '';
+          shipToStoreDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Purchase Type*':
+          purchaseTypeCodeCtrl.text = result.code ?? '';
+          purchaseTypeDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Petty Cash No*':
+          pettyCashCodeCtrl.text = result.code ?? '';
+          pettyCashDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Buyer ID*':
+          buyerCodeCtrl.text = result.code ?? '';
+          buyerDescCtrl.text = result.desc ?? '';
+          break;
+        case 'Delivery Term*':
+          deliveryTermCodeCtrl.text = result.code ?? '';
+          deliveryTermDescCtrl.text = result.desc ?? '';
+          break;
+      }
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
   // reference pr api
   void setReferenceLoading(bool val) {
     isReferenceLoading = val;
@@ -290,8 +508,7 @@ class PoApplicationVm extends ChangeNotifier {
       String url = ApiUrl.baseUrl! + ApiUrl.getPrReference;
       final response = await _myRepo.postApi(url, {
         'company_id': Global.empData!.companyId.toString(),
-        'user_id': '20273'
-        //  Global.empData!.userId.toString(),
+        'user_id': Global.empData!.userId.toString(),
       });
 
       if (response != null) {

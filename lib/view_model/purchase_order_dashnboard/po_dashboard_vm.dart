@@ -164,7 +164,8 @@ class PoDashboardVm extends ChangeNotifier {
   Map<String, String> getData() {
     return {
       'company_id': Global.empData!.companyId.toString(),
-      'user_id': '20273', // dynamic user
+      'user_id': Global.empData!.userId.toString(),
+      // 'user_id': '20273', // dynamic user
     };
   }
 }

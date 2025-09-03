@@ -49,4 +49,8 @@ class ApiUrl {
   static var getPettyCashAnalysis = 'erp_api/PettyCashAnalysis/';
   static var getPRAnalysis = 'erp_api/PRDashboardInPO/';
   static var getGrnnalysis = 'erp_api/GRNDashboardInPO/';
+  static var commonSearching = 'erp_api/POSearchingApi/';
+  static var getCommonReference = 'erp_api/CommonReferenceList/';
+  static var getCommonRefTxnCodeList = 'erp_api/CommonReferenceTxnCodeList/';
+  static var getRefDocNoList = 'erp_api/CommonReferenceDocNoList/';
 }

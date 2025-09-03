@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/SendanWorkspace/FlutterApps/petty_cash/windows"
+    "cmake.sourceDirectory": "D:/SendanWorkspace/FlutterApps/petty_cash/windows",
+    "github.copilot.nextEditSuggestions.enabled": true
 }
