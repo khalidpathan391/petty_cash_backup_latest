@@ -35,6 +35,7 @@ class PaginationSearching extends StatefulWidget {
   final String? headerId;
   final String title;
   final String? lookupCode;
+  final String? supplierId;
 
   const PaginationSearching({
     Key? key,
@@ -56,6 +57,7 @@ class PaginationSearching extends StatefulWidget {
     this.headerId,
     this.title = 'Common Searching',
     this.lookupCode,
+    this.supplierId,
   }) : super(key: key);
 
   @override
@@ -108,6 +110,7 @@ class PaginationSearchingState extends State<PaginationSearching> {
       'header_id': widget.headerId ?? '',
       'search_val': search,
       'lookup_code': widget.lookupCode ?? '',
+      'supplier_id': widget.supplierId ?? '',
     };
     return data;
   }

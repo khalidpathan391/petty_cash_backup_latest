@@ -23,7 +23,7 @@ class ApiUrl {
   static var hseActionNCategorySearch =
       'erp_api/sor_get_action_type_or_category/';
 
-  // here  below amala api
+  // here  below Petty cash  api
 
   static var signUp = 'api/users/signup/';
   static var setProfile = 'api/users/setprofile/';
@@ -53,4 +53,5 @@ class ApiUrl {
   static var getCommonReference = 'erp_api/CommonReferenceList/';
   static var getCommonRefTxnCodeList = 'erp_api/CommonReferenceTxnCodeList/';
   static var getRefDocNoList = 'erp_api/CommonReferenceDocNoList/';
+  static var getItemDetailsSearch = 'erp_api/PurchaseOrderItemDetailSearch/';
 }
