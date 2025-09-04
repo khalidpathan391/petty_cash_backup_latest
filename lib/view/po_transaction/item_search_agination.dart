@@ -22,7 +22,7 @@ class PoItemDetailsSeraching extends StatefulWidget {
   final String searchType;
   final String txnType;
   final String searchKeyWord;
-  final String? ID;
+
   final String? refTxntype;
   final String? actvityId;
   final String? categoryId;
@@ -38,7 +38,6 @@ class PoItemDetailsSeraching extends StatefulWidget {
     required this.searchType,
     required this.txnType,
     required this.searchKeyWord,
-    this.ID,
     this.refTxntype,
     this.isMenuId = false,
     this.isAsset = false,
@@ -86,7 +85,6 @@ class WorkOrdeSrearchingState extends State<PoItemDetailsSeraching> {
       'search_type': widget.searchType,
       'txn_type': widget.txnType,
       'next_page_no': pageIndex.toString(),
-      'own_dept_id': widget.ID,
       'ref_txn_type': widget.refTxntype ?? '',
       'activity_id': widget.actvityId ?? '',
       'category_id': widget.categoryId ?? '',
