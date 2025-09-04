@@ -322,6 +322,131 @@ class CustomViewOnlyTable extends StatelessWidget {
   final double row15IconSize;
   final bool isRow15Search;
 
+// Row 16
+  final bool isRow16;
+  final bool isSelect2Row16;
+  final String row16Title;
+  final Function(dynamic)? row16Label;
+  final bool isTextRow16;
+  final Function(int)? row16Controller;
+  final Function(String, int)? row16TextOnChange;
+  final TextInputType row16KeyboardType;
+  final dynamic row16Decoration;
+  final bool isIconRow16;
+  final Function(int)? row16Tap;
+  final Function(int)? row16IconData;
+  final int row16IconTurns;
+  final Color row16IconColor;
+  final double row16IconSize;
+  final bool isRow16Search;
+
+// Row 17
+  final bool isRow17;
+  final bool isSelect2Row17;
+  final String row17Title;
+  final Function(dynamic)? row17Label;
+  final bool isTextRow17;
+  final Function(int)? row17Controller;
+  final Function(String, int)? row17TextOnChange;
+  final TextInputType row17KeyboardType;
+  final dynamic row17Decoration;
+  final bool isIconRow17;
+  final Function(int)? row17Tap;
+  final Function(int)? row17IconData;
+  final int row17IconTurns;
+  final Color row17IconColor;
+  final double row17IconSize;
+  final bool isRow17Search;
+
+// Row 18
+  final bool isRow18;
+  final bool isSelect2Row18;
+  final String row18Title;
+  final Function(dynamic)? row18Label;
+  final bool isTextRow18;
+  final Function(int)? row18Controller;
+  final Function(String, int)? row18TextOnChange;
+  final TextInputType row18KeyboardType;
+  final dynamic row18Decoration;
+  final bool isIconRow18;
+  final Function(int)? row18Tap;
+  final Function(int)? row18IconData;
+  final int row18IconTurns;
+  final Color row18IconColor;
+  final double row18IconSize;
+  final bool isRow18Search;
+
+// Row 19
+  final bool isRow19;
+  final bool isSelect2Row19;
+  final String row19Title;
+  final Function(dynamic)? row19Label;
+  final bool isTextRow19;
+  final Function(int)? row19Controller;
+  final Function(String, int)? row19TextOnChange;
+  final TextInputType row19KeyboardType;
+  final dynamic row19Decoration;
+  final bool isIconRow19;
+  final Function(int)? row19Tap;
+  final Function(int)? row19IconData;
+  final int row19IconTurns;
+  final Color row19IconColor;
+  final double row19IconSize;
+  final bool isRow19Search;
+
+// Row 20
+  final bool isRow20;
+  final bool isSelect2Row20;
+  final String row20Title;
+  final Function(dynamic)? row20Label;
+  final bool isTextRow20;
+  final Function(int)? row20Controller;
+  final Function(String, int)? row20TextOnChange;
+  final TextInputType row20KeyboardType;
+  final dynamic row20Decoration;
+  final bool isIconRow20;
+  final Function(int)? row20Tap;
+  final Function(int)? row20IconData;
+  final int row20IconTurns;
+  final Color row20IconColor;
+  final double row20IconSize;
+  final bool isRow20Search;
+
+// Row 21
+  final bool isRow21;
+  final bool isSelect2Row21;
+  final String row21Title;
+  final Function(dynamic)? row21Label;
+  final bool isTextRow21;
+  final Function(int)? row21Controller;
+  final Function(String, int)? row21TextOnChange;
+  final TextInputType row21KeyboardType;
+  final dynamic row21Decoration;
+  final bool isIconRow21;
+  final Function(int)? row21Tap;
+  final Function(int)? row21IconData;
+  final int row21IconTurns;
+  final Color row21IconColor;
+  final double row21IconSize;
+  final bool isRow21Search;
+// Row 22
+  final bool isRow22;
+  final bool isSelect2Row22;
+  final String row22Title;
+  final Function(dynamic)? row22Label;
+  final bool isTextRow22;
+  final Function(int)? row22Controller;
+  final Function(String, int)? row22TextOnChange;
+  final TextInputType row22KeyboardType;
+  final dynamic row22Decoration;
+  final bool isIconRow22;
+  final Function(int)? row22Tap;
+  final Function(int)? row22IconData;
+  final int row22IconTurns;
+  final Color row22IconColor;
+  final double row22IconSize;
+  final bool isRow22Search;
+
   const CustomViewOnlyTable({
     required this.data,
     this.isTitle = false,
@@ -614,6 +739,132 @@ class CustomViewOnlyTable extends StatelessWidget {
     this.row15IconColor = Colors.black,
     this.row15IconSize = 15,
     this.isRow15Search = false,
+
+    // Row 16
+    this.isRow16 = false,
+    this.isSelect2Row16 = true,
+    this.row16Title = 'default16',
+    this.row16Label,
+    this.isTextRow16 = false,
+    this.row16Controller,
+    this.row16TextOnChange,
+    this.row16KeyboardType = TextInputType.text,
+    this.row16Decoration,
+    this.isIconRow16 = false,
+    this.row16Tap,
+    this.row16IconData,
+    this.row16IconTurns = 0,
+    this.row16IconColor = Colors.black,
+    this.row16IconSize = 15,
+    this.isRow16Search = false,
+
+    // Row 17
+    this.isRow17 = false,
+    this.isSelect2Row17 = true,
+    this.row17Title = 'default17',
+    this.row17Label,
+    this.isTextRow17 = false,
+    this.row17Controller,
+    this.row17TextOnChange,
+    this.row17KeyboardType = TextInputType.text,
+    this.row17Decoration,
+    this.isIconRow17 = false,
+    this.row17Tap,
+    this.row17IconData,
+    this.row17IconTurns = 0,
+    this.row17IconColor = Colors.black,
+    this.row17IconSize = 15,
+    this.isRow17Search = false,
+
+    // Row 18
+    this.isRow18 = false,
+    this.isSelect2Row18 = true,
+    this.row18Title = 'default18',
+    this.row18Label,
+    this.isTextRow18 = false,
+    this.row18Controller,
+    this.row18TextOnChange,
+    this.row18KeyboardType = TextInputType.text,
+    this.row18Decoration,
+    this.isIconRow18 = false,
+    this.row18Tap,
+    this.row18IconData,
+    this.row18IconTurns = 0,
+    this.row18IconColor = Colors.black,
+    this.row18IconSize = 15,
+    this.isRow18Search = false,
+
+    // Row 19
+    this.isRow19 = false,
+    this.isSelect2Row19 = true,
+    this.row19Title = 'default19',
+    this.row19Label,
+    this.isTextRow19 = false,
+    this.row19Controller,
+    this.row19TextOnChange,
+    this.row19KeyboardType = TextInputType.text,
+    this.row19Decoration,
+    this.isIconRow19 = false,
+    this.row19Tap,
+    this.row19IconData,
+    this.row19IconTurns = 0,
+    this.row19IconColor = Colors.black,
+    this.row19IconSize = 15,
+    this.isRow19Search = false,
+
+    // Row 20
+    this.isRow20 = false,
+    this.isSelect2Row20 = true,
+    this.row20Title = 'default20',
+    this.row20Label,
+    this.isTextRow20 = false,
+    this.row20Controller,
+    this.row20TextOnChange,
+    this.row20KeyboardType = TextInputType.text,
+    this.row20Decoration,
+    this.isIconRow20 = false,
+    this.row20Tap,
+    this.row20IconData,
+    this.row20IconTurns = 0,
+    this.row20IconColor = Colors.black,
+    this.row20IconSize = 15,
+    this.isRow20Search = false,
+
+    // Row 21
+    this.isRow21 = false,
+    this.isSelect2Row21 = true,
+    this.row21Title = 'default21',
+    this.row21Label,
+    this.isTextRow21 = false,
+    this.row21Controller,
+    this.row21TextOnChange,
+    this.row21KeyboardType = TextInputType.text,
+    this.row21Decoration,
+    this.isIconRow21 = false,
+    this.row21Tap,
+    this.row21IconData,
+    this.row21IconTurns = 0,
+    this.row21IconColor = Colors.black,
+    this.row21IconSize = 15,
+    this.isRow21Search = false,
+
+    // Row 22
+    this.isRow22 = false,
+    this.isSelect2Row22 = true,
+    this.row22Title = 'default22',
+    this.row22Label,
+    this.isTextRow22 = false,
+    this.row22Controller,
+    this.row22TextOnChange,
+    this.row22KeyboardType = TextInputType.text,
+    this.row22Decoration,
+    this.isIconRow22 = false,
+    this.row22Tap,
+    this.row22IconData,
+    this.row22IconTurns = 0,
+    this.row22IconColor = Colors.black,
+    this.row22IconSize = 15,
+    this.isRow22Search = false,
     super.key,
     this.header2KeyboardType = TextInputType.text,
   });
@@ -665,16 +916,16 @@ class CustomViewOnlyTable extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    MyHeaderData(
-                      title: header0,
-                      flex: 1,
-                      isIcon: isIconHeader0,
-                      onIconTap: () => header0IconTap!(index),
-                      iconData: header0IconData == null
-                          ? Icons.add
-                          : header0IconData!(index),
-                      iconColor: header0IconColor,
-                    ),
+                    // MyHeaderData(
+                    //   title: header0,
+                    //   flex: 1,
+                    //   isIcon: isIconHeader0,
+                    //   onIconTap: () => header0IconTap!(index),
+                    //   iconData: header0IconData == null
+                    //       ? Icons.add
+                    //       : header0IconData!(index),
+                    //   iconColor: header0IconColor,
+                    // ),
                     const RightBorder(),
                     MyHeaderData(
                       title: header1,
@@ -1297,6 +1548,202 @@ class CustomViewOnlyTable extends StatelessWidget {
                                 BoxDecoration(
                                     color: Colors.amber.withOpacity(.1)),
                             iconTurns: row15IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow16
+                        ? MyListRows(
+                            title: row16Title,
+                            isSelect2: isSelect2Row16,
+                            value: row16Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow16,
+                            controller: row16Controller == null
+                                ? TextEditingController()
+                                : row16Controller!(index),
+                            onChange: (val) => row16TextOnChange!(val, index),
+                            keyboardType: row16KeyboardType,
+                            isIcon: isIconRow16,
+                            onTap: () => row16Tap!(index),
+                            myIcon: row16IconData == null
+                                ? Icons.search
+                                : row16IconData!(index),
+                            iconColor: row16IconColor,
+                            iconSize: row16IconSize,
+                            isSearchIcon: isRow16Search,
+                            myDecoration: row16Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row16IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow17
+                        ? MyListRows(
+                            title: row17Title,
+                            isSelect2: isSelect2Row17,
+                            value: row17Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow17,
+                            controller: row17Controller == null
+                                ? TextEditingController()
+                                : row17Controller!(index),
+                            onChange: (val) => row17TextOnChange!(val, index),
+                            keyboardType: row17KeyboardType,
+                            isIcon: isIconRow17,
+                            onTap: () => row17Tap!(index),
+                            myIcon: row17IconData == null
+                                ? Icons.search
+                                : row17IconData!(index),
+                            iconColor: row17IconColor,
+                            iconSize: row17IconSize,
+                            isSearchIcon: isRow17Search,
+                            myDecoration: row17Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row17IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow18
+                        ? MyListRows(
+                            title: row18Title,
+                            isSelect2: isSelect2Row18,
+                            value: row18Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow18,
+                            controller: row18Controller == null
+                                ? TextEditingController()
+                                : row18Controller!(index),
+                            onChange: (val) => row18TextOnChange!(val, index),
+                            keyboardType: row18KeyboardType,
+                            isIcon: isIconRow18,
+                            onTap: () => row18Tap!(index),
+                            myIcon: row18IconData == null
+                                ? Icons.search
+                                : row18IconData!(index),
+                            iconColor: row18IconColor,
+                            iconSize: row18IconSize,
+                            isSearchIcon: isRow18Search,
+                            myDecoration: row18Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row18IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow19
+                        ? MyListRows(
+                            title: row19Title,
+                            isSelect2: isSelect2Row19,
+                            value: row19Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow19,
+                            controller: row19Controller == null
+                                ? TextEditingController()
+                                : row19Controller!(index),
+                            onChange: (val) => row19TextOnChange!(val, index),
+                            keyboardType: row19KeyboardType,
+                            isIcon: isIconRow19,
+                            onTap: () => row19Tap!(index),
+                            myIcon: row19IconData == null
+                                ? Icons.search
+                                : row19IconData!(index),
+                            iconColor: row19IconColor,
+                            iconSize: row19IconSize,
+                            isSearchIcon: isRow19Search,
+                            myDecoration: row19Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row19IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow20
+                        ? MyListRows(
+                            title: row20Title,
+                            isSelect2: isSelect2Row20,
+                            value: row20Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow20,
+                            controller: row20Controller == null
+                                ? TextEditingController()
+                                : row20Controller!(index),
+                            onChange: (val) => row20TextOnChange!(val, index),
+                            keyboardType: row20KeyboardType,
+                            isIcon: isIconRow20,
+                            onTap: () => row20Tap!(index),
+                            myIcon: row20IconData == null
+                                ? Icons.search
+                                : row20IconData!(index),
+                            iconColor: row20IconColor,
+                            iconSize: row20IconSize,
+                            isSearchIcon: isRow20Search,
+                            myDecoration: row20Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row20IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow21
+                        ? MyListRows(
+                            title: row21Title,
+                            isSelect2: isSelect2Row21,
+                            value: row21Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow21,
+                            controller: row21Controller == null
+                                ? TextEditingController()
+                                : row21Controller!(index),
+                            onChange: (val) => row21TextOnChange!(val, index),
+                            keyboardType: row21KeyboardType,
+                            isIcon: isIconRow21,
+                            onTap: () => row21Tap!(index),
+                            myIcon: row21IconData == null
+                                ? Icons.search
+                                : row21IconData!(index),
+                            iconColor: row21IconColor,
+                            iconSize: row21IconSize,
+                            isSearchIcon: isRow21Search,
+                            myDecoration: row21Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row21IconTurns,
+                          )
+                        : const SizedBox(),
+                    isRow22
+                        ? MyListRows(
+                            title: row22Title,
+                            isSelect2: isSelect2Row22,
+                            value: row22Label!(data[index]),
+                            isSelectable: true,
+                            flex1: 2,
+                            flex2: 4,
+                            isTextField: isTextRow22,
+                            controller: row22Controller == null
+                                ? TextEditingController()
+                                : row22Controller!(index),
+                            onChange: (val) => row22TextOnChange!(val, index),
+                            keyboardType: row22KeyboardType,
+                            isIcon: isIconRow22,
+                            onTap: () => row22Tap!(index),
+                            myIcon: row22IconData == null
+                                ? Icons.search
+                                : row22IconData!(index),
+                            iconColor: row22IconColor,
+                            iconSize: row22IconSize,
+                            isSearchIcon: isRow22Search,
+                            myDecoration: row22Decoration ??
+                                BoxDecoration(
+                                    color: Colors.amber.withOpacity(.1)),
+                            iconTurns: row22IconTurns,
                           )
                         : const SizedBox(),
                   ],

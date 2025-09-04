@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:petty_cash/data/models/common/common_searching_model.dart';
@@ -512,7 +513,7 @@ class PoApplicationVm extends ChangeNotifier {
       });
 
       if (response != null) {
-        // ✅ Assign to class-level property, not a local variable
+        //  Assign to class-level property, not a local variable
         referencePRModel = PurchaserequestReferenceModel.fromJson(response);
       } else {
         referencePRModel = PurchaserequestReferenceModel(referencePR: []);
@@ -571,5 +572,131 @@ class PoApplicationVm extends ChangeNotifier {
     remarkQuillController.dispose();
     _isDisposed = true;
     super.dispose();
+  }
+
+  ///  Select/Deselect All in ItemDetailsTab
+  void onItemDetailsSelectAll() {
+    isActionAll = !isActionAll;
+
+    if (purchaseOrderModel?.itemDetailsTab != null) {
+      for (var item in purchaseOrderModel!.itemDetailsTab!) {
+        item.isSelected = isActionAll;
+      }
+    }
+
+    selectedIndex.clear();
+    if (isActionAll && purchaseOrderModel?.itemDetailsTab != null) {
+      for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+        selectedIndex.add(i);
+      }
+    }
+    if (!_isDisposed) notifyListeners();
+  }
+
+  void onItemDetailsSelected(int index) {
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+
+    // Ensure null safety
+    item.isSelected = !(item.isSelected ?? false);
+
+    if (item.isSelected!) {
+      selectedIndex.add(index);
+    } else {
+      selectedIndex.remove(index);
+    }
+
+    // Update "Select All" state
+    isActionAll =
+        selectedIndex.length == purchaseOrderModel!.itemDetailsTab!.length;
+
+    notifyListeners();
+  }
+
+  ///  Add a new empty Item Line
+  void addItemDetailsLine() {
+    final currentDate = DateTime.now();
+    final formattedDate =
+        DateFormat('dd-MMM-yyyy', 'en_US').format(currentDate);
+
+    var newItem = ItemDetailsTab(
+      itemLineId: 0,
+      txnNo: '',
+      refDocNo: '',
+      itemCode: '',
+      itemDesc: '',
+      uom: '',
+      quantity: '',
+      looseQty: '',
+      baseQty: '',
+      unitPrice: '',
+      grossValue: '',
+      discountPer: '',
+      discountVal: '',
+      netValue: '',
+      mnfDesc: '',
+      chargeTypeCode: '',
+      chargeTypeName: '',
+      chargeToCode: '',
+      chargeToName: '',
+      needByDt: formattedDate,
+      etaDate: '',
+      glCode: '',
+      glDesc: '',
+      noteToReceiver: '',
+      isSelected: false,
+      isOpen: false,
+      // Add controllers if your model supports
+      quantityController: TextEditingController(),
+      unitPriceController: TextEditingController(),
+      discountController: TextEditingController(),
+      noteToReceiverController: TextEditingController(),
+    );
+
+    purchaseOrderModel?.itemDetailsTab ??= [];
+    purchaseOrderModel!.itemDetailsTab!.add(newItem);
+
+    if (!_isDisposed) notifyListeners();
+  }
+
+  /// Delete selected lines (or all if SelectAll is on)
+  void deleteItemDetailsLine() {
+    if (purchaseOrderModel?.itemDetailsTab == null) return;
+
+    if (isActionAll) {
+      purchaseOrderModel!.itemDetailsTab!.clear();
+      selectedIndex.clear();
+      isActionAll = false;
+    } else {
+      selectedIndex.sort((a, b) => b.compareTo(a)); // delete from back
+      for (int i = 0; i < selectedIndex.length; i++) {
+        purchaseOrderModel!.itemDetailsTab!.removeAt(selectedIndex[i]);
+      }
+      selectedIndex.clear();
+    }
+    if (!_isDisposed) notifyListeners();
+  }
+
+  List<TaxPopup> taxPopups = [];
+
+  void onItemAttachment(int index) {
+    // Just prepare/update state related to attachments
+    print("Open attachment for item $index");
+  }
+
+  void onItemTaxPopup(int index) {
+    // Prepare/update state related to tax
+    print("Open tax popup for item $index");
+  }
+
+  void addTaxPopup(TaxPopup popup) {
+    taxPopups.add(popup);
+    notifyListeners();
+  }
+
+  void deleteTaxPopup(int index) {
+    if (index >= 0 && index < taxPopups.length) {
+      taxPopups.removeAt(index);
+      notifyListeners();
+    }
   }
 }

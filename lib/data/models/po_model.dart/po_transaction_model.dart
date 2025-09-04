@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_this, unnecessary_new, prefer_collection_literals
 
+import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/common/common_work_flow_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 
@@ -590,46 +591,61 @@ class ItemDetailsTab {
   List<TaxPopup>? taxPopup;
   List<LineItemAttachment>? itemLineAttachment;
   bool? isOpen;
+  bool? isSelected;
+  TextEditingController? quantityController;
+  TextEditingController? unitPriceController;
+  TextEditingController? discountController;
+  TextEditingController? noteToReceiverController;
 
-  ItemDetailsTab(
-      {this.srNo,
-      this.itemLineId,
-      this.txnNo,
-      this.refDocId,
-      this.refDocNo,
-      this.refItemMappId,
-      this.itemId,
-      this.itemCode,
-      this.itemDesc,
-      this.infoIcon,
-      this.uomId,
-      this.uom,
-      this.uomDesc,
-      this.quantity,
-      this.looseQty,
-      this.baseQty,
-      this.unitPrice,
-      this.grossValue,
-      this.discountPer,
-      this.discountVal,
-      this.netValue,
-      this.mnfId,
-      this.mnfDesc,
-      this.chargeTypeId,
-      this.chargeTypeCode,
-      this.chargeTypeName,
-      this.chargeToId,
-      this.chargeToCode,
-      this.chargeToName,
-      this.needByDt,
-      this.etaDate,
-      this.glId,
-      this.glCode,
-      this.glDesc,
-      this.noteToReceiver,
-      this.taxPopup,
-      this.itemLineAttachment,
-      this.isOpen});
+  ItemDetailsTab({
+    this.srNo,
+    this.itemLineId,
+    this.txnNo,
+    this.refDocId,
+    this.refDocNo,
+    this.refItemMappId,
+    this.itemId,
+    this.itemCode,
+    this.itemDesc,
+    this.infoIcon,
+    this.uomId,
+    this.uom,
+    this.uomDesc,
+    this.quantity,
+    this.looseQty,
+    this.baseQty,
+    this.unitPrice,
+    this.grossValue,
+    this.discountPer,
+    this.discountVal,
+    this.netValue,
+    this.mnfId,
+    this.mnfDesc,
+    this.chargeTypeId,
+    this.chargeTypeCode,
+    this.chargeTypeName,
+    this.chargeToId,
+    this.chargeToCode,
+    this.chargeToName,
+    this.needByDt,
+    this.etaDate,
+    this.glId,
+    this.glCode,
+    this.glDesc,
+    this.noteToReceiver,
+    this.taxPopup,
+    this.itemLineAttachment,
+    this.isOpen,
+    this.isSelected,
+    TextEditingController? quantityController,
+    TextEditingController? unitPriceController,
+    TextEditingController? discountController,
+    TextEditingController? noteToReceiverController,
+  })  : quantityController = quantityController ?? TextEditingController(),
+        unitPriceController = unitPriceController ?? TextEditingController(),
+        discountController = discountController ?? TextEditingController(),
+        noteToReceiverController =
+            noteToReceiverController ?? TextEditingController();
 
   ItemDetailsTab.fromJson(Map<String, dynamic> json) {
     srNo = json['sr_no'];
@@ -680,6 +696,12 @@ class ItemDetailsTab {
       });
     }
     isOpen = false;
+    //  Controllers initialized with existing values
+    quantityController = TextEditingController(text: quantity ?? '');
+    unitPriceController = TextEditingController(text: unitPrice ?? '');
+    discountController = TextEditingController(text: discountPer ?? '');
+    noteToReceiverController =
+        TextEditingController(text: noteToReceiver ?? '');
   }
 
   Map<String, dynamic> toJson() {
@@ -719,6 +741,7 @@ class ItemDetailsTab {
     data['gl_code'] = this.glCode;
     data['gl_desc'] = this.glDesc;
     data['note_to_receiver'] = this.noteToReceiver;
+    data['note_to_receiver'] = noteToReceiverController?.text ?? noteToReceiver;
     if (this.taxPopup != null) {
       data['tax_popup'] = this.taxPopup!.map((v) => v.toJson()).toList();
     }
@@ -742,6 +765,8 @@ class TaxPopup {
   String? discountLcvalue;
   String? taxRemark;
   String? taxBasis;
+  bool isOpen = true;
+  bool isSelected = false;
 
   TaxPopup(
       {this.srNo,
@@ -754,7 +779,9 @@ class TaxPopup {
       this.discountValue,
       this.discountLcvalue,
       this.taxRemark,
-      this.taxBasis});
+      this.taxBasis,
+      isOpen,
+      isSelected});
 
   TaxPopup.fromJson(Map<String, dynamic> json) {
     srNo = json['sr_no'];

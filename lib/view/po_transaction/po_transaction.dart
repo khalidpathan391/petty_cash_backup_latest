@@ -1,7 +1,9 @@
-// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable
+// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
+import 'package:petty_cash/globalSize.dart';
 
 // import 'package:easy_localization/easy_localization.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
@@ -1083,27 +1085,27 @@ class _HeaderTabState extends State<_HeaderTab> {
             code: vm.supplierCtrl,
             desc: TextEditingController(),
             showSearch: true),
-        labelWithField(
-            label: 'Sup Offer No.',
-            field: CommonTextFormField(
-              label: 'Sup Offer No.',
-              controller: vm.supOfferNoCtrl,
-              enabled: false,
-              height: dH * 0.05,
-              hintFontSize: tS * 0.75,
-              fontSize: tS * 0.75,
-            )),
-        labelWithField(
-            label: 'Sup Offer Date*',
-            field: CommonTextFormField(
-              label: 'Sup Offer Date*',
-              controller: vm.supOfferDateCtrl,
-              enabled: false,
-              suffixWidget: const Icon(Icons.calendar_month),
-              height: dH * 0.05,
-              hintFontSize: tS * 0.75,
-              fontSize: tS * 0.75,
-            )),
+        // labelWithField(
+        //     label: 'Sup Offer No.',
+        //     field: CommonTextFormField(
+        //       label: 'Sup Offer No.',
+        //       controller: vm.supOfferNoCtrl,
+        //       enabled: false,
+        //       height: dH * 0.05,
+        //       hintFontSize: tS * 0.75,
+        //       fontSize: tS * 0.75,
+        //     )),
+        // labelWithField(
+        //     label: 'Sup Offer Date*',
+        //     field: CommonTextFormField(
+        //       label: 'Sup Offer Date*',
+        //       controller: vm.supOfferDateCtrl,
+        //       enabled: false,
+        //       suffixWidget: const Icon(Icons.calendar_month),
+        //       height: dH * 0.05,
+        //       hintFontSize: tS * 0.75,
+        //       fontSize: tS * 0.75,
+        //     )),
         combinedSearchField(
             label: 'Currency*',
             code: vm.currencyCodeCtrl,
@@ -1231,33 +1233,33 @@ class _HeaderTabState extends State<_HeaderTab> {
             code: vm.buyerCodeCtrl,
             desc: vm.buyerDescCtrl,
             showSearch: true),
-        labelWithField(
-            label: 'ETA*',
-            field: CommonTextFormField(
-              label: 'ETA*',
-              controller: vm.etaCtrl,
-              enabled: false,
-              suffixWidget: const Icon(Icons.calendar_month),
-              height: dH * 0.05,
-              hintFontSize: tS * 0.75,
-              fontSize: tS * 0.75,
-            )),
+        // labelWithField(
+        //     label: 'ETA*',
+        //     field: CommonTextFormField(
+        //       label: 'ETA*',
+        //       controller: vm.etaCtrl,
+        //       enabled: false,
+        //       suffixWidget: const Icon(Icons.calendar_month),
+        //       height: dH * 0.05,
+        //       hintFontSize: tS * 0.75,
+        //       fontSize: tS * 0.75,
+        //     )),
         combinedSearchField(
             label: 'Delivery Term*',
             code: vm.deliveryTermCodeCtrl,
             desc: vm.deliveryTermDescCtrl,
             showSearch: true),
-        labelWithField(
-            label: 'Need By Date*',
-            field: CommonTextFormField(
-              label: 'Need By Date*',
-              controller: vm.needByDateCtrl,
-              enabled: false,
-              suffixWidget: const Icon(Icons.calendar_month),
-              height: dH * 0.05,
-              hintFontSize: tS * 0.75,
-              fontSize: tS * 0.75,
-            )),
+        // labelWithField(
+        //     label: 'Need By Date*',
+        //     field: CommonTextFormField(
+        //       label: 'Need By Date*',
+        //       controller: vm.needByDateCtrl,
+        //       enabled: false,
+        //       suffixWidget: const Icon(Icons.calendar_month),
+        //       height: dH * 0.05,
+        //       hintFontSize: tS * 0.75,
+        //       fontSize: tS * 0.75,
+        //     )),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: CommonTextView(
@@ -1310,69 +1312,571 @@ class _HeaderSummary extends StatelessWidget {
 }
 
 class _ItemDetailsTab extends StatelessWidget {
+  double dW = 0.0;
+
+  double dH = 0.0;
+
+  double tS = 0.0;
   @override
   Widget build(BuildContext context) {
+    dW = MediaQuery.of(context).size.width;
+    dH = MediaQuery.of(context).size.height;
+    tS = dW * 0.035; // Decreased text size multiplier
     final vm = Provider.of<PoApplicationVm>(context);
     final items = vm.purchaseOrderModel?.itemDetailsTab ?? [];
-    if (items.isEmpty) {
-      return const CommonEmptyList();
-    }
 
-    return SingleChildScrollView(
-      child: CustomViewOnlyTable(
-        data: items,
-        header1: 'Item Code',
-        header2: 'Item Desc',
-        isScrollable: false,
-        onOpen: (index) => vm.toggleItemOpen(index),
-        getHeader1: (data) => data.itemCode ?? '',
-        getHeader2: (data) => data.itemDesc ?? '',
+    return Column(
+      children: [
+        /// Top Controls (Select All, Add, Delete)
+        Container(
+          padding: EdgeInsets.only(
+            top: 10,
+            right: AppWidth(5),
+            left: AppWidth(5),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.grey),
+                    color: Colors.white),
+                margin:
+                    EdgeInsets.only(bottom: AppHeight(10), left: AppWidth(10)),
+                child: CommonTextFormField(
+                  height: AppHeight(30),
+                  width: AppWidth(255),
+                  label: 'Type to search...',
+                  maxLines: 1,
+                  isBorderUnderLine: false,
+                  isBorderSideNone: true,
+                  suffixWidget: Container(
+                    width: AppWidth(20),
+                    decoration: const BoxDecoration(
+                        border: Border(
+                            left: BorderSide(width: 1, color: Colors.grey))),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: const Icon(
+                        Icons.search,
+                        color: Colors.grey,
+                        size: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  taxPopupList(context, 0);
+                },
+                child: Container(
+                  margin: EdgeInsets.only(
+                      bottom: AppHeight(10), right: AppWidth(10)),
+                  child: Icon(
+                    Icons.attach_money,
+                    color: context.resources.color.themeColor,
+                    size: tS * 2.1,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.only(
+            right: AppWidth(5),
+            left: AppWidth(10),
+          ),
+          child: Row(
+            children: [
+              /// Select All Checkbox
+              GestureDetector(
+                onTap: () {
+                  if (items.isNotEmpty) {
+                    vm.onItemDetailsSelectAll();
+                  }
+                },
+                child: Icon(
+                  vm.isActionAll
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank,
+                  color: context.resources.color.themeColor,
+                ),
+              ),
+              const SizedBox(width: 5),
+              const CommonTextView(label: 'Select All'),
 
-        // Rows
-        isRow1: true,
-        row1Title: 'UOM',
-        row1Label: (data) => data.uom ?? '',
+              /// Add & Delete Buttons
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        vm.addItemDetailsLine();
+                      },
+                      icon: Icon(
+                        Icons.add,
+                        color: context.resources.color.themeColor,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        vm.deleteItemDetailsLine();
+                      },
+                      icon: Icon(
+                        Icons.delete,
+                        color: context.resources.color.themeColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
 
-        isRow2: true,
-        row2Title: 'Quantity',
-        row2Label: (data) => data.quantity ?? '',
+        /// Empty State
+        if (items.isEmpty)
+          const CommonEmptyList()
+        else
 
-        isRow3: true,
-        row3Title: 'Unit Price',
-        row3Label: (data) => data.unitPrice ?? '',
+          /// Table
+          Expanded(
+            child: SingleChildScrollView(
+              child: CustomViewOnlyTable(
+                data: items,
+                header1: 'Txn. No',
+                header2: 'Ref. Doc.No',
+                isScrollable: false,
+                onOpen: (index) => vm.toggleItemOpen(index),
+                getHeader1: (data) => data.txnNo ?? '',
+                getHeader2: (data) => data.refDocNo ?? '',
 
-        isRow4: true,
-        row4Title: 'Gross Value',
-        row4Label: (data) => data.grossValue ?? '',
+                /// Checkbox column (header0)
+                isIconHeader0: true,
+                header0IconColor: Colors.white,
+                header0IconTap: (index) {
+                  vm.onItemDetailsSelected(index);
+                },
+                header0IconData: (index) => items[index].isSelected == true
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank,
+                ischildHeader0: true,
+                headerChild: (index) => Expanded(
+                  child: PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert,
+                          size: 20, color: Colors.white),
+                      onSelected: (String result) {
+                        switch (result) {
+                          case 'Attachments':
+                            // provider
+                            //     .onAccountPopUpAttachment(
+                            //         context,
+                            //         index);
+                            // taxPopupList
+                            break;
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'Attachments',
+                              child: ListTile(
+                                leading: Icon(Icons.attachment),
+                                title: Text('Attachments'),
+                              ),
+                            ),
+                          ]),
+                ),
 
-        isRow5: true,
-        row5Title: 'Discount %',
-        row5Label: (data) => data.discountPer ?? '',
+                // Item Code - search
+                isRow1: true,
+                row1Title: 'Item Code',
+                row1Label: (data) => data.itemCode ?? '',
+                row1IconData: (i) => Icons.search,
+                isRow1Search: true,
+                row1Decoration:
+                    BoxDecoration(color: Colors.white.withOpacity(.1)),
 
-        isRow6: true,
-        row6Title: 'Discount Val',
-        row6Label: (data) => data.discountVal ?? '',
+                // Desc
+                isRow2: true,
+                row2Title: 'Desc',
+                row2Label: (data) => data.itemDesc ?? '',
 
-        isRow7: true,
-        row7Title: 'Net Value',
-        row7Label: (data) => data.netValue ?? '',
+                // UOM - search
+                isRow3: true,
+                row3Title: 'UOM',
+                row3Label: (data) => data.uom ?? '',
+                row3IconData: (i) => Icons.search,
+                isRow3Search: true,
+                row3Decoration:
+                    BoxDecoration(color: Colors.white.withOpacity(.1)),
 
-        isRow8: true,
-        row8Title: 'GL Code',
-        row8Label: (data) => data.glCode ?? '',
+                // Quantity - textfield
+                isRow4: true,
+                row4Title: 'Quantity',
+                row4Label: (data) => data.quantity ?? '',
+                isTextRow4: true,
 
-        isRow9: true,
-        row9Title: 'GL Desc',
-        row9Label: (data) => data.glDesc ?? '',
+                isRow5: true,
+                row5Title: 'Loose Quantity',
+                row5Label: (data) => data.looseQty ?? '',
 
-        isRow10: true,
-        row10Title: 'Need By',
-        row10Label: (data) => data.needByDt ?? '',
+                isRow6: true,
+                row6Title: 'Base Quantity',
+                row6Label: (data) => data.baseQty ?? '',
 
-        isRow11: true,
-        row11Title: 'ETA',
-        row11Label: (data) => data.etaDate ?? '',
-      ),
+                // Unit Price - textfield
+                isRow7: true,
+                row7Title: 'Unit Price',
+                row7Label: (data) => data.unitPrice ?? '',
+                isTextRow7: (_) => true,
+
+                isRow8: true,
+                row8Title: 'Gross Value',
+                row8Label: (data) => data.grossValue ?? '',
+
+                // Discount %
+                isRow9: true,
+                row9Title: 'Discount %',
+                row9Label: (data) => data.discountPer ?? '',
+                isTextRow9: true,
+
+                // Discount Value
+                isRow10: true,
+                row10Title: 'Discount Val',
+                row10Label: (data) => data.discountVal ?? '',
+                isTextRow10: true,
+
+                isRow11: true,
+                row11Title: 'Net Value',
+                row11Label: (data) => data.netValue ?? '',
+
+                isRow12: true,
+                row12Title: 'Mnf. Desc',
+                row12Label: (data) => data.mnfDesc ?? '',
+
+                // Charge Type - search
+                isRow13: true,
+                row13Title: 'Charge Type',
+                row13Label: (data) => data.chargeTypeCode ?? '',
+                row13IconData: (i) => Icons.search,
+                isRow13Search: true,
+                row13Decoration:
+                    BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                isRow14: true,
+                row14Title: 'Charge Type Desc',
+                row14Label: (data) => data.chargeTypeName ?? '',
+
+                // Charge To - search
+                isRow15: true,
+                row15Title: 'Charge To',
+                row15Label: (data) => data.chargeToCode ?? '',
+                row15IconData: (i) => Icons.search,
+                isRow15Search: true,
+                row15Decoration:
+                    BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                isRow16: true,
+                row16Title: 'Charge To Desc',
+                row16Label: (data) => data.chargeToName ?? '',
+
+                isRow17: true,
+                row17Title: 'Need By Dt',
+                row17Label: (data) => data.needByDt ?? '',
+
+                isRow18: true,
+                row18Title: 'ETA',
+                row18Label: (data) => data.etaDate ?? '',
+
+                // GL Code - search
+                isRow19: true,
+                row19Title: 'GL Code',
+                row19Label: (data) => data.glCode ?? '',
+                row19IconData: (i) => Icons.search,
+                isRow19Search: true,
+                row19Decoration:
+                    BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                isRow20: true,
+                row20Title: 'GL Desc',
+                row20Label: (data) => data.glDesc ?? '',
+
+                // Note to Receiver
+                isRow21: true,
+                row21Title: 'Note to Receiver',
+                row21Label: (data) => data.noteToReceiver ?? '',
+                isTextRow21: true,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  void taxPopupList(BuildContext context, int parentIndex) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return GestureDetector(
+          onTap: () {},
+          child: FractionallySizedBox(
+            heightFactor: 0.9,
+            child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter myState) {
+                return ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                  ),
+                  child: Consumer<PoApplicationVm>(
+                    builder: (context, provider, child) {
+                      var taxPopupList = provider.purchaseOrderModel!
+                          .itemDetailsTab![parentIndex].taxPopup;
+
+                      return Scaffold(
+                        appBar: AppBar(
+                          backgroundColor: context.resources.color.themeColor,
+                          centerTitle: true,
+                          title: CommonTextView(
+                            label: 'Tax',
+                            color: context.resources.color.colorWhite,
+                            fontSize: context.resources.dimension.appMediumText,
+                          ),
+                          actions: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                size: 25.0,
+                                color: context.resources.color.colorWhite,
+                              ),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                          automaticallyImplyLeading: false,
+                        ),
+                        body: Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(
+                                        top: 10,
+                                        right: AppWidth(5),
+                                        left: AppWidth(5),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              // provider
+                                              //     .onTaxPopupAll(parentIndex);
+                                            },
+                                            child: Icon(
+                                              provider.isActionAll
+                                                  ? Icons.check_box
+                                                  : Icons
+                                                      .check_box_outline_blank,
+                                              color: context
+                                                  .resources.color.themeColor,
+                                            ),
+                                          ),
+                                          CommonTextView(
+                                            label: 'Select_All'.tr(),
+                                          ),
+                                          if (!provider.isSubmit)
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      // provider.addTaxPopupLine(
+                                                      //     parentIndex);
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.add,
+                                                      color: context.resources
+                                                          .color.themeColor,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      // provider
+                                                      //     .deleteTaxPopByLine(
+                                                      //         parentIndex);
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.delete,
+                                                      color: context.resources
+                                                          .color.themeColor,
+                                                    ),
+                                                  ),
+                                                  IconButton(
+                                                    onPressed: () {
+                                                      // provider
+                                                      //     .checkMandatoryFieldsCharge(
+                                                      //         context, parentIndex);
+                                                    },
+                                                    icon: Icon(
+                                                      Icons.save,
+                                                      color: context.resources
+                                                          .color.themeColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (taxPopupList!.isEmpty)
+                                      const CommonTextView(
+                                        label: 'Data not found',
+                                        alignment: Alignment.center,
+                                      )
+                                    else
+                                      CustomViewOnlyTable(
+                                        data: taxPopupList,
+                                        header1: 'Code*',
+                                        header2: 'Currency*',
+                                        isScrollable: false,
+                                        getHeader1: (data) =>
+                                            data.taxCode ?? 'N/A',
+                                        isIconHeader0: true,
+                                        header0IconColor: Colors.white,
+                                        header0IconTap: (index) {
+                                          // provider.onTaxPopUpBySelected(
+                                          //     parentIndex, index);
+                                        },
+                                        header1Search: (index) {
+                                          // provider.callReEntry(
+                                          //     context, index, 1,
+                                          //     parentIndex: parentIndex);
+                                        },
+                                        header1Decoration: const BoxDecoration(
+                                            color: Colors.white),
+                                        isSearchHeader1: true,
+                                        header0IconData: (index) {
+                                          // return provider
+                                          //         .bankPaymentModel!
+                                          //         .onAccountTab![parentIndex]
+                                          //         .taxPopup![index]
+                                          //         .isSelected
+                                          //     ? Icons.check_box
+                                          //     : Icons.check_box_outline_blank;
+                                        },
+                                        getHeader2: (data) =>
+                                            data.currencyCode ?? 'N/A',
+                                        // header2Decoration: const BoxDecoration(
+                                        //     color: Colors.white),
+                                        header2Search: (index) {},
+                                        onOpen: (index) {
+                                          // provider.onTaxPopUp(
+                                          //     index, parentIndex);
+                                        },
+                                        isTextRow1: (index) => true,
+                                        row1Tap: (index) {
+                                          // provider.updateTaxPopupAmounts(
+                                          //     parentIndex);
+                                        },
+                                        row1Controller: (index) {
+                                          // return provider
+                                          //     .bankPaymentModel!
+                                          //     .onAccountTab![parentIndex]
+                                          //     .taxPopup![index]
+                                          //     .taxPopUpPercentController;
+                                        },
+                                        row1KeyboardType: TextInputType.number,
+                                        row1TextOnChange: (val, childIndex) {
+                                          // provider.updateTaxLcAmountOnChange(
+                                          //     val, parentIndex, childIndex);
+                                        },
+
+                                        row1Title: '%',
+                                        row1Label: (data) =>
+                                            data.discountPercent ?? 'N/A',
+                                        isRow1Search: true,
+                                        row1Decoration: const BoxDecoration(
+                                            color: Colors.white),
+
+                                        isRow2: true,
+                                        row2Tap: (index) {},
+                                        row2Title: 'Amount',
+                                        row2Label: (data) =>
+                                            data.discountValue ?? 'N/A',
+                                        isRow3: true,
+                                        row3Tap: (index) {},
+                                        row3Title: 'LC Amount',
+                                        row3Label: (data) =>
+                                            data.discountLcvalue ?? 'N/A',
+                                        row4Title: 'Remark', isRow4: true,
+                                        isTextRow4: true,
+                                        row4Tap: (index) {},
+                                        row4Controller: (index) {
+                                          // return provider
+                                          //     .bankPaymentModel!
+                                          //     .onAccountTab![parentIndex]
+                                          //     .taxPopup![index]
+                                          //     .taxPopUpRemarksController;
+                                        },
+
+                                        row4TextOnChange: (val, index) {},
+                                        row4Label: (data) =>
+                                            data.taxRemark ?? 'N/A',
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CommonButton(
+                                    buttonWidth: ButtonWidth.WRAP,
+                                    text: 'OK',
+                                    onPressed: () {
+                                      // provider.saveTaxPopupData(
+                                      //     context, parentIndex);
+                                    },
+                                    color: Colors.green,
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  CommonButton(
+                                    buttonWidth: ButtonWidth.WRAP,
+                                    text: 'Close',
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    color: Colors.red,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }
