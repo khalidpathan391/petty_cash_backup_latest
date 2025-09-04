@@ -13,6 +13,7 @@ import 'package:petty_cash/view/login/ScanQRCodeORGenerate.dart';
 import 'package:petty_cash/view/login/ScanQRCodePage.dart';
 import 'package:petty_cash/view/login/SystemURLPage.dart';
 import 'package:petty_cash/view/login/ValidateIDKeyPage.dart';
+
 import 'package:petty_cash/view/po_transaction/po_transaction.dart';
 import 'package:petty_cash/view/purchase_order_dashboard/po_dashboard.dart';
 
@@ -39,6 +40,7 @@ class AppRoutes {
       "user_profile": (context) => const UserProfile(),
       'po_transaction': (context) => const PoTransaction(),
       'po_dashboard': (context) => const DashboardScreen(),
+      // 'item_pagination_searching': (context) => const PoItemDetailsSeraching(),
     };
   }
 }

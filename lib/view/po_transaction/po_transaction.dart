@@ -1497,6 +1497,9 @@ class _ItemDetailsTab extends StatelessWidget {
                 row1Label: (data) => data.itemCode ?? '',
                 row1IconData: (i) => Icons.search,
                 isRow1Search: true,
+                row1Tap: (index) {
+                  vm.callItemSearch(context, index, 1);
+                },
                 row1Decoration:
                     BoxDecoration(color: Colors.white.withOpacity(.1)),
 
@@ -1511,6 +1514,9 @@ class _ItemDetailsTab extends StatelessWidget {
                 row3Label: (data) => data.uom ?? '',
                 row3IconData: (i) => Icons.search,
                 isRow3Search: true,
+                row3Tap: (index) {
+                  vm.callItemSearch(context, index, 2);
+                },
                 row3Decoration:
                     BoxDecoration(color: Colors.white.withOpacity(.1)),
 
@@ -1598,6 +1604,9 @@ class _ItemDetailsTab extends StatelessWidget {
                 row19Label: (data) => data.glCode ?? '',
                 row19IconData: (i) => Icons.search,
                 isRow19Search: true,
+                row19Tap: (index) {
+                  vm.callItemSearch(context, index, 3);
+                },
                 row19Decoration:
                     BoxDecoration(color: Colors.white.withOpacity(.1)),
 

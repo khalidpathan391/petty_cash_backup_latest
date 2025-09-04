@@ -11,6 +11,7 @@ import 'package:petty_cash/global.dart';
 
 import 'package:petty_cash/data/repository/general_rep.dart';
 import 'package:petty_cash/view/po_transaction/common/CommonPaginationSearching.dart';
+import 'package:petty_cash/view/po_transaction/item_search_agination.dart';
 
 class PoApplicationVm extends ChangeNotifier {
   final GeneralRepository _myRepo = GeneralRepository();
@@ -525,6 +526,78 @@ class PoApplicationVm extends ChangeNotifier {
     } finally {
       setReferenceLoading(false);
     }
+  }
+
+  // ===================== Item Search Flow =====================
+  void callItemSearch(BuildContext context, int index, int type) {
+    if (type == 1) {
+      // Item Code search
+      callItemCommonSearch(context, index, 'Item', type);
+    } else if (type == 2) {
+      // UOM search
+      callItemCommonSearch(context, index, 'UOM', type);
+    } else if (type == 3) {
+      // GL Code search
+      callItemCommonSearch(context, index, 'GL_CODE', type);
+    }
+  }
+
+  void callItemCommonSearch(
+      BuildContext context, int updateIndex, String searchType, int type) {
+    String url = ApiUrl.getItemDetailsSearch;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PoItemDetailsSeraching(
+          url: ApiUrl.baseUrl! + url,
+          searchType: searchType,
+          searchKeyWord: '',
+          txnType: 'PO',
+          supp_id: supp_id.toString(),
+        ),
+      ),
+    ).then((value) {
+      if (value != null && value is SearchList) {
+        if (type == 1 && searchType == 'ITEM') {
+          // Item Code search result
+          if (purchaseOrderModel?.itemDetailsTab != null &&
+              updateIndex >= 0 &&
+              updateIndex < purchaseOrderModel!.itemDetailsTab!.length) {
+            final item = purchaseOrderModel!.itemDetailsTab![updateIndex];
+            item.itemCode = value.code ?? '';
+            item.itemDesc = value.desc ?? '';
+            item.itemId = value.id;
+
+            // Update controllers if they exist
+            if (item.quantityController != null) {
+              item.quantityController!.text = item.quantity ?? '1';
+            }
+          }
+        } else if (type == 2) {
+          // UOM search result
+          if (purchaseOrderModel?.itemDetailsTab != null &&
+              updateIndex >= 0 &&
+              updateIndex < purchaseOrderModel!.itemDetailsTab!.length) {
+            final item = purchaseOrderModel!.itemDetailsTab![updateIndex];
+            item.uom = value.code ?? '';
+            item.uomDesc = value.desc ?? '';
+            item.uomId = value.id;
+          }
+        } else if (type == 3) {
+          // GL Code search result
+          if (purchaseOrderModel?.itemDetailsTab != null &&
+              updateIndex >= 0 &&
+              updateIndex < purchaseOrderModel!.itemDetailsTab!.length) {
+            final item = purchaseOrderModel!.itemDetailsTab![updateIndex];
+            item.glCode = value.code ?? '';
+            item.glDesc = value.desc ?? '';
+            item.glId = value.id;
+          }
+        }
+        notifyListeners();
+      }
+    });
   }
 
   @override
