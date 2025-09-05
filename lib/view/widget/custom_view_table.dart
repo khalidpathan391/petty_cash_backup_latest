@@ -877,7 +877,7 @@ class CustomViewOnlyTable extends StatelessWidget {
       physics: isScrollable
           ? null
           : const NeverScrollableScrollPhysics(), // Disable ListView's own scrolling
-      padding: EdgeInsets.symmetric(horizontal: AppWidth(10)),
+      padding: EdgeInsets.only(left: AppWidth(10), right: AppWidth(5)),
       itemBuilder: (context, index) {
         return Container(
           margin: EdgeInsets.symmetric(vertical: AppHeight(10)),
@@ -916,16 +916,16 @@ class CustomViewOnlyTable extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    // MyHeaderData(
-                    //   title: header0,
-                    //   flex: 1,
-                    //   isIcon: isIconHeader0,
-                    //   onIconTap: () => header0IconTap!(index),
-                    //   iconData: header0IconData == null
-                    //       ? Icons.add
-                    //       : header0IconData!(index),
-                    //   iconColor: header0IconColor,
-                    // ),
+                    MyHeaderData(
+                      title: header0,
+                      flex: 1,
+                      isIcon: isIconHeader0,
+                      onIconTap: () => header0IconTap!(index),
+                      iconData: header0IconData == null
+                          ? Icons.add
+                          : header0IconData!(index),
+                      iconColor: header0IconColor,
+                    ),
                     const RightBorder(),
                     MyHeaderData(
                       title: header1,
@@ -934,21 +934,20 @@ class CustomViewOnlyTable extends StatelessWidget {
                     const RightBorder(),
                     MyHeaderData(
                       title: header2,
-                      flex: ischildHeader0 ? 2 : 3,
+                      flex: 3,
                       isDropdown: true,
                       onTap: () => onOpen(index),
                       dropIcon: data![index].isOpen!
                           ? Icons.arrow_drop_up
                           : Icons.arrow_drop_down,
                     ),
-                    if (ischildHeader0) const RightBorder(),
                     if (ischildHeader0) headerChild!(index),
                   ],
                 ),
               ),
 
               //Header Row
-              SizedBox(
+              Container(
                 height: AppHeight(30),
                 child: Row(
                   children: [
@@ -968,7 +967,7 @@ class CustomViewOnlyTable extends StatelessWidget {
                       controller: header1Controller == null
                           ? TextEditingController()
                           : header1Controller!(index),
-                      onChange: (val) => header1TextOnChange!(val, index),
+                      // onChange: (val) => header1TextOnChange!(val, index),
                       isIcon: isIconHeader1,
                       onIconTap: () => header1IconTap!(index),
                       iconData: header1IconData == null
@@ -976,13 +975,12 @@ class CustomViewOnlyTable extends StatelessWidget {
                           : header1IconData!(index),
                       iconColor: header1IconColor,
                       isSearch: isSearchHeader1,
-                      onTap: header1Search == null
-                          ? () {}
-                          : () => header1Search!(index),
+                      // onTap: header1Search == null
+                      //     ? () {}
+                      //     : () => header1Search!(index),
                       myDecoration: header1Decoration ??
                           BoxDecoration(color: Colors.amber.withOpacity(.1)),
                     ),
-                    const RightBorder(),
                     MyHeaderData(
                       title: getHeader2(data[index]),
                       textColor: header2TextColor,
@@ -992,7 +990,7 @@ class CustomViewOnlyTable extends StatelessWidget {
                           ? TextEditingController()
                           : header2Controller!(index),
                       keyboardType: header2KeyboardType,
-                      onChange: (val) => header2TextOnChange!(val, index),
+                      // onChange: (val) => header2TextOnChange!(val, index),
                       isIcon: isIconHeader2,
                       onIconTap: () => header2IconTap!(index),
                       iconData: header2IconData == null
@@ -1000,11 +998,16 @@ class CustomViewOnlyTable extends StatelessWidget {
                           : header2IconData!(index),
                       iconColor: header2IconColor,
                       isSearch: isSearchHeader2,
-                      onTap: () => header2Search!(index),
+                      // onTap: () => header2Search!(index),
                       onLongPress: () => header2LongPress?.call(index),
                       myDecoration: header2Decoration ??
                           BoxDecoration(color: Colors.amber.withOpacity(.1)),
                     ),
+                    if (ischildHeader0)
+                      Expanded(
+                        child:
+                            Container(), // Empty space to match more_vert icon
+                      ),
                   ],
                 ),
               ),
@@ -1073,10 +1076,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row2Controller == null
                                 ? TextEditingController()
                                 : row2Controller!(index),
-                            onChange: (val) => row2TextOnChange!(val, index),
+                            // onChange: (val) => row2TextOnChange!(val, index),
                             keyboardType: row2KeyboardType,
                             isIcon: isIconRow2,
-                            onTap: () => row2Tap!(index),
+                            // onTap: () => row2Tap!(index),
                             myIcon: row2IconData == null
                                 ? Icons.search
                                 : row2IconData!(index),
@@ -1122,16 +1125,15 @@ class CustomViewOnlyTable extends StatelessWidget {
                             onChange: (val) => row3TextOnChange!(val, index),
                             keyboardType: row3KeyboardType,
                             isIcon: isIconRow3,
-                            onTap: () => row3Tap!(index),
+                            // onTap: () => row3Tap!(index),
                             myIcon: row3IconData == null
                                 ? Icons.search
                                 : row3IconData!(index),
                             iconColor: row3IconColor,
                             iconSize: row3IconSize,
                             isSearchIcon: isRow3Search,
-                            myDecoration: row3Decoration ??
-                                BoxDecoration(
-                                    color: Colors.amber.withOpacity(.1)),
+                            myDecoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(.1)),
                             iconTurns: row3IconTurns,
                           )
                         : const SizedBox(),
@@ -1211,10 +1213,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row5Controller == null
                                 ? TextEditingController()
                                 : row5Controller!(index),
-                            onChange: (val) => row5TextOnChange!(val, index),
+                            // onChange: (val) => row5TextOnChange!(val, index),
                             keyboardType: row5KeyboardType,
                             isIcon: isIconRow5,
-                            onTap: () => row5Tap!(index),
+                            // onTap: () => row5Tap!(index),
                             myIcon: row5IconData == null
                                 ? Icons.search
                                 : row5IconData!(index),
@@ -1260,10 +1262,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row6Controller == null
                                 ? TextEditingController()
                                 : row6Controller!(index),
-                            onChange: (val) => row6TextOnChange!(val, index),
+                            // onChange: (val) => row6TextOnChange!(val, index),
                             keyboardType: row6KeyboardType,
                             isIcon: isIconRow6,
-                            onTap: () => row6Tap!(index),
+                            // onTap: () => row6Tap!(index),
                             myIcon: row6IconData == null
                                 ? Icons.search
                                 : row6IconData!(index),
@@ -1338,10 +1340,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row8Controller == null
                                 ? TextEditingController()
                                 : row8Controller!(index),
-                            onChange: (val) => row8TextOnChange!(val, index),
+                            // onChange: (val) => row8TextOnChange!(val, index),
                             keyboardType: row8KeyboardType,
                             isIcon: isIconRow8,
-                            onTap: () => row8Tap!(index),
+                            // onTap: () => row8nTap!(index),
                             myIcon: row8IconData == null
                                 ? Icons.search
                                 : row8IconData!(index),
@@ -1422,10 +1424,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row11Controller == null
                                 ? TextEditingController()
                                 : row11Controller!(index),
-                            onChange: (val) => row11TextOnChange!(val, index),
+                            // onChange: (val) => row11TextOnChange!(val, index),
                             keyboardType: row11KeyboardType,
                             isIcon: isIconRow11,
-                            onTap: () => row11Tap!(index),
+                            // onTap: () => row11Tap!(index),
                             myIcon: row11IconData == null
                                 ? Icons.search
                                 : row11IconData!(index),
@@ -1450,10 +1452,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row12Controller == null
                                 ? TextEditingController()
                                 : row12Controller!(index),
-                            onChange: (val) => row12TextOnChange!(val, index),
+                            // onChange: (val) => row12TextOnChange!(val, index),
                             keyboardType: row12KeyboardType,
                             isIcon: isIconRow12,
-                            onTap: () => row12Tap!(index),
+                            // onTap: () => row12Tap!(index),
                             myIcon: row12IconData == null
                                 ? Icons.search
                                 : row12IconData!(index),
@@ -1481,16 +1483,15 @@ class CustomViewOnlyTable extends StatelessWidget {
                             onChange: (val) => row13TextOnChange!(val, index),
                             keyboardType: row13KeyboardType,
                             isIcon: isIconRow13,
-                            onTap: () => row13Tap!(index),
+                            // onTap: () => row13Tap!(index),
                             myIcon: row13IconData == null
                                 ? Icons.search
                                 : row13IconData!(index),
                             iconColor: row13IconColor,
                             iconSize: row13IconSize,
                             isSearchIcon: isRow13Search,
-                            myDecoration: row13Decoration ??
-                                BoxDecoration(
-                                    color: Colors.amber.withOpacity(.1)),
+                            myDecoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(.1)),
                             iconTurns: row13IconTurns,
                           )
                         : const SizedBox(),
@@ -1506,19 +1507,18 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row14Controller == null
                                 ? TextEditingController()
                                 : row14Controller!(index),
-                            onChange: (val) => row14TextOnChange!(val, index),
+                            // onChange: (val) => row14TextOnChange!(val, index),
                             keyboardType: row14KeyboardType,
                             isIcon: isIconRow14,
-                            onTap: () => row14Tap!(index),
+                            // onTap: () => row14Tap!(index),
                             myIcon: row14IconData == null
                                 ? Icons.search
                                 : row14IconData!(index),
                             iconColor: row14IconColor,
                             iconSize: row14IconSize,
                             isSearchIcon: isRow14Search,
-                            myDecoration: row14Decoration ??
-                                BoxDecoration(
-                                    color: Colors.amber.withOpacity(.1)),
+                            myDecoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(.1)),
                             iconTurns: row14IconTurns,
                           )
                         : const SizedBox(),
@@ -1537,16 +1537,15 @@ class CustomViewOnlyTable extends StatelessWidget {
                             onChange: (val) => row15TextOnChange!(val, index),
                             keyboardType: row15KeyboardType,
                             isIcon: isIconRow15,
-                            onTap: () => row15Tap!(index),
+                            // onTap: () => row15Tap!(index),
                             myIcon: row15IconData == null
                                 ? Icons.search
                                 : row15IconData!(index),
                             iconColor: row15IconColor,
                             iconSize: row15IconSize,
                             isSearchIcon: isRow15Search,
-                            myDecoration: row15Decoration ??
-                                BoxDecoration(
-                                    color: Colors.amber.withOpacity(.1)),
+                            myDecoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(.1)),
                             iconTurns: row15IconTurns,
                           )
                         : const SizedBox(),
@@ -1562,10 +1561,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row16Controller == null
                                 ? TextEditingController()
                                 : row16Controller!(index),
-                            onChange: (val) => row16TextOnChange!(val, index),
+                            // onChange: (val) => row16TextOnChange!(val, index),
                             keyboardType: row16KeyboardType,
                             isIcon: isIconRow16,
-                            onTap: () => row16Tap!(index),
+                            // onTap: () => row16Tap!(index),
                             myIcon: row16IconData == null
                                 ? Icons.search
                                 : row16IconData!(index),
@@ -1590,10 +1589,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row17Controller == null
                                 ? TextEditingController()
                                 : row17Controller!(index),
-                            onChange: (val) => row17TextOnChange!(val, index),
+                            // onChange: (val) => row17TextOnChange!(val, index),
                             keyboardType: row17KeyboardType,
                             isIcon: isIconRow17,
-                            onTap: () => row17Tap!(index),
+                            // onTap: () => row17Tap!(index),
                             myIcon: row17IconData == null
                                 ? Icons.search
                                 : row17IconData!(index),
@@ -1618,10 +1617,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row18Controller == null
                                 ? TextEditingController()
                                 : row18Controller!(index),
-                            onChange: (val) => row18TextOnChange!(val, index),
+                            // onChange: (val) => row18TextOnChange!(val, index),
                             keyboardType: row18KeyboardType,
                             isIcon: isIconRow18,
-                            onTap: () => row18Tap!(index),
+                            // onTap: () => row18Tap!(index),
                             myIcon: row18IconData == null
                                 ? Icons.search
                                 : row18IconData!(index),
@@ -1649,16 +1648,15 @@ class CustomViewOnlyTable extends StatelessWidget {
                             onChange: (val) => row19TextOnChange!(val, index),
                             keyboardType: row19KeyboardType,
                             isIcon: isIconRow19,
-                            onTap: () => row19Tap!(index),
+                            // onTap: () => row19Tap!(index),
                             myIcon: row19IconData == null
                                 ? Icons.search
                                 : row19IconData!(index),
                             iconColor: row19IconColor,
                             iconSize: row19IconSize,
                             isSearchIcon: isRow19Search,
-                            myDecoration: row19Decoration ??
-                                BoxDecoration(
-                                    color: Colors.amber.withOpacity(.1)),
+                            myDecoration: BoxDecoration(
+                                color: Colors.amber.withOpacity(.1)),
                             iconTurns: row19IconTurns,
                           )
                         : const SizedBox(),
@@ -1674,10 +1672,10 @@ class CustomViewOnlyTable extends StatelessWidget {
                             controller: row20Controller == null
                                 ? TextEditingController()
                                 : row20Controller!(index),
-                            onChange: (val) => row20TextOnChange!(val, index),
+                            // onChange: (val) => row20TextOnChange!(val, index),
                             keyboardType: row20KeyboardType,
                             isIcon: isIconRow20,
-                            onTap: () => row20Tap!(index),
+                            // onTap: () => row20Tap!(index),
                             myIcon: row20IconData == null
                                 ? Icons.search
                                 : row20IconData!(index),

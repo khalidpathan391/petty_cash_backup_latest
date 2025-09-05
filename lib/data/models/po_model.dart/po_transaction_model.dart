@@ -595,6 +595,7 @@ class ItemDetailsTab {
   TextEditingController? quantityController;
   TextEditingController? unitPriceController;
   TextEditingController? discountController;
+  TextEditingController? discountValueController;
   TextEditingController? noteToReceiverController;
 
   ItemDetailsTab({
@@ -640,10 +641,13 @@ class ItemDetailsTab {
     TextEditingController? quantityController,
     TextEditingController? unitPriceController,
     TextEditingController? discountController,
+    TextEditingController? discountValueController,
     TextEditingController? noteToReceiverController,
   })  : quantityController = quantityController ?? TextEditingController(),
         unitPriceController = unitPriceController ?? TextEditingController(),
         discountController = discountController ?? TextEditingController(),
+        discountValueController =
+            discountValueController ?? TextEditingController(),
         noteToReceiverController =
             noteToReceiverController ?? TextEditingController();
 
@@ -700,6 +704,7 @@ class ItemDetailsTab {
     quantityController = TextEditingController(text: quantity ?? '');
     unitPriceController = TextEditingController(text: unitPrice ?? '');
     discountController = TextEditingController(text: discountPer ?? '');
+    discountValueController = TextEditingController(text: discountVal ?? '');
     noteToReceiverController =
         TextEditingController(text: noteToReceiver ?? '');
   }

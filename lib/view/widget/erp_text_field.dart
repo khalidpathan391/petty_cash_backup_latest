@@ -32,6 +32,8 @@ class CommonTextFormField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final double? hintFontSize;
   final double? fontSize; // New parameter for font size
+  final bool readOnly; // New parameter to disable keyboard
+  final bool showCursor; // New parameter to hide cursor
 
   const CommonTextFormField({
     super.key,
@@ -62,6 +64,8 @@ class CommonTextFormField extends StatelessWidget {
     this.textInputAction,
     this.hintFontSize,
     this.fontSize, // Initialize the new parameter
+    this.readOnly = false, // Initialize readOnly parameter
+    this.showCursor = true, // Initialize showCursor parameter
   });
 
   @override
@@ -82,6 +86,8 @@ class CommonTextFormField extends StatelessWidget {
           onChanged: onChanged,
           maxLines: maxLines,
           cursorColor: cursorColor,
+          readOnly: readOnly,
+          showCursor: showCursor,
           style: TextStyle(
             color: textColor,
             fontSize: fontSize ??

@@ -200,6 +200,8 @@ class MyListRows extends StatelessWidget {
   final bool isToolTip;
   final bool isCustomChild;
   final Widget customChild;
+  final bool readOnly; // New parameter to disable keyboard
+  final bool showCursor; // New parameter to hide cursor
 
   const MyListRows({
     super.key,
@@ -228,6 +230,8 @@ class MyListRows extends StatelessWidget {
     this.isToolTip = true,
     this.isCustomChild = false,
     this.customChild = const SizedBox(),
+    this.readOnly = false, // Initialize readOnly parameter
+    this.showCursor = true, // Initialize showCursor parameter
   });
 
   @override
@@ -269,6 +273,8 @@ class MyListRows extends StatelessWidget {
                         controller: controller,
                         onChanged: onChange,
                         keyboardType: keyboardType,
+                        readOnly: readOnly,
+                        showCursor: showCursor,
                       )
                     : isDate
                         ? CommonTextView(

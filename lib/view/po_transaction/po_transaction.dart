@@ -298,6 +298,10 @@ class _HeaderTabState extends State<_HeaderTab> {
                   return const Center(child: Text('No Reference PR Found'));
                 }
 
+                // Check if any items are selected
+                bool hasSelectedItems =
+                    selectedItems.values.any((selected) => selected);
+
                 return Column(
                   children: [
                     Expanded(
@@ -383,31 +387,38 @@ class _HeaderTabState extends State<_HeaderTab> {
                           MediaQuery.of(context).size.width * 0.03),
                       child: SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            final selectedPRs = prList
-                                .where((pr) => selectedItems[pr.srNo] ?? false)
-                                .toList();
-                            // Call your Add PO function here
-                            print(
-                                "Selected PRs: ${selectedPRs.map((e) => e.prDocNo).toList()}");
-                          },
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: CommonButton(
-                              width: dW / 3,
-                              height: 35,
-                              text: "Add PO",
-                              fontSize:
-                                  context.resources.dimension.appMediumText,
-                              onPressed: () {
-                                // Api will call here
-                              },
-                              borderRadius: 8.0,
-                              disable: false,
-                              color: context.resources.color.themeColor,
-                            ),
-                          ),
+                        child: CommonButton(
+                          width: double.infinity,
+                          height: 35,
+                          text: "Add PO",
+                          fontSize: context.resources.dimension.appMediumText,
+                          onPressed: hasSelectedItems
+                              ? () async {
+                                  // Get selected PR line IDs
+                                  final selectedPRs = prList
+                                      .where((pr) =>
+                                          selectedItems[pr.srNo] ?? false)
+                                      .toList();
+
+                                  List<int> priLineIdList = selectedPRs
+                                      .map((pr) => pr.priLineId ?? 0)
+                                      .where((id) => id > 0)
+                                      .toList();
+
+                                  if (priLineIdList.isNotEmpty) {
+                                    // Call the addPrReference API
+                                    await vm.addPrReference(priLineIdList);
+
+                                    // Close the popup
+                                    Navigator.pop(context);
+                                  }
+                                }
+                              : null,
+                          borderRadius: 8.0,
+                          disable: !hasSelectedItems,
+                          color: hasSelectedItems
+                              ? context.resources.color.themeColor
+                              : Colors.grey,
                         ),
                       ),
                     ),
@@ -552,11 +563,72 @@ class _HeaderTabState extends State<_HeaderTab> {
     );
   }
 
+  /// Build validation row with checkbox, heading type, number field, and expiry field
+  Widget _buildValidationRow(
+    String headingType,
+    bool isSelected,
+    TextEditingController numberController,
+    TextEditingController expiryController,
+    Function(bool) onCheckboxChanged,
+  ) {
+    return Row(
+      children: [
+        // Column 1: Checkbox
+        Expanded(
+          flex: 1,
+          child: Checkbox(
+            value: isSelected,
+            onChanged: (value) {
+              onCheckboxChanged(value ?? false);
+            },
+          ),
+        ),
+
+        // Column 2: Heading Type
+        Expanded(
+          flex: 2,
+          child: CommonTextView(
+            label: headingType,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+
+        // Column 3: Number field
+        Expanded(
+          flex: 2,
+          child: CommonTextFormField(
+            label: '#',
+            controller: numberController,
+            height: 36,
+            hintFontSize: 12,
+            enabled: isSelected,
+          ),
+        ),
+
+        // Column 4: Expiry field
+        Expanded(
+          flex: 2,
+          child: CommonTextFormField(
+            label: 'Expiry',
+            controller: expiryController,
+            height: 36,
+            hintFontSize: 12,
+            enabled: isSelected,
+          ),
+        ),
+      ],
+    );
+  }
+
   /// --- Create Supplier Bottom Sheet ---
   void _showCreateSupplierSheet() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.7,
+      ),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) {
@@ -631,85 +703,196 @@ class _HeaderTabState extends State<_HeaderTab> {
               ));
         }
 
-        return Padding(
-          padding: EdgeInsets.only(
-            left: dW * 0.03,
-            right: dW * 0.03,
-            top: dW * 0.03,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Supplier Header
-                const CommonTextView(
-                  label: "Supplier",
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+        return Consumer<PoApplicationVm>(
+          builder: (context, vm, child) {
+            return DefaultTabController(
+              length: 2,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: dW * 0.03,
+                  right: dW * 0.03,
+                  top: dW * 0.03,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + dH * 0.02,
                 ),
-                const SizedBox(height: 8),
-
-                // Header info
-                const CommonTextView(
-                  label: "Header: XYZ Header",
-                  fontSize: 14,
-                ),
-                const SizedBox(height: 16),
-
-                // Fields using combinedSearchField style
-                combinedSearchField(
-                  label: 'Supplier Code*',
-                  code: vm.supplierCode,
-                  desc: TextEditingController(),
-                  showSearch: false,
-                ),
-                combinedSearchField(
-                  label: 'Supplier Code*',
-                  code: TextEditingController(),
-                  desc: vm.supplierDesc,
-                  showSearch: false,
-                ),
-                combinedSearchField(
-                  label: 'Supplier Type',
-                  code: vm.supplierType,
-                  desc: TextEditingController(),
-                  showSearch: true,
-                ),
-                combinedSearchField(
-                  label: 'Address',
-                  code: vm.supplierAddress,
-                  desc: TextEditingController(),
-                  showSearch: false,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
+                    // Supplier Header
+                    CommonTextView(
+                      label: "Supplier",
+                      fontWeight: FontWeight.bold,
+                      fontSize: tS * 1.1,
                     ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                      onPressed: () {
-                        // vm.saveSupplier(); // call your save method
-                        Navigator.pop(context);
-                      },
-                      child: const CommonTextView(label: "Save"),
+                    SizedBox(height: dH * 0.02),
+
+                    // Tab Bar
+                    TabBar(
+                      tabs: [
+                        const Tab(text: 'Header'),
+                        const Tab(text: 'Validation'),
+                      ],
+                      labelColor: context.resources.color.themeColor,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: context.resources.color.themeColor,
+                    ),
+
+                    // Tab Content
+                    Expanded(
+                      child: TabBarView(
+                        children: [
+                          // Header Tab (Always show supplier fields)
+                          SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 16),
+
+                                // Supplier Code (Read-only)
+                                labelWithField(
+                                  label: 'Supplier Code*',
+                                  field: CommonTextFormField(
+                                    label: 'Supplier Code*',
+                                    controller: vm.supplierCode,
+                                    enabled: false,
+                                    height: 36,
+                                    hintFontSize: 12,
+                                  ),
+                                ),
+
+                                // Supplier Description (Editable)
+                                labelWithField(
+                                  label: 'Supplier Description*',
+                                  field: CommonTextFormField(
+                                    label: 'Supplier Description*',
+                                    controller: vm.supplierDesc,
+                                    height: 36,
+                                    hintFontSize: 12,
+                                  ),
+                                ),
+
+                                // Supplier Type (Searchable)
+                                combinedSearchField(
+                                  label: 'Supplier Type',
+                                  code: vm.supplierType,
+                                  desc: vm.supplierTypeDesc,
+                                  showSearch: true,
+                                ),
+
+                                // Address field like supplier type
+                                combinedSearchField(
+                                  label: 'Address',
+                                  code: vm.supplierAddress,
+                                  desc: vm.supplierAddressDesc,
+                                  showSearch: true,
+                                ),
+
+                                SizedBox(height: dH * 0.03),
+
+                                // Buttons (only show when keyboard is not visible or user has scrolled)
+                                Consumer<PoApplicationVm>(
+                                  builder: (context, vm, child) {
+                                    final keyboardVisible =
+                                        MediaQuery.of(context)
+                                                .viewInsets
+                                                .bottom >
+                                            0;
+                                    return AnimatedOpacity(
+                                      opacity: keyboardVisible ? 0.0 : 1.0,
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          CommonButton(
+                                            text: "Cancel",
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            color: Colors.red,
+                                            textColor: Colors.white,
+                                            fontSize: tS * 0.9,
+                                          ),
+                                          SizedBox(width: dW * 0.015),
+                                          CommonButton(
+                                            text: "Save",
+                                            onPressed: () {
+                                              // vm.saveSupplier(); // call your save method
+                                              Navigator.pop(context);
+                                            },
+                                            color: context
+                                                .resources.color.themeColor,
+                                            textColor: Colors.white,
+                                            fontSize: tS * 0.9,
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Validation Tab
+                          vm.supplierType.text.isNotEmpty
+                              ? SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 16),
+
+                                      // CR No Row
+                                      _buildValidationRow(
+                                        'CR No',
+                                        vm.crNoSelected,
+                                        vm.crNoNumber,
+                                        vm.crNoExpiry,
+                                        (value) => vm.crNoSelected = value,
+                                      ),
+
+                                      const SizedBox(height: 12),
+
+                                      // ZAKAT Row
+                                      _buildValidationRow(
+                                        'ZAKAT',
+                                        vm.zakatSelected,
+                                        vm.zakatNumber,
+                                        vm.zakatExpiry,
+                                        (value) => vm.zakatSelected = value,
+                                      ),
+
+                                      const SizedBox(height: 12),
+
+                                      // VAT Row
+                                      _buildValidationRow(
+                                        'VAT',
+                                        vm.vatSelected,
+                                        vm.vatNumber,
+                                        vm.vatExpiry,
+                                        (value) => vm.vatSelected = value,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : Container(
+                                  child: const Center(
+                                    child: CommonTextView(
+                                      label:
+                                          "Please select a Supplier Type first",
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -725,7 +908,7 @@ class _HeaderTabState extends State<_HeaderTab> {
       ),
       builder: (context) {
         final dW = MediaQuery.of(context).size.width;
-        Provider.of<PoApplicationVm>(context, listen: false);
+        final vm = Provider.of<PoApplicationVm>(context, listen: false);
 
         Widget labelWithField({required String label, required Widget field}) {
           return Padding(
@@ -811,13 +994,14 @@ class _HeaderTabState extends State<_HeaderTab> {
                 ),
                 const SizedBox(height: 5),
                 // Item Details fields
-                valueField("Gross Value", 0.0),
-                valueField("Discount", 0.0),
-                valueField("Gross Value after Discount", 0.0),
+                valueField("Gross Value", vm.getTotalGrossValue()),
+                valueField("Discount", vm.getTotalDiscountValue()),
+                valueField("Gross Value after Discount",
+                    vm.getTotalGrossValue() - vm.getTotalDiscountValue()),
                 valueField("Tax (Add to Cost)", 0.0),
                 valueField("Tax (Recoverable)", 0.0),
                 valueField("Expense", 0.0),
-                valueField("Net Value", 0.0),
+                valueField("Net Value", vm.getTotalNetValue()),
 
                 const Divider(),
                 const SizedBox(height: 5),
@@ -834,31 +1018,22 @@ class _HeaderTabState extends State<_HeaderTab> {
                 // Bottom block (summary)
                 valueField("Tax (Add to Cost)", 0.0),
                 valueField("Tax (Recoverable)", 0.0),
-                valueField("Discount", 0.0),
+                valueField("Discount", vm.getHeaderDiscountValue()),
                 valueField("Expense", 0.0),
-                valueField("Net Value", 0.0),
+                valueField("Net Value", vm.getFinalNetValue()),
 
                 const SizedBox(height: 16),
 
-                // Save/Cancel buttons
+                // Close button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ElevatedButton(
-                      style:
-                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    CommonButton(
+                      text: "Close", fontSize: tS * 0.9,
                       onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancel"),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green),
-                      onPressed: () {
-                        // Call your save method here
-                        Navigator.pop(context);
-                      },
-                      child: const Text("Save"),
+                      color: context.resources.color.themeColor,
+                      textColor: Colors.white,
+                      borderRadius: 8.0, // Less circular
                     ),
                   ],
                 ),
@@ -1128,7 +1303,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                   child: CommonTextFormField(
                 label: 'Discount',
                 controller: vm.discountCtrl,
-                enabled: true,
+                enabled: vm.hasItemDetailsFilled(),
                 height: dH * 0.05,
                 hintFontSize: tS * 0.75,
                 fontSize: tS * 0.75,
@@ -1140,10 +1315,12 @@ class _HeaderTabState extends State<_HeaderTab> {
                   child: CommonTextFormField(
                 label: 'Value',
                 controller: vm.valueCtrl,
-                enabled: false,
+                enabled: vm.hasItemDetailsFilled(),
                 height: dH * 0.05,
                 hintFontSize: tS * 0.75,
                 fontSize: tS * 0.75,
+                keyboardType: TextInputType.number,
+                onChanged: vm.onValueChanged,
               )),
             ])),
         labelWithField(
@@ -1397,11 +1574,14 @@ class _ItemDetailsTab extends StatelessWidget {
                     vm.onItemDetailsSelectAll();
                   }
                 },
-                child: Icon(
-                  vm.isActionAll
-                      ? Icons.check_box
-                      : Icons.check_box_outline_blank,
-                  color: context.resources.color.themeColor,
+                child: Padding(
+                  padding: EdgeInsets.only(left: tS * 0.8),
+                  child: Icon(
+                    vm.isActionAll
+                        ? Icons.check_box
+                        : Icons.check_box_outline_blank,
+                    color: context.resources.color.themeColor,
+                  ),
                 ),
               ),
               const SizedBox(width: 5),
@@ -1447,8 +1627,8 @@ class _ItemDetailsTab extends StatelessWidget {
             child: SingleChildScrollView(
               child: CustomViewOnlyTable(
                 data: items,
-                header1: 'Txn. No',
-                header2: 'Ref. Doc.No',
+                header1: 'Txn Code',
+                header2: 'Ref Do No',
                 isScrollable: false,
                 onOpen: (index) => vm.toggleItemOpen(index),
                 getHeader1: (data) => data.txnNo ?? '',
@@ -1525,44 +1705,87 @@ class _ItemDetailsTab extends StatelessWidget {
                 row4Title: 'Quantity',
                 row4Label: (data) => data.quantity ?? '',
                 isTextRow4: true,
+                row4Controller: (index) =>
+                    vm.purchaseOrderModel!.itemDetailsTab![index]
+                        .quantityController ??
+                    TextEditingController(),
+                row4TextOnChange: (val, index) {
+                  vm.onQuantityChanged(val, index);
+                },
 
                 isRow5: true,
                 row5Title: 'Loose Quantity',
                 row5Label: (data) => data.looseQty ?? '',
+                // Loose quantity is non-clickable (read-only) - only updates when item is loaded from API
+                isTextRow5: false, // Explicitly disable text field
 
                 isRow6: true,
                 row6Title: 'Base Quantity',
                 row6Label: (data) => data.baseQty ?? '',
+                // Base quantity is non-clickable (read-only)
+                isTextRow6: false, // Explicitly disable text field
 
                 // Unit Price - textfield
                 isRow7: true,
                 row7Title: 'Unit Price',
                 row7Label: (data) => data.unitPrice ?? '',
                 isTextRow7: (_) => true,
+                row7Controller: (index) =>
+                    vm.purchaseOrderModel!.itemDetailsTab![index]
+                        .unitPriceController ??
+                    TextEditingController(),
+                row7TextOnChange: (val, index) {
+                  vm.onUnitPriceChanged(val, index);
+                },
 
                 isRow8: true,
                 row8Title: 'Gross Value',
                 row8Label: (data) => data.grossValue ?? '',
+                // Gross value is non-clickable (calculated field)
+                isTextRow8: false, // Explicitly disable text field
 
                 // Discount %
                 isRow9: true,
                 row9Title: 'Discount %',
                 row9Label: (data) => data.discountPer ?? '',
                 isTextRow9: true,
+                row9Controller: (index) =>
+                    vm.purchaseOrderModel!.itemDetailsTab![index]
+                        .discountController ??
+                    TextEditingController(),
+                row9TextOnChange: (val, index) {
+                  vm.onDiscountPercentageChanged(val, index);
+                },
 
                 // Discount Value
                 isRow10: true,
                 row10Title: 'Discount Val',
                 row10Label: (data) => data.discountVal ?? '',
                 isTextRow10: true,
+                row10Controller: (index) {
+                  final item = vm.purchaseOrderModel!.itemDetailsTab![index];
+                  if (item.discountValueController == null) {
+                    item.discountValueController =
+                        TextEditingController(text: item.discountVal ?? '0');
+                  }
+                  return item.discountValueController!;
+                },
+                row10TextOnChange: (val, index) {
+                  vm.onDiscountValueChanged(val, index);
+                },
 
                 isRow11: true,
                 row11Title: 'Net Value',
                 row11Label: (data) => data.netValue ?? '',
+                // Net value is non-clickable (calculated field)
+                isTextRow11: false, // Explicitly disable text field
+                row11Tap: null, // Explicitly disable onTap
 
                 isRow12: true,
                 row12Title: 'Mnf. Desc',
                 row12Label: (data) => data.mnfDesc ?? '',
+                isTextRow12: false, // Explicitly disable text field
+                row12Tap: null, // Explicitly disable onTap
 
                 // Charge Type - search
                 isRow13: true,
@@ -1576,6 +1799,8 @@ class _ItemDetailsTab extends StatelessWidget {
                 isRow14: true,
                 row14Title: 'Charge Type Desc',
                 row14Label: (data) => data.chargeTypeName ?? '',
+                isTextRow14: false, // Explicitly disable text field
+                row14Tap: null, // Explicitly disable onTap
 
                 // Charge To - search
                 isRow15: true,
@@ -1589,14 +1814,20 @@ class _ItemDetailsTab extends StatelessWidget {
                 isRow16: true,
                 row16Title: 'Charge To Desc',
                 row16Label: (data) => data.chargeToName ?? '',
+                isTextRow16: false, // Explicitly disable text field
+                row16Tap: null, // Explicitly disable onTap
 
                 isRow17: true,
                 row17Title: 'Need By Dt',
                 row17Label: (data) => data.needByDt ?? '',
+                isTextRow17: false, // Explicitly disable text field
+                row17Tap: null, // Explicitly disable onTap
 
                 isRow18: true,
                 row18Title: 'ETA',
                 row18Label: (data) => data.etaDate ?? '',
+                isTextRow18: false, // Explicitly disable text field
+                row18Tap: null, // Explicitly disable onTap
 
                 // GL Code - search
                 isRow19: true,
@@ -1613,12 +1844,22 @@ class _ItemDetailsTab extends StatelessWidget {
                 isRow20: true,
                 row20Title: 'GL Desc',
                 row20Label: (data) => data.glDesc ?? '',
+                isTextRow20: false, // Explicitly disable text field
+                row20Tap: null, // Explicitly disable onTap
 
                 // Note to Receiver
                 isRow21: true,
                 row21Title: 'Note to Receiver',
                 row21Label: (data) => data.noteToReceiver ?? '',
                 isTextRow21: true,
+                row21Controller: (index) =>
+                    vm.purchaseOrderModel!.itemDetailsTab![index]
+                        .noteToReceiverController ??
+                    TextEditingController(),
+                row21TextOnChange: (val, index) {
+                  vm.purchaseOrderModel!.itemDetailsTab![index].noteToReceiver =
+                      val;
+                },
               ),
             ),
           ),
@@ -1867,6 +2108,7 @@ class _ItemDetailsTab extends StatelessWidget {
                                   CommonButton(
                                     buttonWidth: ButtonWidth.WRAP,
                                     text: 'Close',
+                                    fontSize: tS * 0.5,
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },

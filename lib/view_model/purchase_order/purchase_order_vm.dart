@@ -6,6 +6,8 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:petty_cash/data/models/common/common_searching_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 import 'package:petty_cash/data/models/po_model.dart/po_transaction_model.dart';
+import 'package:petty_cash/data/models/po_model.dart/item_details_model.dart'
+    as item_model;
 import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/global.dart';
 
@@ -17,15 +19,176 @@ class PoApplicationVm extends ChangeNotifier {
   final GeneralRepository _myRepo = GeneralRepository();
   bool _isDisposed = false;
   List<String> tabHeaders = ['Header', 'Item Details'];
-  TextEditingController submitRemarksCtrl = TextEditingController();
 
+  PoApplicationVm() {
+    _initializeControllerListeners();
+  }
+
+  /// Initialize listeners for controllers that need to update line items
+  void _initializeControllerListeners() {
+    // Add listeners to charge type controllers
+    chargeTypeCodeCtrl.addListener(_onChargeTypeChanged);
+    chargeTypeDescCtrl.addListener(_onChargeTypeChanged);
+
+    // Add listeners to charge to controllers
+    chargeToCodeCtrl.addListener(_onChargeToChanged);
+    chargeToDescCtrl.addListener(_onChargeToChanged);
+
+    // Add listeners to header discount and value controllers
+    valueCtrl.addListener(_onValueControllerChanged);
+  }
+
+  /// Handle value controller changes
+  void _onValueControllerChanged() {
+    onValueChanged(valueCtrl.text);
+  }
+
+  /// Handle charge type changes
+  void _onChargeTypeChanged() {
+    // Update chargeTypeCode variable for charge to search functionality
+    chargeTypeCode = chargeTypeCodeCtrl.text;
+
+    if (purchaseOrderModel?.itemDetailsTab != null) {
+      for (final item in purchaseOrderModel!.itemDetailsTab!) {
+        item.chargeTypeCode = chargeTypeCodeCtrl.text;
+        item.chargeTypeName = chargeTypeDescCtrl.text;
+      }
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  /// Handle charge to changes
+  void _onChargeToChanged() {
+    if (purchaseOrderModel?.itemDetailsTab != null) {
+      for (final item in purchaseOrderModel!.itemDetailsTab!) {
+        item.chargeToCode = chargeToCodeCtrl.text;
+        item.chargeToName = chargeToDescCtrl.text;
+      }
+      if (!_isDisposed) notifyListeners();
+    }
+  }
+
+  // ==================== CONTROLLERS ====================
+
+  /// Document Information Controllers
+  final TextEditingController docDateCtrl = TextEditingController();
+  final TextEditingController docLocCodeCtrl = TextEditingController();
+  final TextEditingController docLocDescCtrl = TextEditingController();
+  final TextEditingController docNoTypeCtrl = TextEditingController();
+  final TextEditingController docNoCtrl = TextEditingController();
+  final TextEditingController statusCtrl = TextEditingController();
+
+  /// Reference Information Controllers
+  final TextEditingController referenceCtrl = TextEditingController();
+  final TextEditingController referenceDescCtrl = TextEditingController();
+  final TextEditingController refDocCodeCtrl = TextEditingController();
+  final TextEditingController refDocNoCtrl = TextEditingController();
+  final TextEditingController refDocCtrl = TextEditingController();
+  String referenceSelectedCode = 'DIRECT';
+
+  /// Supplier Information Controllers
+  final TextEditingController supplierCtrl = TextEditingController();
+  final TextEditingController supOfferNoCtrl = TextEditingController();
+  final TextEditingController supOfferDateCtrl = TextEditingController();
+
+  /// Additional Supplier Controllers (for supplier creation)
+  final TextEditingController supplierCode = TextEditingController();
+  final TextEditingController supplierDesc = TextEditingController();
+  final TextEditingController supplierType = TextEditingController();
+  final TextEditingController supplierTypeDesc = TextEditingController();
+  final TextEditingController supplierAddress = TextEditingController();
+  final TextEditingController supplierAddressDesc = TextEditingController();
+
+  /// Validation Controllers
+  bool crNoSelected = false;
+  bool zakatSelected = false;
+  bool vatSelected = false;
+  final TextEditingController crNoNumber = TextEditingController();
+  final TextEditingController crNoExpiry = TextEditingController();
+  final TextEditingController zakatNumber = TextEditingController();
+  final TextEditingController zakatExpiry = TextEditingController();
+  final TextEditingController vatNumber = TextEditingController();
+  final TextEditingController vatExpiry = TextEditingController();
+
+  /// Financial Information Controllers
+  final TextEditingController currencyCodeCtrl = TextEditingController();
+  final TextEditingController currencyDescCtrl = TextEditingController();
+  final TextEditingController exchangeRateCtrl = TextEditingController();
+  final TextEditingController discountCtrl = TextEditingController();
+  final TextEditingController valueCtrl = TextEditingController();
+
+  /// Payment & Shipping Controllers
+  final TextEditingController paymentTermCtrl = TextEditingController();
+  final TextEditingController modeShipmentCtrl = TextEditingController();
+  final TextEditingController modePaymentCtrl = TextEditingController();
+  final TextEditingController deliveryTermCodeCtrl = TextEditingController();
+  final TextEditingController deliveryTermDescCtrl = TextEditingController();
+
+  /// Charge Information Controllers
+  final TextEditingController chargeTypeCodeCtrl = TextEditingController();
+  final TextEditingController chargeTypeDescCtrl = TextEditingController();
+  final TextEditingController chargeToCodeCtrl = TextEditingController();
+  final TextEditingController chargeToDescCtrl = TextEditingController();
+
+  /// Location & Type Controllers
+  final TextEditingController shipToStoreCodeCtrl = TextEditingController();
+  final TextEditingController shipToStoreDescCtrl = TextEditingController();
+  final TextEditingController purchaseTypeCodeCtrl = TextEditingController();
+  final TextEditingController purchaseTypeDescCtrl = TextEditingController();
+
+  /// Additional Information Controllers
+  final TextEditingController pettyCashCodeCtrl = TextEditingController();
+  final TextEditingController pettyCashDescCtrl = TextEditingController();
+  final TextEditingController buyerCodeCtrl = TextEditingController();
+  final TextEditingController buyerDescCtrl = TextEditingController();
+  final TextEditingController etaCtrl = TextEditingController();
+  final TextEditingController needByDateCtrl = TextEditingController();
+
+  /// Remarks & Comments Controllers
+  final TextEditingController remarkCtrl = TextEditingController();
+  final quill.QuillController remarkQuillController =
+      quill.QuillController.basic();
+  final TextEditingController submitRemarksCtrl = TextEditingController();
+
+  // ==================== STATE MANAGEMENT ====================
+
+  /// Loading States
+  bool isLoading = false;
+  bool isApiLoading = false;
+  bool isReferenceLoading = false;
+  bool hasDataLoaded = false;
+
+  /// Data Models
+  PurchaseOrderModel? purchaseOrderModel;
+  PurchaserequestReferenceModel referencePRModel =
+      PurchaserequestReferenceModel(referencePR: []);
+
+  /// UI State Management
+  bool isActionAll = false;
+  List<int> selectedIndex = [];
+  bool isSubmit = false;
+  bool isApproved = false;
+  bool isAdHistory = false;
+  bool isComment = false;
+  bool isDraft = false;
+  bool isWorkFlow = false;
+  bool isWFTab = false;
+  bool isLoanDetals = false;
+  bool isPaymentDetails = false;
+
+  /// Transaction State
+  int myHeaderId = 0; // 0 initially, updated after saving
+  String sendData = '';
+  String empCode = '';
+  String needByDate = '';
+  double totalPaidAmount = 0.0;
+  double totalBalanceAmount = 0.0;
+
+  /// Index Management
   int docIndex = -1;
-
   int txnIndex = -1;
-
   int statusIndex = -1;
   int remarkIndex = -1;
-
   int reference = 0;
   int referenceId = 0;
   String refTxnType = '';
@@ -48,95 +211,11 @@ class PoApplicationVm extends ChangeNotifier {
   int withPayrollIndex = -1;
   int separateIndex = -1;
   int installmentAmtIndex = -1;
-  double totalPaidAmount = 0.0;
-  double totalBalanceAmount = 0.0;
-  bool isSubmit = false;
-  bool isApproved = false;
-  String sendData = '';
-  String empCode = '';
-  String needByDate = '';
-  bool isActionAll = false;
-  List<int> selectedIndex = [];
-  int myHeaderId = 0; // 0 initially, updated after saving
-  bool isAdHistory = false;
-  bool isComment = false;
-  bool isDraft = false;
-  bool isWorkFlow = false;
-  bool isWFTab = false;
-  bool isLoanDetals = false;
-  bool isPaymentDetails = false;
+
+  /// Additional Properties
   int supp_id = 0;
   String chargeTypeCode = '';
-
-  // Header controllers
-  final TextEditingController docDateCtrl = TextEditingController();
-  final TextEditingController docLocCodeCtrl = TextEditingController();
-  final TextEditingController docLocDescCtrl = TextEditingController();
-  final TextEditingController docNoTypeCtrl = TextEditingController();
-  final TextEditingController docNoCtrl = TextEditingController();
-  final TextEditingController statusCtrl = TextEditingController();
-
-  final TextEditingController referenceCtrl = TextEditingController();
-  final TextEditingController referenceDescCtrl = TextEditingController();
-  String referenceSelectedCode = 'DIRECT';
-  final TextEditingController refDocCodeCtrl = TextEditingController();
-  final TextEditingController refDocNoCtrl = TextEditingController();
-  final TextEditingController refDocCtrl = TextEditingController();
-
-  final TextEditingController supplierCtrl = TextEditingController();
-  final TextEditingController supOfferNoCtrl = TextEditingController();
-  final TextEditingController supOfferDateCtrl = TextEditingController();
-
-  final TextEditingController currencyCodeCtrl = TextEditingController();
-  final TextEditingController currencyDescCtrl = TextEditingController();
-  final TextEditingController exchangeRateCtrl = TextEditingController();
-  final TextEditingController discountCtrl = TextEditingController();
-  final TextEditingController valueCtrl = TextEditingController();
-
-  final TextEditingController paymentTermCtrl = TextEditingController();
-  final TextEditingController modeShipmentCtrl = TextEditingController();
-  final TextEditingController modePaymentCtrl = TextEditingController();
-
-  final TextEditingController chargeTypeCodeCtrl = TextEditingController();
-  final TextEditingController chargeTypeDescCtrl = TextEditingController();
-  final TextEditingController chargeToCodeCtrl = TextEditingController();
-  final TextEditingController chargeToDescCtrl = TextEditingController();
-
-  final TextEditingController shipToStoreCodeCtrl = TextEditingController();
-  final TextEditingController shipToStoreDescCtrl = TextEditingController();
-
-  final TextEditingController purchaseTypeCodeCtrl = TextEditingController();
-  final TextEditingController purchaseTypeDescCtrl = TextEditingController();
-
-  final TextEditingController pettyCashCodeCtrl = TextEditingController();
-  final TextEditingController pettyCashDescCtrl = TextEditingController();
-
-  final TextEditingController buyerCodeCtrl = TextEditingController();
-  final TextEditingController buyerDescCtrl = TextEditingController();
-
-  final TextEditingController etaCtrl = TextEditingController();
-  final TextEditingController deliveryTermCodeCtrl = TextEditingController();
-  final TextEditingController deliveryTermDescCtrl = TextEditingController();
-  final TextEditingController needByDateCtrl = TextEditingController();
-  final TextEditingController remarkCtrl = TextEditingController();
-
-  final TextEditingController supplierCode = TextEditingController();
-  final TextEditingController supplierDesc = TextEditingController();
-  final TextEditingController supplierType = TextEditingController();
-  final TextEditingController supplierAddress = TextEditingController();
-
-  final quill.QuillController remarkQuillController =
-      quill.QuillController.basic();
-
-  bool isLoading = false;
-  bool isApiLoading = false;
-  bool hasDataLoaded = false;
-  PurchaseOrderModel? purchaseOrderModel;
-
-  // Reference PR specific fields
-  bool isReferenceLoading = false;
-  PurchaserequestReferenceModel referencePRModel =
-      PurchaserequestReferenceModel(referencePR: []);
+  List<TaxPopup> taxPopups = [];
 
   void setLoading(bool val) {
     isLoading = val;
@@ -144,14 +223,322 @@ class PoApplicationVm extends ChangeNotifier {
   }
 
   void onDiscountChanged(String value) {
-    // auto-calc header value if discount entered, assuming header gross is not provided.
-    // Here we keep valueCtrl as (value after discount) if exchangeRate exists; simplistic rule: value = max(0, exchangeRate - discount).
-    // Adjust when backend provides proper formula.
-    final double rate = double.tryParse(exchangeRateCtrl.text) ?? 0.0;
-    final double disc = double.tryParse(value) ?? 0.0;
-    double result = rate - disc;
-    if (result < 0) result = 0;
-    valueCtrl.text = result.toStringAsFixed(2);
+    // Only calculate if item details are filled
+    if (hasItemDetailsFilled()) {
+      _calculateHeaderValueFromDiscount();
+    }
+    if (!_isDisposed) notifyListeners();
+  }
+
+  void onValueChanged(String value) {
+    // Only calculate if item details are filled
+    if (hasItemDetailsFilled()) {
+      _calculateHeaderDiscountFromValue();
+    }
+    if (!_isDisposed) notifyListeners();
+  }
+
+  /// Check if item details are filled
+  bool hasItemDetailsFilled() {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        purchaseOrderModel!.itemDetailsTab!.isEmpty) {
+      return false;
+    }
+
+    // Check if at least one item has quantity and unit price
+    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+      if ((item.quantity != null &&
+              item.quantity!.isNotEmpty &&
+              item.quantity != '0') &&
+          (item.unitPrice != null &&
+              item.unitPrice!.isNotEmpty &&
+              item.unitPrice != '0')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Calculate header value from discount
+  void _calculateHeaderValueFromDiscount() {
+    final discountText = discountCtrl.text.trim();
+
+    // If discount field is cleared, clear value field too
+    if (discountText.isEmpty) {
+      valueCtrl.clear();
+      return;
+    }
+
+    try {
+      final discount = double.parse(discountText);
+      final totalItemNetValue = _calculateTotalItemNetValue();
+
+      if (totalItemNetValue > 0) {
+        final value = totalItemNetValue - discount;
+        valueCtrl.text = value.toStringAsFixed(2);
+      }
+    } catch (e) {
+      print('Error calculating value from discount: $e');
+    }
+  }
+
+  /// Calculate header discount from value
+  void _calculateHeaderDiscountFromValue() {
+    final valueText = valueCtrl.text.trim();
+
+    // If value field is cleared, clear discount field too
+    if (valueText.isEmpty) {
+      discountCtrl.clear();
+      return;
+    }
+
+    try {
+      final value = double.parse(valueText);
+      final totalItemNetValue = _calculateTotalItemNetValue();
+
+      if (totalItemNetValue > 0) {
+        final discount = totalItemNetValue - value;
+        discountCtrl.text = discount.toStringAsFixed(2);
+      }
+    } catch (e) {
+      print('Error calculating discount from value: $e');
+    }
+  }
+
+  /// Calculate total net value from all item details
+  double _calculateTotalItemNetValue() {
+    if (purchaseOrderModel?.itemDetailsTab == null) return 0.0;
+
+    double total = 0.0;
+    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+      try {
+        final netValue = double.tryParse(item.netValue ?? '0') ?? 0.0;
+        total += netValue;
+      } catch (e) {
+        print('Error parsing net value: $e');
+      }
+    }
+    return total;
+  }
+
+  /// Get total gross value from all item details
+  double getTotalGrossValue() {
+    if (purchaseOrderModel?.itemDetailsTab == null) return 0.0;
+
+    double total = 0.0;
+    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+      try {
+        final grossValue = double.tryParse(item.grossValue ?? '0') ?? 0.0;
+        total += grossValue;
+      } catch (e) {
+        print('Error parsing gross value: $e');
+      }
+    }
+    return total;
+  }
+
+  /// Get total discount value from all item details
+  double getTotalDiscountValue() {
+    if (purchaseOrderModel?.itemDetailsTab == null) return 0.0;
+
+    double total = 0.0;
+    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+      try {
+        final discountValue = double.tryParse(item.discountVal ?? '0') ?? 0.0;
+        total += discountValue;
+      } catch (e) {
+        print('Error parsing discount value: $e');
+      }
+    }
+    return total;
+  }
+
+  /// Get total net value from all item details
+  double getTotalNetValue() {
+    return _calculateTotalItemNetValue();
+  }
+
+  /// Get header discount value
+  double getHeaderDiscountValue() {
+    try {
+      return double.tryParse(discountCtrl.text.trim()) ?? 0.0;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  /// Get header value
+  double getHeaderValue() {
+    try {
+      return double.tryParse(valueCtrl.text.trim()) ?? 0.0;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  /// Get final net value (item details + header)
+  double getFinalNetValue() {
+    final itemNetValue = getTotalNetValue();
+    final headerValue = getHeaderValue();
+    return itemNetValue + headerValue;
+  }
+
+  // ==================== ITEM CALCULATION METHODS ====================
+
+  /// Calculate quantity-related fields when quantity changes
+  void onQuantityChanged(String value, int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        index < 0 ||
+        index >= purchaseOrderModel!.itemDetailsTab!.length) return;
+
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+    final quantity = double.tryParse(value) ?? 0.0;
+
+    // Update quantity field
+    item.quantity = value;
+    if (item.quantityController != null) {
+      item.quantityController!.text = value;
+    }
+
+    // Set base quantity to same value as quantity (non-clickable)
+    item.baseQty = value;
+
+    // Only update loose quantity if item has been loaded from API AND has a loose quantity value
+    // This ensures loose quantity calculation only happens when API data is available with actual value (not 0, not empty)
+    if (item.itemCode != null &&
+        item.itemCode!.isNotEmpty &&
+        item.looseQty != null &&
+        item.looseQty!.isNotEmpty &&
+        item.looseQty != '' &&
+        item.looseQty != '0') {
+      item.looseQty = value;
+    }
+
+    // Recalculate gross value if unit price exists
+    if (item.unitPrice != null && item.unitPrice!.isNotEmpty) {
+      calculateGrossValue(index);
+    }
+
+    if (!_isDisposed) notifyListeners();
+  }
+
+  /// Calculate gross value when unit price changes
+  void onUnitPriceChanged(String value, int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        index < 0 ||
+        index >= purchaseOrderModel!.itemDetailsTab!.length) return;
+
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+
+    // Update unit price field
+    item.unitPrice = value;
+    if (item.unitPriceController != null) {
+      item.unitPriceController!.text = value;
+    }
+
+    // Calculate gross value
+    calculateGrossValue(index);
+
+    if (!_isDisposed) notifyListeners();
+  }
+
+  /// Calculate gross value from quantity * unit price
+  void calculateGrossValue(int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        index < 0 ||
+        index >= purchaseOrderModel!.itemDetailsTab!.length) return;
+
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+    final quantity = double.tryParse(item.quantity ?? '0') ?? 0.0;
+    final unitPrice = double.tryParse(item.unitPrice ?? '0') ?? 0.0;
+
+    final grossValue = quantity * unitPrice;
+    item.grossValue = grossValue.toStringAsFixed(2);
+
+    // Recalculate net value if discount exists
+    calculateNetValue(index);
+  }
+
+  /// Calculate discount value when discount percentage changes
+  void onDiscountPercentageChanged(String value, int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        index < 0 ||
+        index >= purchaseOrderModel!.itemDetailsTab!.length) return;
+
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+
+    // Update discount percentage field
+    item.discountPer = value;
+    if (item.discountController != null) {
+      item.discountController!.text = value;
+    }
+
+    // Calculate discount value from percentage
+    final grossValue = double.tryParse(item.grossValue ?? '0') ?? 0.0;
+    final discountPercent = double.tryParse(value) ?? 0.0;
+    final discountValue = (grossValue * discountPercent) / 100;
+
+    item.discountVal = discountValue.toStringAsFixed(2);
+    if (item.discountValueController != null) {
+      item.discountValueController!.text = item.discountVal!;
+    }
+
+    // Calculate net value
+    calculateNetValue(index);
+
+    if (!_isDisposed) notifyListeners();
+  }
+
+  /// Calculate discount percentage when discount value changes
+  void onDiscountValueChanged(String value, int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        index < 0 ||
+        index >= purchaseOrderModel!.itemDetailsTab!.length) return;
+
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+
+    // Update discount value field
+    item.discountVal = value;
+    if (item.discountValueController != null) {
+      item.discountValueController!.text = value;
+    }
+
+    // Calculate discount percentage from value
+    final grossValue = double.tryParse(item.grossValue ?? '0') ?? 0.0;
+    final discountValue = double.tryParse(value) ?? 0.0;
+
+    if (grossValue > 0) {
+      final discountPercent = (discountValue / grossValue) * 100;
+      item.discountPer = discountPercent.toStringAsFixed(2);
+      if (item.discountController != null) {
+        item.discountController!.text = item.discountPer!;
+      }
+    } else {
+      item.discountPer = '0';
+      if (item.discountController != null) {
+        item.discountController!.text = '0';
+      }
+    }
+
+    // Calculate net value
+    calculateNetValue(index);
+
+    if (!_isDisposed) notifyListeners();
+  }
+
+  /// Calculate net value from gross value minus discount
+  void calculateNetValue(int index) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        index < 0 ||
+        index >= purchaseOrderModel!.itemDetailsTab!.length) return;
+
+    final item = purchaseOrderModel!.itemDetailsTab![index];
+    final grossValue = double.tryParse(item.grossValue ?? '0') ?? 0.0;
+    final discountValue = double.tryParse(item.discountVal ?? '0') ?? 0.0;
+
+    final netValue = grossValue - discountValue;
+    item.netValue = netValue.toStringAsFixed(2);
+
     if (!_isDisposed) notifyListeners();
   }
 
@@ -190,6 +577,22 @@ class PoApplicationVm extends ChangeNotifier {
     remarkCtrl.text = remarkQuillController.document.toPlainText().trim();
   }
 
+  /// Update all line items with current header charge type and charge to values
+  void updateAllLineItemsWithHeaderData() {
+    if (purchaseOrderModel?.itemDetailsTab != null) {
+      for (final item in purchaseOrderModel!.itemDetailsTab!) {
+        // Update charge type
+        item.chargeTypeCode = chargeTypeCodeCtrl.text;
+        item.chargeTypeName = chargeTypeDescCtrl.text;
+
+        // Update charge to
+        item.chargeToCode = chargeToCodeCtrl.text;
+        item.chargeToName = chargeToDescCtrl.text;
+      }
+      notifyListeners();
+    }
+  }
+
 // default view api
   Future<void> callPoView(int headerId) async {
     setLoading(true);
@@ -211,6 +614,14 @@ class PoApplicationVm extends ChangeNotifier {
         if (purchaseOrderModel?.itemDetailsTab != null) {
           for (final item in purchaseOrderModel!.itemDetailsTab!) {
             item.isOpen = false;
+            // Populate item details with header charge type data
+            if (purchaseOrderModel?.headerTab != null) {
+              final headerData = purchaseOrderModel!.headerTab!;
+              item.chargeTypeCode = headerData.chargeTypeCode ?? '';
+              item.chargeTypeName = headerData.chargeTypeDescription ?? '';
+              item.chargeToCode = headerData.chargeToCode ?? '';
+              item.chargeToName = headerData.chargeToDescription ?? '';
+            }
           }
         } else {
           // Fallback empty HeaderTab to avoid UI issues
@@ -268,6 +679,8 @@ class PoApplicationVm extends ChangeNotifier {
     modePaymentCtrl.text = _s(h['mode_of_payment_desc']);
     chargeTypeCodeCtrl.text = _s(h['charge_type_code']);
     chargeTypeDescCtrl.text = _s(h['charge_type_description']);
+    // Set chargeTypeCode variable for charge to search functionality
+    chargeTypeCode = _s(h['charge_type_code']);
     chargeToCodeCtrl.text = _s(h['charge_to_code']);
     chargeToDescCtrl.text = _s(h['charge_to_description']);
     shipToStoreCodeCtrl.text = _s(h['ship_to_store_loc_code']);
@@ -466,10 +879,35 @@ class PoApplicationVm extends ChangeNotifier {
           chargeTypeCodeCtrl.text = result.code ?? '';
           chargeTypeDescCtrl.text = result.desc ?? '';
           chargeTypeCode = result.code ?? ''; // Update chargeTypeCode
+
+          // Update all existing line items with new charge type
+          if (purchaseOrderModel?.itemDetailsTab != null) {
+            for (final item in purchaseOrderModel!.itemDetailsTab!) {
+              item.chargeTypeCode = result.code ?? '';
+              item.chargeTypeName = result.desc ?? '';
+            }
+          }
           break;
         case 'Charge To*':
           chargeToCodeCtrl.text = result.code ?? '';
           chargeToDescCtrl.text = result.desc ?? '';
+
+          // Update all existing line items with new charge to
+          if (purchaseOrderModel?.itemDetailsTab != null) {
+            for (final item in purchaseOrderModel!.itemDetailsTab!) {
+              item.chargeToCode = result.code ?? '';
+              item.chargeToName = result.desc ?? '';
+            }
+          }
+          break;
+        case 'Supplier Type':
+          supplierType.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          break;
+        case 'Address Code':
+          supplierAddress.text = result.code ?? '';
+          break;
+        case 'Address Description':
+          supplierAddressDesc.text = result.desc ?? '';
           break;
         case 'Ship to Store Loc*':
           shipToStoreCodeCtrl.text = result.code ?? '';
@@ -528,8 +966,87 @@ class PoApplicationVm extends ChangeNotifier {
     }
   }
 
+  /// --- Add PR Reference to PO Item Details ---
+  Future<void> addPrReference(List<int> priLineIdList) async {
+    if (priLineIdList.isEmpty) return;
+
+    setReferenceLoading(true);
+
+    try {
+      String url = ApiUrl.baseUrl! + ApiUrl.addPrReference;
+      final response = await _myRepo.postApi(url, {
+        'user_id': Global.empData!.userId.toString(),
+        'company_id': Global.empData!.companyId.toString(),
+        'pri_line_id_list': priLineIdList.join(','),
+      });
+
+      if (response != null && response['pr_detail_tab'] != null) {
+        // Parse the response and add new line items
+        List<dynamic> itemDetailsList = response['pr_detail_tab'];
+
+        for (var itemData in itemDetailsList) {
+          // Create new ItemDetailsTab from API response
+          var newItem = ItemDetailsTab.fromJson(itemData);
+
+          // Initialize controllers for the new item
+          newItem.discountController =
+              TextEditingController(text: newItem.discountPer ?? '0');
+          newItem.discountValueController =
+              TextEditingController(text: newItem.discountVal ?? '0');
+          newItem.quantityController =
+              TextEditingController(text: newItem.quantity ?? '');
+          newItem.unitPriceController =
+              TextEditingController(text: newItem.unitPrice ?? '');
+          newItem.noteToReceiverController =
+              TextEditingController(text: newItem.noteToReceiver ?? '');
+
+          // Set charge type and charge to from header if available
+          newItem.chargeTypeCode =
+              chargeTypeCodeCtrl.text.isNotEmpty ? chargeTypeCodeCtrl.text : '';
+          newItem.chargeTypeName =
+              chargeTypeDescCtrl.text.isNotEmpty ? chargeTypeDescCtrl.text : '';
+          newItem.chargeToCode =
+              chargeToCodeCtrl.text.isNotEmpty ? chargeToCodeCtrl.text : '';
+          newItem.chargeToName =
+              chargeToDescCtrl.text.isNotEmpty ? chargeToDescCtrl.text : '';
+
+          // Add to item details tab
+          purchaseOrderModel?.itemDetailsTab ??= [];
+          purchaseOrderModel!.itemDetailsTab!.add(newItem);
+        }
+
+        // Update header net value popup data if available
+        if (response['header_net_value_popup'] != null &&
+            response['header_net_value_popup'].isNotEmpty) {
+          var headerData = response['header_net_value_popup'][0];
+
+          // Update header discount and value controllers with API data
+          if (headerData['header_discount'] != null) {
+            discountCtrl.text = headerData['header_discount'].toString();
+          }
+          if (headerData['header_net_value'] != null) {
+            valueCtrl.text = headerData['header_net_value'].toString();
+          }
+        }
+
+        if (!_isDisposed) notifyListeners();
+      }
+    } catch (e, st) {
+      print("Error in addPrReference: $e");
+      print(st);
+    } finally {
+      setReferenceLoading(false);
+    }
+  }
+
   // ===================== Item Search Flow =====================
   void callItemSearch(BuildContext context, int index, int type) {
+    // Ensure there's at least one item line
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        purchaseOrderModel!.itemDetailsTab!.isEmpty) {
+      addItemDetailsLine();
+    }
+
     if (type == 1) {
       // Item Code search
       callItemCommonSearch(context, index, 'Item', type);
@@ -558,41 +1075,90 @@ class PoApplicationVm extends ChangeNotifier {
         ),
       ),
     ).then((value) {
-      if (value != null && value is SearchList) {
-        if (type == 1 && searchType == 'ITEM') {
+      if (value != null && value is item_model.SearchList) {
+        if (type == 1 && searchType == 'Item') {
           // Item Code search result
           if (purchaseOrderModel?.itemDetailsTab != null &&
               updateIndex >= 0 &&
               updateIndex < purchaseOrderModel!.itemDetailsTab!.length) {
             final item = purchaseOrderModel!.itemDetailsTab![updateIndex];
-            item.itemCode = value.code ?? '';
-            item.itemDesc = value.desc ?? '';
-            item.itemId = value.id;
+
+            // Populate basic item information
+            item.itemCode = value.itemCode ?? '';
+            item.itemDesc = value.itemDescription ?? '';
+            item.itemId = value.itemId;
+
+            // Populate quantity fields - set initial API values
+            item.quantity = '1'; // Default quantity
+            // Set loose quantity from API data if available, otherwise leave empty
+            item.looseQty = value.itemLooseQty?.toString() ?? '';
+            item.baseQty = value.baseLooseQty?.toString() ?? '1';
+
+            // Populate UOM information
+            item.uom = value.uomCode ?? '';
+            item.uomDesc = value.uomCode ??
+                ''; // Using uomCode as desc if no separate desc field
+            item.uomId = value.uomId;
+
+            // Populate GL information
+            item.glCode = value.glCode ?? '';
+            item.glDesc = value.glDesc ?? '';
+            item.glId = value.glCodeId;
+
+            // Populate unit price if available
+            if (value.stdRate != null && value.stdRate!.isNotEmpty) {
+              item.unitPrice = value.stdRate;
+            }
 
             // Update controllers if they exist
             if (item.quantityController != null) {
               item.quantityController!.text = item.quantity ?? '1';
             }
+            if (item.unitPriceController != null && item.unitPrice != null) {
+              item.unitPriceController!.text = item.unitPrice!;
+            }
+            if (item.discountValueController != null) {
+              item.discountValueController!.text = item.discountVal ?? '0';
+            }
+
+            // Initialize calculated fields with API values or defaults
+            if (item.grossValue == null || item.grossValue!.isEmpty) {
+              item.grossValue = '0.00';
+            }
+            if (item.discountPer == null || item.discountPer!.isEmpty) {
+              item.discountPer = '0';
+            }
+            if (item.discountVal == null || item.discountVal!.isEmpty) {
+              item.discountVal = '0';
+            }
+            if (item.netValue == null || item.netValue!.isEmpty) {
+              item.netValue = '0.00';
+            }
+
+            // Calculate initial values if unit price exists
+            if (item.unitPrice != null && item.unitPrice!.isNotEmpty) {
+              calculateGrossValue(updateIndex);
+            }
           }
         } else if (type == 2) {
-          // UOM search result
+          // UOM search result - using item SearchList
           if (purchaseOrderModel?.itemDetailsTab != null &&
               updateIndex >= 0 &&
               updateIndex < purchaseOrderModel!.itemDetailsTab!.length) {
             final item = purchaseOrderModel!.itemDetailsTab![updateIndex];
-            item.uom = value.code ?? '';
-            item.uomDesc = value.desc ?? '';
-            item.uomId = value.id;
+            item.uom = value.uomCode ?? '';
+            item.uomDesc = value.uomCode ?? '';
+            item.uomId = value.uomId;
           }
         } else if (type == 3) {
-          // GL Code search result
+          // GL Code search result - using item SearchList
           if (purchaseOrderModel?.itemDetailsTab != null &&
               updateIndex >= 0 &&
               updateIndex < purchaseOrderModel!.itemDetailsTab!.length) {
             final item = purchaseOrderModel!.itemDetailsTab![updateIndex];
-            item.glCode = value.code ?? '';
-            item.glDesc = value.desc ?? '';
-            item.glId = value.id;
+            item.glCode = value.glCode ?? '';
+            item.glDesc = value.glDesc ?? '';
+            item.glId = value.glCodeId;
           }
         }
         notifyListeners();
@@ -602,49 +1168,225 @@ class PoApplicationVm extends ChangeNotifier {
 
   @override
   void dispose() {
-    submitRemarksCtrl.dispose();
+    // Dispose all controllers in organized groups
+    _disposeDocumentControllers();
+    _disposeReferenceControllers();
+    _disposeSupplierControllers();
+    _disposeFinancialControllers();
+    _disposePaymentShippingControllers();
+    _disposeChargeControllers();
+    _disposeLocationTypeControllers();
+    _disposeAdditionalControllers();
+    _disposeRemarksControllers();
+
+    _isDisposed = true;
+    super.dispose();
+  }
+
+  /// Dispose Document Information Controllers
+  void _disposeDocumentControllers() {
     docDateCtrl.dispose();
     docLocCodeCtrl.dispose();
     docLocDescCtrl.dispose();
     docNoTypeCtrl.dispose();
     docNoCtrl.dispose();
     statusCtrl.dispose();
+  }
+
+  /// Dispose Reference Information Controllers
+  void _disposeReferenceControllers() {
     referenceCtrl.dispose();
     referenceDescCtrl.dispose();
     refDocCodeCtrl.dispose();
     refDocNoCtrl.dispose();
     refDocCtrl.dispose();
+  }
+
+  /// Dispose Supplier Information Controllers
+  void _disposeSupplierControllers() {
     supplierCtrl.dispose();
     supOfferNoCtrl.dispose();
     supOfferDateCtrl.dispose();
+    supplierCode.dispose();
+    supplierDesc.dispose();
+    supplierType.dispose();
+    supplierTypeDesc.dispose();
+    supplierAddress.dispose();
+    supplierAddressDesc.dispose();
+    crNoNumber.dispose();
+    crNoExpiry.dispose();
+    zakatNumber.dispose();
+    zakatExpiry.dispose();
+    vatNumber.dispose();
+    vatExpiry.dispose();
+  }
+
+  /// Dispose Financial Information Controllers
+  void _disposeFinancialControllers() {
+    // Remove listeners before disposing
+    valueCtrl.removeListener(_onValueControllerChanged);
+
     currencyCodeCtrl.dispose();
     currencyDescCtrl.dispose();
     exchangeRateCtrl.dispose();
     discountCtrl.dispose();
     valueCtrl.dispose();
+  }
+
+  /// Dispose Payment & Shipping Controllers
+  void _disposePaymentShippingControllers() {
     paymentTermCtrl.dispose();
     modeShipmentCtrl.dispose();
     modePaymentCtrl.dispose();
+    deliveryTermCodeCtrl.dispose();
+    deliveryTermDescCtrl.dispose();
+  }
+
+  /// Dispose Charge Information Controllers
+  void _disposeChargeControllers() {
+    // Remove listeners before disposing
+    chargeTypeCodeCtrl.removeListener(_onChargeTypeChanged);
+    chargeTypeDescCtrl.removeListener(_onChargeTypeChanged);
+    chargeToCodeCtrl.removeListener(_onChargeToChanged);
+    chargeToDescCtrl.removeListener(_onChargeToChanged);
+
     chargeTypeCodeCtrl.dispose();
     chargeTypeDescCtrl.dispose();
     chargeToCodeCtrl.dispose();
     chargeToDescCtrl.dispose();
+  }
+
+  /// Dispose Location & Type Controllers
+  void _disposeLocationTypeControllers() {
     shipToStoreCodeCtrl.dispose();
     shipToStoreDescCtrl.dispose();
     purchaseTypeCodeCtrl.dispose();
     purchaseTypeDescCtrl.dispose();
+  }
+
+  /// Dispose Additional Information Controllers
+  void _disposeAdditionalControllers() {
     pettyCashCodeCtrl.dispose();
     pettyCashDescCtrl.dispose();
     buyerCodeCtrl.dispose();
     buyerDescCtrl.dispose();
     etaCtrl.dispose();
-    deliveryTermCodeCtrl.dispose();
-    deliveryTermDescCtrl.dispose();
     needByDateCtrl.dispose();
+  }
+
+  /// Dispose Remarks & Comments Controllers
+  void _disposeRemarksControllers() {
     remarkCtrl.dispose();
     remarkQuillController.dispose();
-    _isDisposed = true;
-    super.dispose();
+    submitRemarksCtrl.dispose();
+  }
+
+  // ==================== CONTROLLER UTILITY METHODS ====================
+
+  /// Clear all document information controllers
+  void clearDocumentControllers() {
+    docDateCtrl.clear();
+    docLocCodeCtrl.clear();
+    docLocDescCtrl.clear();
+    docNoTypeCtrl.clear();
+    docNoCtrl.clear();
+    statusCtrl.clear();
+  }
+
+  /// Clear all reference information controllers
+  void clearReferenceControllers() {
+    referenceCtrl.clear();
+    referenceDescCtrl.clear();
+    refDocCodeCtrl.clear();
+    refDocNoCtrl.clear();
+    refDocCtrl.clear();
+    referenceSelectedCode = 'DIRECT';
+  }
+
+  /// Clear all supplier information controllers
+  void clearSupplierControllers() {
+    supplierCtrl.clear();
+    supOfferNoCtrl.clear();
+    supOfferDateCtrl.clear();
+    supplierCode.clear();
+    supplierDesc.clear();
+    supplierType.clear();
+    supplierTypeDesc.clear();
+    supplierAddress.clear();
+    supplierAddressDesc.clear();
+    crNoSelected = false;
+    zakatSelected = false;
+    vatSelected = false;
+    crNoNumber.clear();
+    crNoExpiry.clear();
+    zakatNumber.clear();
+    zakatExpiry.clear();
+    vatNumber.clear();
+    vatExpiry.clear();
+  }
+
+  /// Clear all financial information controllers
+  void clearFinancialControllers() {
+    currencyCodeCtrl.clear();
+    currencyDescCtrl.clear();
+    exchangeRateCtrl.clear();
+    discountCtrl.clear();
+    valueCtrl.clear();
+  }
+
+  /// Clear all payment & shipping controllers
+  void clearPaymentShippingControllers() {
+    paymentTermCtrl.clear();
+    modeShipmentCtrl.clear();
+    modePaymentCtrl.clear();
+    deliveryTermCodeCtrl.clear();
+    deliveryTermDescCtrl.clear();
+  }
+
+  /// Clear all charge information controllers
+  void clearChargeControllers() {
+    chargeTypeCodeCtrl.clear();
+    chargeTypeDescCtrl.clear();
+    chargeToCodeCtrl.clear();
+    chargeToDescCtrl.clear();
+  }
+
+  /// Clear all location & type controllers
+  void clearLocationTypeControllers() {
+    shipToStoreCodeCtrl.clear();
+    shipToStoreDescCtrl.clear();
+    purchaseTypeCodeCtrl.clear();
+    purchaseTypeDescCtrl.clear();
+  }
+
+  /// Clear all additional information controllers
+  void clearAdditionalControllers() {
+    pettyCashCodeCtrl.clear();
+    pettyCashDescCtrl.clear();
+    buyerCodeCtrl.clear();
+    buyerDescCtrl.clear();
+    etaCtrl.clear();
+    needByDateCtrl.clear();
+  }
+
+  /// Clear all remarks & comments controllers
+  void clearRemarksControllers() {
+    remarkCtrl.clear();
+    remarkQuillController.clear();
+    submitRemarksCtrl.clear();
+  }
+
+  /// Clear all controllers (useful for reset functionality)
+  void clearAllControllers() {
+    clearDocumentControllers();
+    clearReferenceControllers();
+    clearSupplierControllers();
+    clearFinancialControllers();
+    clearPaymentShippingControllers();
+    clearChargeControllers();
+    clearLocationTypeControllers();
+    clearAdditionalControllers();
+    clearRemarksControllers();
   }
 
   ///  Select/Deselect All in ItemDetailsTab
@@ -695,22 +1437,28 @@ class PoApplicationVm extends ChangeNotifier {
       itemLineId: 0,
       txnNo: '',
       refDocNo: '',
-      itemCode: '',
+      itemCode:
+          '', // Empty initially - will be set when item is selected from API
       itemDesc: '',
       uom: '',
-      quantity: '',
-      looseQty: '',
-      baseQty: '',
+      quantity: '1',
+      looseQty:
+          '', // Empty initially - will be set only when item code is loaded from API
+      baseQty: '1',
       unitPrice: '',
-      grossValue: '',
-      discountPer: '',
-      discountVal: '',
-      netValue: '',
+      grossValue: '0.00',
+      discountPer: '0',
+      discountVal: '0',
+      netValue: '0.00',
       mnfDesc: '',
-      chargeTypeCode: '',
-      chargeTypeName: '',
-      chargeToCode: '',
-      chargeToName: '',
+      chargeTypeCode:
+          chargeTypeCodeCtrl.text.isNotEmpty ? chargeTypeCodeCtrl.text : '',
+      chargeTypeName:
+          chargeTypeDescCtrl.text.isNotEmpty ? chargeTypeDescCtrl.text : '',
+      chargeToCode:
+          chargeToCodeCtrl.text.isNotEmpty ? chargeToCodeCtrl.text : '',
+      chargeToName:
+          chargeToDescCtrl.text.isNotEmpty ? chargeToDescCtrl.text : '',
       needByDt: formattedDate,
       etaDate: '',
       glCode: '',
@@ -719,9 +1467,10 @@ class PoApplicationVm extends ChangeNotifier {
       isSelected: false,
       isOpen: false,
       // Add controllers if your model supports
-      quantityController: TextEditingController(),
+      quantityController: TextEditingController(text: '1'),
       unitPriceController: TextEditingController(),
-      discountController: TextEditingController(),
+      discountController: TextEditingController(text: '0'),
+      discountValueController: TextEditingController(text: '0'),
       noteToReceiverController: TextEditingController(),
     );
 
@@ -748,8 +1497,6 @@ class PoApplicationVm extends ChangeNotifier {
     }
     if (!_isDisposed) notifyListeners();
   }
-
-  List<TaxPopup> taxPopups = [];
 
   void onItemAttachment(int index) {
     // Just prepare/update state related to attachments

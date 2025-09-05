@@ -127,7 +127,8 @@ class PaginationSearchingState extends State<PaginationSearching> {
 
     // Fallback: original rich payload for other generic searches
     Map data = {
-      'user_id': (Global.empData?.userId).toString(),
+      'user_id':
+          (Global.empData?.userId ?? '').toString(), // Use dynamic user ID
       'company_id': companyId,
       'search_keyword': search,
       'search_type': widget.searchType,
