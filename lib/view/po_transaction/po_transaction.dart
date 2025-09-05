@@ -42,6 +42,7 @@ class _PoTransactionState extends State<PoTransaction>
   late TabController _tabController;
 
   int headerId = -1;
+
   bool _isInitialized = false;
 
   @override
@@ -127,7 +128,11 @@ class _PoTransactionState extends State<PoTransaction>
                       : (provider.isSubmit ? false : true),
                   isTransactionBack: true,
                   save: () {
-                    print("function is called");
+                    // Call the save API following loan application pattern
+                    print("Save function is called");
+                    provider.callPurchaseOrderSaveUpdate(context).then(
+                        (value) => _tabController = TabController(
+                            length: provider.tabHeaders.length, vsync: this));
                   },
                   submitOrApproval: () {
                     AppUtils.showSubmit(
@@ -137,6 +142,10 @@ class _PoTransactionState extends State<PoTransaction>
                       onSubmit: (file) {
                         if (provider.myHeaderId != -1) {
                           if (provider.submitRemarksCtrl.text.isNotEmpty) {
+                            provider.callPurchaseOrderSubmit(context).then(
+                                (value) => _tabController = TabController(
+                                    length: provider.tabHeaders.length,
+                                    vsync: this));
                           } else {
                             AppUtils.showToastRedBg(
                                 context, "Comment can not be empty");
@@ -167,6 +176,10 @@ class _PoTransactionState extends State<PoTransaction>
                               ),
                               TabBar(
                                 controller: _tabController,
+                                onTap: (index) {
+                                  // Allow free navigation between tabs
+                                  _tabController.animateTo(index);
+                                },
                                 tabs: List.generate(provider.tabHeaders.length,
                                     (index) {
                                   return Tab(
@@ -564,6 +577,7 @@ class _HeaderTabState extends State<_HeaderTab> {
   }
 
   /// Build validation row with checkbox, heading type, number field, and expiry field
+
   Widget _buildValidationRow(
     String headingType,
     bool isSelected,
@@ -1927,11 +1941,11 @@ class _ItemDetailsTab extends StatelessWidget {
                                         children: [
                                           GestureDetector(
                                             onTap: () {
-                                              // provider
-                                              //     .onTaxPopupAll(parentIndex);
+                                              provider.onTaxPopupSelectAll(
+                                                  parentIndex);
                                             },
                                             child: Icon(
-                                              provider.isActionAll
+                                              provider.isTaxActionAll
                                                   ? Icons.check_box
                                                   : Icons
                                                       .check_box_outline_blank,
@@ -1950,8 +1964,8 @@ class _ItemDetailsTab extends StatelessWidget {
                                                 children: [
                                                   IconButton(
                                                     onPressed: () {
-                                                      // provider.addTaxPopupLine(
-                                                      //     parentIndex);
+                                                      provider.onTaxPopupAddRow(
+                                                          parentIndex);
                                                     },
                                                     icon: Icon(
                                                       Icons.add,
@@ -1961,9 +1975,8 @@ class _ItemDetailsTab extends StatelessWidget {
                                                   ),
                                                   IconButton(
                                                     onPressed: () {
-                                                      // provider
-                                                      //     .deleteTaxPopByLine(
-                                                      //         parentIndex);
+                                                      provider.onTaxPopupDelete(
+                                                          parentIndex);
                                                     },
                                                     icon: Icon(
                                                       Icons.delete,
@@ -2005,8 +2018,8 @@ class _ItemDetailsTab extends StatelessWidget {
                                         isIconHeader0: true,
                                         header0IconColor: Colors.white,
                                         header0IconTap: (index) {
-                                          // provider.onTaxPopUpBySelected(
-                                          //     parentIndex, index);
+                                          provider.onTaxPopupSelected(
+                                              parentIndex, index);
                                         },
                                         header1Search: (index) {
                                           // provider.callReEntry(
@@ -2017,13 +2030,13 @@ class _ItemDetailsTab extends StatelessWidget {
                                             color: Colors.white),
                                         isSearchHeader1: true,
                                         header0IconData: (index) {
-                                          // return provider
-                                          //         .bankPaymentModel!
-                                          //         .onAccountTab![parentIndex]
-                                          //         .taxPopup![index]
-                                          //         .isSelected
-                                          //     ? Icons.check_box
-                                          //     : Icons.check_box_outline_blank;
+                                          return provider
+                                                  .purchaseOrderModel!
+                                                  .itemDetailsTab![parentIndex]
+                                                  .taxPopup![index]
+                                                  .isSelected
+                                              ? Icons.check_box
+                                              : Icons.check_box_outline_blank;
                                         },
                                         getHeader2: (data) =>
                                             data.currencyCode ?? 'N/A',

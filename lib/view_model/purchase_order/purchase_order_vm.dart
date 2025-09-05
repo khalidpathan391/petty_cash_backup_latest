@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names
 
+import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
@@ -14,6 +15,7 @@ import 'package:petty_cash/global.dart';
 import 'package:petty_cash/data/repository/general_rep.dart';
 import 'package:petty_cash/view/po_transaction/common/CommonPaginationSearching.dart';
 import 'package:petty_cash/view/po_transaction/item_search_agination.dart';
+import 'package:petty_cash/utils/app_utils.dart';
 
 class PoApplicationVm extends ChangeNotifier {
   final GeneralRepository _myRepo = GeneralRepository();
@@ -41,6 +43,311 @@ class PoApplicationVm extends ChangeNotifier {
   /// Handle value controller changes
   void _onValueControllerChanged() {
     onValueChanged(valueCtrl.text);
+  }
+
+  /// Check mandatory fields for header tab
+  Future<bool> checkHeaderMandatoryFields(BuildContext context) async {
+    print("Checking header mandatory fields...");
+
+    // Check if reference value is not "Direct" - then ref doc fields are mandatory
+    if (referenceCtrl.text.toLowerCase() != 'direct') {
+      if (refDocNoCtrl.text.isEmpty) {
+        AppUtils.showToastRedBg(
+            context, "Reference Document No can not be empty");
+        return false;
+      }
+    }
+//
+    // Check supplier
+    print("Debug - supplierCtrl.text: '${supplierCtrl.text}'");
+    if (supplierCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Supplier can not be empty");
+      return false;
+    }
+
+    // Check currency
+    if (currencyCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Currency can not be empty");
+      return false;
+    }
+
+    // Check payment terms
+    if (paymentTermCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Payment Terms can not be empty");
+      return false;
+    }
+
+    // Check mode of shipment
+    if (modeShipmentCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Mode of Shipment can not be empty");
+      return false;
+    }
+
+    // Check charge type
+    if (chargeTypeCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Charge Type can not be empty");
+      return false;
+    }
+
+    // Check charge to
+    if (chargeToCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Charge To can not be empty");
+      return false;
+    }
+
+    // Check ship to
+    if (shipToStoreCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Ship To can not be empty");
+      return false;
+    }
+
+    // Check petty cash no
+    if (pettyCashCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Petty Cash No can not be empty");
+      return false;
+    }
+
+    // Check buyer
+    if (buyerCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Buyer can not be empty");
+      return false;
+    }
+
+    // Check delivery terms
+    if (deliveryTermCodeCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(context, "Delivery Terms can not be empty");
+      return false;
+    }
+
+    print("All header mandatory fields are valid.");
+    return true;
+  }
+
+  /// Check mandatory fields for item details tab
+  Future<bool> checkItemDetailsMandatoryFields(BuildContext context) async {
+    print("Checking item details mandatory fields...");
+
+    // For now, we'll implement basic validation
+    // This can be expanded when the line items structure is available
+    AppUtils.showToastRedBg(context,
+        "Item details validation will be implemented when line items structure is available");
+
+    print("Item details validation placeholder.");
+    return true;
+  }
+
+  /// Get create/update data for API call
+  Map<String, String> getCreateData() {
+    Map<String, String> data = {
+      'user_id': Global.empData!.userId.toString(),
+      'company_id': Global.empData!.companyId.toString(),
+      'header_id': myHeaderId != -1 ? myHeaderId.toString() : '0',
+      // 'is_view': '0',
+      // 'is_submit': isSubmit ? '1' : '0',
+      'po_detail_all_data': sendData,
+      // 'default': '1',
+      // 'mid': Global.menuData!.id.toString()
+    };
+    return data;
+  }
+
+  bool isSaveSubmit = false;
+  bool isSubmit = false;
+
+  /// Prepare all data from UI controllers and populate the model
+  void prepareAllDataForSave() {
+    if (purchaseOrderModel != null) {
+      // Update header tab data from controllers
+      final headerTab = purchaseOrderModel!.headerTab;
+      if (headerTab != null) {
+        // Update all header fields from controllers
+        headerTab.docDate = docDateCtrl.text;
+        headerTab.docLocCode = docLocCodeCtrl.text;
+        headerTab.docLocDesc = docLocDescCtrl.text;
+        headerTab.txnNo = docNoCtrl.text;
+        headerTab.statusCode = statusCtrl.text;
+        headerTab.reference = referenceCtrl.text;
+        headerTab.referenceDesc = referenceDescCtrl.text;
+        headerTab.refDocCode = refDocCodeCtrl.text;
+        headerTab.refDocNo = refDocNoCtrl.text;
+        headerTab.supplierName = supplierCtrl.text;
+        headerTab.supplierOfferNo = supOfferNoCtrl.text;
+        headerTab.supplierOfferDate = supOfferDateCtrl.text;
+        headerTab.currencyCode = currencyCodeCtrl.text;
+        headerTab.currencyDescription = currencyDescCtrl.text;
+        headerTab.exchangeRate = exchangeRateCtrl.text;
+        headerTab.discount = discountCtrl.text;
+        headerTab.value = valueCtrl.text;
+        headerTab.paymentTermCode = paymentTermCtrl.text;
+        headerTab.modeOfShipmentCode = modeShipmentCtrl.text;
+        headerTab.modeOfPaymentCode = modePaymentCtrl.text;
+        headerTab.deliveryTermCode = deliveryTermCodeCtrl.text;
+        headerTab.deliveryTermDesc = deliveryTermDescCtrl.text;
+        headerTab.chargeTypeCode = chargeTypeCodeCtrl.text;
+        headerTab.chargeTypeDescription = chargeTypeDescCtrl.text;
+        headerTab.chargeToCode = chargeToCodeCtrl.text;
+        headerTab.chargeToDescription = chargeToDescCtrl.text;
+        headerTab.shipToStoreLocCode = shipToStoreCodeCtrl.text;
+        headerTab.shipToStoreLocDescription = shipToStoreDescCtrl.text;
+        headerTab.purchaseTypeCode = purchaseTypeCodeCtrl.text;
+        headerTab.purchaseTypeDesc = purchaseTypeDescCtrl.text;
+        headerTab.pettyCashCode = pettyCashCodeCtrl.text;
+        headerTab.pettyCashDesc = pettyCashDescCtrl.text;
+        headerTab.buyerCode = buyerCodeCtrl.text;
+        headerTab.buyerDesc = buyerDescCtrl.text;
+        headerTab.headerEta = etaCtrl.text;
+        headerTab.needByDate = needByDateCtrl.text;
+        headerTab.remark = remarkCtrl.text;
+      }
+
+      // Update item details tab data
+      if (purchaseOrderModel!.itemDetailsTab != null) {
+        for (var item in purchaseOrderModel!.itemDetailsTab!) {
+          // Update item details from controllers if they exist
+          // This will be populated from the UI when items are added/edited
+        }
+      }
+
+      // Update header net value popup data
+      if (purchaseOrderModel!.headerNetValPopup != null) {
+        // Update net value popup data from UI controllers
+        // This will be populated from the net value popup UI when user interacts with it
+        // For now, we keep the existing data structure
+      }
+
+      // Update create supplier data
+      if (purchaseOrderModel!.createSupplier != null) {
+        // Update create supplier data from UI controllers
+        // This will be populated from the create supplier popup when user creates a supplier
+        // For now, we keep the existing data structure
+      }
+
+      // Update reference PR data
+      if (purchaseOrderModel!.referencePR != null) {
+        // Update reference PR data from UI controllers
+        // This will be populated from the reference PR popup when user selects PR references
+        // For now, we keep the existing data structure
+      }
+
+      // Update header attachment list
+      if (purchaseOrderModel!.headerAttachmentLst != null) {
+        // Update header attachment data
+        // This will be populated from attachment functionality
+      }
+
+      // Update approval level status
+      if (purchaseOrderModel!.apprvlLvlStatus != null) {
+        // Update approval level status data
+        // This will be populated from approval workflow
+      }
+
+      // Update work flow icons
+      if (purchaseOrderModel!.workFlowIcons != null) {
+        // Update work flow icons data
+        // This will be populated from workflow functionality
+      }
+    }
+  }
+
+  /// Save/Update Purchase Order API call
+  Future<void> callPurchaseOrderSaveUpdate(BuildContext context,
+      {bool isSubmit = false}) async {
+    // Show the loader while the operation is in progress
+    AppUtils.customLoader(context);
+
+    // Check mandatory fields before proceeding
+    isSaveSubmit = await checkHeaderMandatoryFields(context);
+
+    if (isSaveSubmit) {
+      isSaveSubmit = false;
+
+      // Set the submit flag
+      this.isSubmit = isSubmit;
+
+      // Prepare all data from UI controllers
+      prepareAllDataForSave();
+
+      // Prepare data for API
+      sendData = jsonEncode(purchaseOrderModel);
+      Map<String, String> data = getCreateData();
+      String url = '';
+
+      // Use the same API for both create and update
+      url = ApiUrl.baseUrl! + ApiUrl.getPoTransaction;
+
+      await _myRepo.postApi(url, data).then((value) async {
+        if (value['error_code'] == 200) {
+          AppUtils.showToastGreenBg(
+              context, value['error_description'].toString());
+
+          setDefault();
+
+          await callPoView(value['header_id']);
+        } else {
+          AppUtils.showToastRedBg(
+              context, value['error_description'].toString());
+        }
+      }).onError((error, stackTrace) {
+        if (AppUtils.errorMessage.isEmpty) {
+          AppUtils.errorMessage = error.toString();
+        }
+        AppUtils.showToastRedBg(context, 'Error: $error');
+      }).whenComplete(() {
+        Navigator.pop(context);
+      });
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  /// Submit Purchase Order API call
+  Future<void> callPurchaseOrderSubmit(BuildContext context) async {
+    // Show the loader while the operation is in progress
+    AppUtils.customLoader(context);
+
+    // Check mandatory fields before proceeding
+    isSaveSubmit = await checkHeaderMandatoryFields(context);
+
+    if (isSaveSubmit) {
+      isSaveSubmit = false;
+
+      // Set the submit flag to true for submission
+      this.isSubmit = true;
+
+      // Prepare all data from UI controllers
+      prepareAllDataForSave();
+
+      // Prepare data for API
+      sendData = jsonEncode(purchaseOrderModel);
+      Map<String, String> data = getCreateData();
+      String url = '';
+
+      // Use the same API for both create and update
+      url = ApiUrl.baseUrl! + ApiUrl.getPoTransaction;
+
+      await _myRepo.postApi(url, data).then((value) async {
+        if (value['error_code'] == 200) {
+          AppUtils.showToastGreenBg(
+              context, value['error_description'].toString());
+
+          setDefault();
+
+          await callPoView(value['header_id']);
+        } else {
+          AppUtils.showToastRedBg(
+              context, value['error_description'].toString());
+        }
+      }).onError((error, stackTrace) {
+        if (AppUtils.errorMessage.isEmpty) {
+          AppUtils.errorMessage = error.toString();
+        }
+        AppUtils.showToastRedBg(context, 'Error: $error');
+      }).whenComplete(() {
+        Navigator.pop(context);
+      });
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   /// Handle charge type changes
@@ -166,7 +473,6 @@ class PoApplicationVm extends ChangeNotifier {
   /// UI State Management
   bool isActionAll = false;
   List<int> selectedIndex = [];
-  bool isSubmit = false;
   bool isApproved = false;
   bool isAdHistory = false;
   bool isComment = false;
@@ -788,6 +1094,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   // ===================== Generic Searches =====================
   Future<void> searchField(BuildContext context, String fieldName) async {
+    print("Debug - searchField called with fieldName: '$fieldName'");
     String searchType = '';
 
     switch (fieldName) {
@@ -796,6 +1103,9 @@ class PoApplicationVm extends ChangeNotifier {
         break;
       case 'Supplier*':
         searchType = 'Supplier';
+        break;
+      case 'Supplier Type':
+        searchType = 'SUPPLIER_TYPE';
         break;
       case 'Currency*':
         searchType = 'Currency';
@@ -834,6 +1144,8 @@ class PoApplicationVm extends ChangeNotifier {
       default:
         searchType = '';
     }
+
+    print("Debug - searchType set to: '$searchType'");
 
     final result = await Navigator.push(
       context,
@@ -901,7 +1213,12 @@ class PoApplicationVm extends ChangeNotifier {
           }
           break;
         case 'Supplier Type':
-          supplierType.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          print(
+              "Debug - Setting supplier type: code='${result.code}', desc='${result.desc}'");
+          supplierType.text = result.code ?? '';
+          supplierTypeDesc.text = result.desc ?? '';
+          print(
+              "Debug - After setting: supplierType.text='${supplierType.text}', supplierTypeDesc.text='${supplierTypeDesc.text}'");
           break;
         case 'Address Code':
           supplierAddress.text = result.code ?? '';
@@ -1425,6 +1742,75 @@ class PoApplicationVm extends ChangeNotifier {
         selectedIndex.length == purchaseOrderModel!.itemDetailsTab!.length;
 
     notifyListeners();
+  }
+
+  /// Tax Popup Methods
+  bool isTaxActionAll = false;
+
+  /// Select/Deselect All in Tax Popup
+  void onTaxPopupSelectAll(int parentIndex) {
+    isTaxActionAll = !isTaxActionAll;
+
+    if (purchaseOrderModel?.itemDetailsTab != null &&
+        purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup != null) {
+      for (var tax
+          in purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!) {
+        tax.isSelected = isTaxActionAll;
+      }
+    }
+
+    notifyListeners();
+  }
+
+  /// Select/Deselect individual tax item
+  void onTaxPopupSelected(int parentIndex, int index) {
+    final tax =
+        purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup![index];
+
+    // Ensure null safety
+    tax.isSelected = !tax.isSelected;
+
+    // Update the action all state based on current selection
+    if (purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!.isNotEmpty) {
+      final allSelected = purchaseOrderModel!
+          .itemDetailsTab![parentIndex].taxPopup!
+          .every((tax) => tax.isSelected == true);
+      isTaxActionAll = allSelected;
+    }
+
+    notifyListeners();
+  }
+
+  /// Delete selected tax items
+  void onTaxPopupDelete(int parentIndex) {
+    if (purchaseOrderModel?.itemDetailsTab != null &&
+        purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup != null) {
+      // Remove selected items
+      purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!
+          .removeWhere((tax) => tax.isSelected == true);
+
+      // Reset select all state
+      isTaxActionAll = false;
+
+      notifyListeners();
+    }
+  }
+
+  /// Add new tax row
+  void onTaxPopupAddRow(int parentIndex) {
+    if (purchaseOrderModel?.itemDetailsTab != null) {
+      // Create new tax item
+      final newTax = TaxPopup();
+      newTax.isSelected = false;
+
+      // Add to tax popup list
+      if (purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup == null) {
+        purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup = [];
+      }
+      purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!.add(newTax);
+
+      notifyListeners();
+    }
   }
 
   ///  Add a new empty Item Line
