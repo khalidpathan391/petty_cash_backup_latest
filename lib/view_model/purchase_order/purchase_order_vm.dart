@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names
+// ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names, unnecessary_this, prefer_conditional_assignment
 
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,18 +9,192 @@ import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 import 'package:petty_cash/data/models/po_model.dart/po_transaction_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/item_details_model.dart'
     as item_model;
+import 'package:petty_cash/data/models/po_model.dart/tax_search_list.dart'
+    as tax_model;
 import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/global.dart';
 
 import 'package:petty_cash/data/repository/general_rep.dart';
-import 'package:petty_cash/view/po_transaction/common/CommonPaginationSearching.dart';
-import 'package:petty_cash/view/po_transaction/item_search_agination.dart';
+import 'package:petty_cash/view/po_transaction/common_pagination/CommonPaginationSearching.dart';
+import 'package:petty_cash/view/po_transaction/pagination_searching/create_supplier_pagination.dart';
+import 'package:petty_cash/view/po_transaction/pagination_searching/item_search_pagination.dart';
 import 'package:petty_cash/utils/app_utils.dart';
 
 class PoApplicationVm extends ChangeNotifier {
   final GeneralRepository _myRepo = GeneralRepository();
   bool _isDisposed = false;
   List<String> tabHeaders = ['Header', 'Item Details'];
+  // ==================== CONTROLLERS ====================
+
+  /// Document Information Controllers
+  final TextEditingController docDateCtrl = TextEditingController();
+  final TextEditingController docLocCodeCtrl = TextEditingController();
+  final TextEditingController docLocDescCtrl = TextEditingController();
+  final TextEditingController docNoTypeCtrl = TextEditingController();
+  final TextEditingController docNoCtrl = TextEditingController();
+
+  final TextEditingController statusCtrl = TextEditingController();
+
+  /// Reference Information Controllers
+  final TextEditingController referenceCtrl = TextEditingController();
+  final TextEditingController referenceDescCtrl = TextEditingController();
+  final TextEditingController refDocCodeCtrl = TextEditingController();
+  final TextEditingController refDocNoCtrl = TextEditingController();
+  final TextEditingController refDocCtrl = TextEditingController();
+  String referenceSelectedCode = 'DIRECT';
+
+  /// Supplier Information Controllers
+  final TextEditingController supplierCtrl = TextEditingController();
+  final TextEditingController supOfferNoCtrl = TextEditingController();
+  final TextEditingController supOfferDateCtrl = TextEditingController();
+
+  /// Additional Supplier Controllers (for supplier creation)
+  final TextEditingController supplierCode = TextEditingController();
+  final TextEditingController supplierDesc = TextEditingController();
+  final TextEditingController supplierType = TextEditingController();
+  final TextEditingController supplierTypeDesc = TextEditingController();
+  final TextEditingController supplierAddress = TextEditingController();
+  final TextEditingController supplierAddressDesc = TextEditingController();
+
+  /// Validation Controllers
+  bool crNoSelected = false;
+  bool zakatSelected = false;
+  bool vatSelected = false;
+  final TextEditingController crNoNumber = TextEditingController();
+  final TextEditingController crNoExpiry = TextEditingController();
+  final TextEditingController zakatNumber = TextEditingController();
+  final TextEditingController zakatExpiry = TextEditingController();
+  final TextEditingController vatNumber = TextEditingController();
+  final TextEditingController vatExpiry = TextEditingController();
+
+  /// Financial Information Controllers
+  final TextEditingController currencyCodeCtrl = TextEditingController();
+  final TextEditingController currencyDescCtrl = TextEditingController();
+  final TextEditingController exchangeRateCtrl = TextEditingController();
+  final TextEditingController discountCtrl = TextEditingController();
+  final TextEditingController valueCtrl = TextEditingController();
+
+  /// Payment & Shipping Controllers
+  final TextEditingController paymentTermCtrl = TextEditingController();
+  final TextEditingController modeShipmentCtrl = TextEditingController();
+  final TextEditingController modePaymentCtrl = TextEditingController();
+  final TextEditingController deliveryTermCodeCtrl = TextEditingController();
+  final TextEditingController deliveryTermDescCtrl = TextEditingController();
+
+  /// Charge Information Controllers
+  final TextEditingController chargeTypeCodeCtrl = TextEditingController();
+  final TextEditingController chargeTypeDescCtrl = TextEditingController();
+  final TextEditingController chargeToCodeCtrl = TextEditingController();
+  final TextEditingController chargeToDescCtrl = TextEditingController();
+
+  /// Location & Type Controllers
+  final TextEditingController shipToStoreCodeCtrl = TextEditingController();
+  final TextEditingController shipToStoreDescCtrl = TextEditingController();
+  final TextEditingController purchaseTypeCodeCtrl = TextEditingController();
+  final TextEditingController purchaseTypeDescCtrl = TextEditingController();
+
+  /// Additional Information Controllers
+  final TextEditingController pettyCashCodeCtrl = TextEditingController();
+  final TextEditingController pettyCashDescCtrl = TextEditingController();
+  final TextEditingController buyerCodeCtrl = TextEditingController();
+  final TextEditingController buyerDescCtrl = TextEditingController();
+  final TextEditingController etaCtrl = TextEditingController();
+  final TextEditingController needByDateCtrl = TextEditingController();
+
+  /// Remarks & Comments Controllers
+  final TextEditingController remarkCtrl = TextEditingController();
+  final quill.QuillController remarkQuillController =
+      quill.QuillController.basic();
+  final TextEditingController submitRemarksCtrl = TextEditingController();
+
+  // ==================== STATE MANAGEMENT ====================
+
+  /// Loading States
+  bool isLoading = false;
+  bool isApiLoading = false;
+  bool isReferenceLoading = false;
+  bool hasDataLoaded = false;
+
+  /// Data Models
+  PurchaseOrderModel? purchaseOrderModel;
+  PurchaserequestReferenceModel referencePRModel =
+      PurchaserequestReferenceModel(referencePR: []);
+
+  /// UI State Management
+  bool isActionAll = false;
+  List<int> selectedIndex = [];
+  bool isApproved = false;
+  bool isAdHistory = false;
+  bool isComment = false;
+  bool isDraft = false;
+  bool isWorkFlow = false;
+  bool isWFTab = false;
+  bool isLoanDetals = false;
+  bool isPaymentDetails = false;
+
+  /// Transaction State
+  int myHeaderId = 0; // 0 initially, updated after saving
+  String sendData = '';
+  String empCode = '';
+  String needByDate = '';
+  double totalPaidAmount = 0.0;
+  double totalBalanceAmount = 0.0;
+
+  /// Index Management
+  int reference = 0;
+  int referenceId = 0;
+  String refTxnType = '';
+  int referenceDoc = 0;
+  String docNo = '';
+
+  ///
+  // int docIndex = -1;
+  // int txnIndex = -1;
+  // int statusIndex = -1;
+  // int remarkIndex = -1;
+
+  // int docLocationIndex = -1;
+  // int empCodeIndex = -1;
+  // int needByDateIndex = -1;
+  // int loanTypeCodeIndex = -1;
+  // int loanTypeId = -1;
+  // int earningCodeIndex = -1;
+  // int earningTypeIndex = -1;
+  // int deductionCodeIndex = -1;
+  // int deductionTypeIndex = -1;
+  // int amountIndex = -1;
+  // int noOfInstalmentIndex = -1;
+  // int maxAmountIndex = -1;
+  // int periodFromIndex = -1;
+  // int periodToIndex = -1;
+  // int withPayrollIndex = -1;
+  // int separateIndex = -1;
+  // int installmentAmtIndex = -1;
+
+  /// Additional Properties
+  int supp_id = 0;
+  int doc_id = 0;
+  int currency_id = 0;
+  int paymentTermId = 0;
+  int modeOfShipId = 0;
+  int modePaymentId = 0;
+  int deliveryTermId = 0;
+  int chargeTypeId = 0;
+  int chargeToId = 0;
+  int shipToStoreId = 0;
+  int purchaseTypeId = 0;
+  int pettyCashId = 0;
+  int buyerId = 0;
+  int deliveryTermCodeId = 0;
+  String chargeTypeCode = '';
+  List<TaxPopup> taxPopups = [];
+
+  void setDefault() {
+    tabHeaders.clear();
+    tabHeaders = ['Header', 'Item Details'];
+    myHeaderId = -1;
+    notifyListeners();
+  }
 
   PoApplicationVm() {
     _initializeControllerListeners();
@@ -50,13 +224,17 @@ class PoApplicationVm extends ChangeNotifier {
     print("Checking header mandatory fields...");
 
     // Check if reference value is not "Direct" - then ref doc fields are mandatory
-    if (referenceCtrl.text.toLowerCase() != 'direct') {
-      if (refDocNoCtrl.text.isEmpty) {
-        AppUtils.showToastRedBg(
-            context, "Reference Document No can not be empty");
-        return false;
-      }
+    if (refDocCodeCtrl.text.isEmpty) {
+      return true;
     }
+
+    // If Ref Doc Code is not empty -> Ref Doc No is mandatory
+    if (refDocNoCtrl.text.isEmpty) {
+      AppUtils.showToastRedBg(
+          context, "Reference Document No can not be empty");
+      return false;
+    }
+
 //
     // Check supplier
     print("Debug - supplierCtrl.text: '${supplierCtrl.text}'");
@@ -137,19 +315,6 @@ class PoApplicationVm extends ChangeNotifier {
   }
 
   /// Get create/update data for API call
-  Map<String, String> getCreateData() {
-    Map<String, String> data = {
-      'user_id': Global.empData!.userId.toString(),
-      'company_id': Global.empData!.companyId.toString(),
-      'header_id': myHeaderId != -1 ? myHeaderId.toString() : '0',
-      // 'is_view': '0',
-      // 'is_submit': isSubmit ? '1' : '0',
-      'po_detail_all_data': sendData,
-      // 'default': '1',
-      // 'mid': Global.menuData!.id.toString()
-    };
-    return data;
-  }
 
   bool isSaveSubmit = false;
   bool isSubmit = false;
@@ -160,41 +325,72 @@ class PoApplicationVm extends ChangeNotifier {
       // Update header tab data from controllers
       final headerTab = purchaseOrderModel!.headerTab;
       if (headerTab != null) {
-        // Update all header fields from controllers
         headerTab.docDate = docDateCtrl.text;
         headerTab.docLocCode = docLocCodeCtrl.text;
         headerTab.docLocDesc = docLocDescCtrl.text;
+        headerTab.docLocId = doc_id;
+        headerTab.currencyId = currency_id;
+        headerTab.chargeTypeId = chargeTypeId;
+        headerTab.buyerId = buyerId;
         headerTab.txnNo = docNoCtrl.text;
+        headerTab.txnType = docNoTypeCtrl.text;
         headerTab.statusCode = statusCtrl.text;
         headerTab.reference = referenceCtrl.text;
         headerTab.referenceDesc = referenceDescCtrl.text;
         headerTab.refDocCode = refDocCodeCtrl.text;
         headerTab.refDocNo = refDocNoCtrl.text;
+
+        headerTab.supplierId = supp_id;
         headerTab.supplierName = supplierCtrl.text;
+
         headerTab.supplierOfferNo = supOfferNoCtrl.text;
         headerTab.supplierOfferDate = supOfferDateCtrl.text;
+
+        headerTab.currencyId = currency_id;
         headerTab.currencyCode = currencyCodeCtrl.text;
         headerTab.currencyDescription = currencyDescCtrl.text;
+
         headerTab.exchangeRate = exchangeRateCtrl.text;
         headerTab.discount = discountCtrl.text;
         headerTab.value = valueCtrl.text;
+
+        headerTab.paymentTermId = paymentTermId;
         headerTab.paymentTermCode = paymentTermCtrl.text;
+
+        headerTab.modeOfShipmentId = modeOfShipId;
         headerTab.modeOfShipmentCode = modeShipmentCtrl.text;
+
+        headerTab.modeOfPaymentId = modePaymentId;
         headerTab.modeOfPaymentCode = modePaymentCtrl.text;
+
+        headerTab.deliveryTermId = deliveryTermId;
         headerTab.deliveryTermCode = deliveryTermCodeCtrl.text;
         headerTab.deliveryTermDesc = deliveryTermDescCtrl.text;
+
+        headerTab.chargeTypeId = chargeTypeId;
         headerTab.chargeTypeCode = chargeTypeCodeCtrl.text;
         headerTab.chargeTypeDescription = chargeTypeDescCtrl.text;
+
+        headerTab.chargeToId = chargeToId;
         headerTab.chargeToCode = chargeToCodeCtrl.text;
         headerTab.chargeToDescription = chargeToDescCtrl.text;
+
+        headerTab.shipToStoreLocId = shipToStoreId;
         headerTab.shipToStoreLocCode = shipToStoreCodeCtrl.text;
         headerTab.shipToStoreLocDescription = shipToStoreDescCtrl.text;
+
+        headerTab.purchaseTypeId = purchaseTypeId;
         headerTab.purchaseTypeCode = purchaseTypeCodeCtrl.text;
         headerTab.purchaseTypeDesc = purchaseTypeDescCtrl.text;
+
+        headerTab.pettyCashId = pettyCashId;
         headerTab.pettyCashCode = pettyCashCodeCtrl.text;
         headerTab.pettyCashDesc = pettyCashDescCtrl.text;
+
+        headerTab.buyerId = buyerId;
         headerTab.buyerCode = buyerCodeCtrl.text;
         headerTab.buyerDesc = buyerDescCtrl.text;
+
         headerTab.headerEta = etaCtrl.text;
         headerTab.needByDate = needByDateCtrl.text;
         headerTab.remark = remarkCtrl.text;
@@ -203,8 +399,24 @@ class PoApplicationVm extends ChangeNotifier {
       // Update item details tab data
       if (purchaseOrderModel!.itemDetailsTab != null) {
         for (var item in purchaseOrderModel!.itemDetailsTab!) {
-          // Update item details from controllers if they exist
-          // This will be populated from the UI when items are added/edited
+          item.itemId = item.itemId;
+          item.itemCode = item.itemCode;
+          item.itemDesc = item.itemDesc;
+          item.uomId = item.uomId;
+          item.uom = item.uom;
+          item.uomDesc = item.uomDesc;
+          item.quantity = item.quantity;
+          item.unitPrice = item.unitPrice;
+          item.grossValue = item.grossValue;
+          item.discountPer = item.discountPer;
+          item.discountVal = item.discountVal;
+          item.netValue = item.netValue;
+          item.glId = item.glId;
+          item.glCode = item.glCode;
+          item.glDesc = item.glDesc;
+          item.noteToReceiver = item.noteToReceiver;
+          item.needByDt = item.needByDt;
+          item.etaDate = item.etaDate;
         }
       }
 
@@ -247,6 +459,19 @@ class PoApplicationVm extends ChangeNotifier {
         // This will be populated from workflow functionality
       }
     }
+  }
+
+  Map<String, String> getCreateData() {
+    Map<String, String> data = {
+      'user_id': Global.empData!.userId.toString(),
+      'company_id': Global.empData!.companyId.toString(),
+      'header_id': myHeaderId != -1 ? myHeaderId.toString() : '0',
+      'is_view': '0',
+      'is_submit': '0',
+      'po_detail_all_data': sendData,
+      'default': '0',
+    };
+    return data;
   }
 
   /// Save/Update Purchase Order API call
@@ -374,154 +599,6 @@ class PoApplicationVm extends ChangeNotifier {
       if (!_isDisposed) notifyListeners();
     }
   }
-
-  // ==================== CONTROLLERS ====================
-
-  /// Document Information Controllers
-  final TextEditingController docDateCtrl = TextEditingController();
-  final TextEditingController docLocCodeCtrl = TextEditingController();
-  final TextEditingController docLocDescCtrl = TextEditingController();
-  final TextEditingController docNoTypeCtrl = TextEditingController();
-  final TextEditingController docNoCtrl = TextEditingController();
-  final TextEditingController statusCtrl = TextEditingController();
-
-  /// Reference Information Controllers
-  final TextEditingController referenceCtrl = TextEditingController();
-  final TextEditingController referenceDescCtrl = TextEditingController();
-  final TextEditingController refDocCodeCtrl = TextEditingController();
-  final TextEditingController refDocNoCtrl = TextEditingController();
-  final TextEditingController refDocCtrl = TextEditingController();
-  String referenceSelectedCode = 'DIRECT';
-
-  /// Supplier Information Controllers
-  final TextEditingController supplierCtrl = TextEditingController();
-  final TextEditingController supOfferNoCtrl = TextEditingController();
-  final TextEditingController supOfferDateCtrl = TextEditingController();
-
-  /// Additional Supplier Controllers (for supplier creation)
-  final TextEditingController supplierCode = TextEditingController();
-  final TextEditingController supplierDesc = TextEditingController();
-  final TextEditingController supplierType = TextEditingController();
-  final TextEditingController supplierTypeDesc = TextEditingController();
-  final TextEditingController supplierAddress = TextEditingController();
-  final TextEditingController supplierAddressDesc = TextEditingController();
-
-  /// Validation Controllers
-  bool crNoSelected = false;
-  bool zakatSelected = false;
-  bool vatSelected = false;
-  final TextEditingController crNoNumber = TextEditingController();
-  final TextEditingController crNoExpiry = TextEditingController();
-  final TextEditingController zakatNumber = TextEditingController();
-  final TextEditingController zakatExpiry = TextEditingController();
-  final TextEditingController vatNumber = TextEditingController();
-  final TextEditingController vatExpiry = TextEditingController();
-
-  /// Financial Information Controllers
-  final TextEditingController currencyCodeCtrl = TextEditingController();
-  final TextEditingController currencyDescCtrl = TextEditingController();
-  final TextEditingController exchangeRateCtrl = TextEditingController();
-  final TextEditingController discountCtrl = TextEditingController();
-  final TextEditingController valueCtrl = TextEditingController();
-
-  /// Payment & Shipping Controllers
-  final TextEditingController paymentTermCtrl = TextEditingController();
-  final TextEditingController modeShipmentCtrl = TextEditingController();
-  final TextEditingController modePaymentCtrl = TextEditingController();
-  final TextEditingController deliveryTermCodeCtrl = TextEditingController();
-  final TextEditingController deliveryTermDescCtrl = TextEditingController();
-
-  /// Charge Information Controllers
-  final TextEditingController chargeTypeCodeCtrl = TextEditingController();
-  final TextEditingController chargeTypeDescCtrl = TextEditingController();
-  final TextEditingController chargeToCodeCtrl = TextEditingController();
-  final TextEditingController chargeToDescCtrl = TextEditingController();
-
-  /// Location & Type Controllers
-  final TextEditingController shipToStoreCodeCtrl = TextEditingController();
-  final TextEditingController shipToStoreDescCtrl = TextEditingController();
-  final TextEditingController purchaseTypeCodeCtrl = TextEditingController();
-  final TextEditingController purchaseTypeDescCtrl = TextEditingController();
-
-  /// Additional Information Controllers
-  final TextEditingController pettyCashCodeCtrl = TextEditingController();
-  final TextEditingController pettyCashDescCtrl = TextEditingController();
-  final TextEditingController buyerCodeCtrl = TextEditingController();
-  final TextEditingController buyerDescCtrl = TextEditingController();
-  final TextEditingController etaCtrl = TextEditingController();
-  final TextEditingController needByDateCtrl = TextEditingController();
-
-  /// Remarks & Comments Controllers
-  final TextEditingController remarkCtrl = TextEditingController();
-  final quill.QuillController remarkQuillController =
-      quill.QuillController.basic();
-  final TextEditingController submitRemarksCtrl = TextEditingController();
-
-  // ==================== STATE MANAGEMENT ====================
-
-  /// Loading States
-  bool isLoading = false;
-  bool isApiLoading = false;
-  bool isReferenceLoading = false;
-  bool hasDataLoaded = false;
-
-  /// Data Models
-  PurchaseOrderModel? purchaseOrderModel;
-  PurchaserequestReferenceModel referencePRModel =
-      PurchaserequestReferenceModel(referencePR: []);
-
-  /// UI State Management
-  bool isActionAll = false;
-  List<int> selectedIndex = [];
-  bool isApproved = false;
-  bool isAdHistory = false;
-  bool isComment = false;
-  bool isDraft = false;
-  bool isWorkFlow = false;
-  bool isWFTab = false;
-  bool isLoanDetals = false;
-  bool isPaymentDetails = false;
-
-  /// Transaction State
-  int myHeaderId = 0; // 0 initially, updated after saving
-  String sendData = '';
-  String empCode = '';
-  String needByDate = '';
-  double totalPaidAmount = 0.0;
-  double totalBalanceAmount = 0.0;
-
-  /// Index Management
-  int docIndex = -1;
-  int txnIndex = -1;
-  int statusIndex = -1;
-  int remarkIndex = -1;
-  int reference = 0;
-  int referenceId = 0;
-  String refTxnType = '';
-  int referenceDoc = 0;
-  String docNo = '';
-  int docLocationIndex = -1;
-  int empCodeIndex = -1;
-  int needByDateIndex = -1;
-  int loanTypeCodeIndex = -1;
-  int loanTypeId = -1;
-  int earningCodeIndex = -1;
-  int earningTypeIndex = -1;
-  int deductionCodeIndex = -1;
-  int deductionTypeIndex = -1;
-  int amountIndex = -1;
-  int noOfInstalmentIndex = -1;
-  int maxAmountIndex = -1;
-  int periodFromIndex = -1;
-  int periodToIndex = -1;
-  int withPayrollIndex = -1;
-  int separateIndex = -1;
-  int installmentAmtIndex = -1;
-
-  /// Additional Properties
-  int supp_id = 0;
-  String chargeTypeCode = '';
-  List<TaxPopup> taxPopups = [];
 
   void setLoading(bool val) {
     isLoading = val;
@@ -853,13 +930,6 @@ class PoApplicationVm extends ChangeNotifier {
     if (!_isDisposed) notifyListeners();
   }
 
-  void setDefault() {
-    tabHeaders.clear();
-    tabHeaders = ['Header', 'Item Details'];
-    myHeaderId = -1;
-    notifyListeners();
-  }
-
   bool get isReferenceDirect => referenceSelectedCode == 'DIRECT';
 
   void setReferenceSelected(String value) {
@@ -902,25 +972,34 @@ class PoApplicationVm extends ChangeNotifier {
 // default view api
   Future<void> callPoView(int headerId) async {
     setLoading(true);
-    myHeaderId = headerId; // update headerId first
+
+    myHeaderId = headerId;
+    Global.transactionHeaderId = headerId.toString();
+
     String url = ApiUrl.baseUrl! + ApiUrl.getPoTransaction;
 
     try {
       final dynamic response = await _myRepo.postApi(url, getData(headerId));
 
       if (response != null) {
-        // Parse API response into model
         purchaseOrderModel = PurchaseOrderModel.fromJson(response);
+
+        if (purchaseOrderModel?.headerId != null) {
+          myHeaderId = purchaseOrderModel!.headerId!;
+          Global.transactionHeaderId = myHeaderId.toString();
+        }
 
         if (purchaseOrderModel?.headerTab != null) {
           _applyHeaderData(purchaseOrderModel!.headerTab!.toJson());
           hasDataLoaded = true;
         }
-        // Initialize isOpen for item lines to support UI expansion
-        if (purchaseOrderModel?.itemDetailsTab != null) {
+
+        if (purchaseOrderModel?.itemDetailsTab == null ||
+            purchaseOrderModel!.itemDetailsTab!.isEmpty) {
+          addItemDetailsLine();
+        } else {
           for (final item in purchaseOrderModel!.itemDetailsTab!) {
             item.isOpen = false;
-            // Populate item details with header charge type data
             if (purchaseOrderModel?.headerTab != null) {
               final headerData = purchaseOrderModel!.headerTab!;
               item.chargeTypeCode = headerData.chargeTypeCode ?? '';
@@ -929,12 +1008,6 @@ class PoApplicationVm extends ChangeNotifier {
               item.chargeToName = headerData.chargeToDescription ?? '';
             }
           }
-        } else {
-          // Fallback empty HeaderTab to avoid UI issues
-          // poDefaultModel!.headerTab =
-          // _applyHeaderData(purchaseOrderModel!.headerTab!.toJson());
-          print("Warning: header_tab is null from API, fallback applied");
-          print("Full API response: $response"); // Debug log
         }
       }
     } catch (e, st) {
@@ -947,15 +1020,38 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Return data map for API call
   Map<String, String> getData(int myHeaderId) {
-    return {
-      'company_id': Global.empData!.companyId.toString(),
-      'user_id': Global.empData!.userId.toString(),
-      'default': myHeaderId > 0 ? '0' : '1',
-      'is_view': '1',
-      'header_id': myHeaderId > 0 ? myHeaderId.toString() : '0',
-      'is_submit': '0',
-    };
+    Map<String, String> data = {};
+    if (myHeaderId == -1) {
+      data = {
+        'company_id': Global.empData!.companyId.toString(),
+        'user_id': Global.empData!.userId.toString(),
+        'default': '1',
+        'is_view': '0',
+        'header_id': '0',
+        'is_submit': '0',
+      };
+    } else {
+      data = {
+        'company_id': Global.empData!.companyId.toString(),
+        'user_id': Global.empData!.userId.toString(),
+        'default': '0',
+        'is_view': '1',
+        'is_submit': '0',
+        'header_id': myHeaderId.toString(),
+      };
+    }
+    return data;
   }
+  // Map<String, String> getData(int myHeaderId) {
+  //   return {
+  //     'company_id': Global.empData!.companyId.toString(),
+  //     'user_id': Global.empData!.userId.toString(),
+  //     'default': myHeaderId != -1 ? '0' : '1',
+  //     'is_view': '1',
+  //     'header_id': myHeaderId != -1 ? myHeaderId.toString() : '0',
+  //     'is_submit': '0',
+  //   };
+  // }
 
   /// Return data map for API call depending on myHeaderId
 
@@ -1002,6 +1098,18 @@ class PoApplicationVm extends ChangeNotifier {
     deliveryTermDescCtrl.text = _s(h['delivery_term_desc']);
     needByDateCtrl.text = _s(h['need_by_date']);
     remarkCtrl.text = _s(h['remark']);
+    doc_id = h['doc_loc_id'] ?? 0;
+    supp_id = h['supplier_id'] ?? 0;
+    currency_id = h['currency_id'] ?? 0;
+    paymentTermId = h['payment_term_id'] ?? 0;
+    modeOfShipId = h['mode_of_shipment_id'] ?? 0;
+    modePaymentId = h['mode_of_payment_id'] ?? 0;
+    chargeTypeId = h['charge_type_id'] ?? 0;
+    chargeToId = h['charge_to_id'] ?? 0;
+    shipToStoreId = h['ship_to_store_loc_id'] ?? 0;
+    purchaseTypeId = h['purchase_type_id'] ?? 0;
+    pettyCashId = h['petty_cash_id'] ?? 0;
+    buyerId = h['buyer_id'] ?? 0;
     _updateRemarkQuillFromText();
     if (!_isDisposed) notifyListeners();
   }
@@ -1169,6 +1277,9 @@ class PoApplicationVm extends ChangeNotifier {
         case 'Doc. Loc.*':
           docLocCodeCtrl.text = result.code ?? '';
           docLocDescCtrl.text = result.desc ?? '';
+          doc_id = result.id ?? doc_id;
+          purchaseOrderModel?.headerTab?.docLocId = doc_id;
+
           break;
         case 'Supplier*':
           supplierCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
@@ -1177,22 +1288,29 @@ class PoApplicationVm extends ChangeNotifier {
         case 'Currency*':
           currencyCodeCtrl.text = result.code ?? '';
           currencyDescCtrl.text = result.desc ?? '';
+          currency_id = result.id ?? currency_id; // update local variable
+          purchaseOrderModel?.headerTab?.currencyId = currency_id;
+
           break;
         case 'Payment Term*':
           paymentTermCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          paymentTermId = result.id ?? 0;
           break;
         case 'Mode of Shipment*':
           modeShipmentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          modeOfShipId = result.id ?? 0;
           break;
         case 'Mode of Payment*':
           modePaymentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          modePaymentId = result.id ?? 0;
           break;
         case 'Charge Type*':
           chargeTypeCodeCtrl.text = result.code ?? '';
           chargeTypeDescCtrl.text = result.desc ?? '';
-          chargeTypeCode = result.code ?? ''; // Update chargeTypeCode
+          chargeTypeId = result.id ?? chargeTypeId; // update local variable
+          purchaseOrderModel?.headerTab?.chargeTypeId = chargeTypeId;
+          chargeTypeCode = result.code ?? '';
 
-          // Update all existing line items with new charge type
           if (purchaseOrderModel?.itemDetailsTab != null) {
             for (final item in purchaseOrderModel!.itemDetailsTab!) {
               item.chargeTypeCode = result.code ?? '';
@@ -1203,8 +1321,8 @@ class PoApplicationVm extends ChangeNotifier {
         case 'Charge To*':
           chargeToCodeCtrl.text = result.code ?? '';
           chargeToDescCtrl.text = result.desc ?? '';
+          chargeToId = result.id ?? 0;
 
-          // Update all existing line items with new charge to
           if (purchaseOrderModel?.itemDetailsTab != null) {
             for (final item in purchaseOrderModel!.itemDetailsTab!) {
               item.chargeToCode = result.code ?? '';
@@ -1213,12 +1331,8 @@ class PoApplicationVm extends ChangeNotifier {
           }
           break;
         case 'Supplier Type':
-          print(
-              "Debug - Setting supplier type: code='${result.code}', desc='${result.desc}'");
           supplierType.text = result.code ?? '';
           supplierTypeDesc.text = result.desc ?? '';
-          print(
-              "Debug - After setting: supplierType.text='${supplierType.text}', supplierTypeDesc.text='${supplierTypeDesc.text}'");
           break;
         case 'Address Code':
           supplierAddress.text = result.code ?? '';
@@ -1229,22 +1343,29 @@ class PoApplicationVm extends ChangeNotifier {
         case 'Ship to Store Loc*':
           shipToStoreCodeCtrl.text = result.code ?? '';
           shipToStoreDescCtrl.text = result.desc ?? '';
+          shipToStoreId = result.id ?? 0;
           break;
         case 'Purchase Type*':
           purchaseTypeCodeCtrl.text = result.code ?? '';
           purchaseTypeDescCtrl.text = result.desc ?? '';
+          purchaseTypeId = result.id ?? 0;
           break;
         case 'Petty Cash No*':
           pettyCashCodeCtrl.text = result.code ?? '';
           pettyCashDescCtrl.text = result.desc ?? '';
+          pettyCashId = result.id ?? 0;
           break;
         case 'Buyer ID*':
           buyerCodeCtrl.text = result.code ?? '';
           buyerDescCtrl.text = result.desc ?? '';
+          buyerId = result.id ?? buyerId; // update local variable
+          purchaseOrderModel?.headerTab?.buyerId = buyerId; // update model
+          chargeTypeCode = result.code ?? '';
           break;
         case 'Delivery Term*':
           deliveryTermCodeCtrl.text = result.code ?? '';
           deliveryTermDescCtrl.text = result.desc ?? '';
+          deliveryTermId = result.id ?? 0;
           break;
       }
       if (!_isDisposed) notifyListeners();
@@ -1373,6 +1494,9 @@ class PoApplicationVm extends ChangeNotifier {
     } else if (type == 3) {
       // GL Code search
       callItemCommonSearch(context, index, 'GL_CODE', type);
+    } else if (type == 4) {
+      // Tax popup search - handled directly in header1Search callback
+      // No need to call again here
     }
   }
 
@@ -1483,6 +1607,127 @@ class PoApplicationVm extends ChangeNotifier {
     });
   }
 
+  // ===================== Tax Popup Search Flow =====================
+  void callItemTaxSearch(
+      BuildContext context, int parentIndex, int taxIndex, int type) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        parentIndex < 0 ||
+        parentIndex >= purchaseOrderModel!.itemDetailsTab!.length) {
+      return;
+    }
+
+    // Check if net value is empty or 0 before opening tax popup
+    final itemDetails = purchaseOrderModel!.itemDetailsTab![parentIndex];
+    String? netValue = itemDetails.netValue;
+
+    // Validate net value
+    if (netValue == null ||
+        netValue.isEmpty ||
+        netValue == '0' ||
+        netValue == '0.0') {
+      // Show error message and don't open tax popup
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please net value is mandatory'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    if (type == 1) {
+      // Tax Code search
+      callTaxPopupCommonSearch(context, parentIndex, taxIndex, 'CODE');
+    }
+    print('=== TAX SEARCH DEBUG END ===');
+  }
+
+  void callTaxPopupCommonSearch(
+      BuildContext context, int parentIndex, int taxIndex, String searchType) {
+    String url = ApiUrl.getTaxSearchList;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateSupplierPagination(
+          url: ApiUrl.baseUrl! + url,
+          searchType: searchType,
+          searchKeyWord: '',
+          txnType: 'PO',
+        ),
+      ),
+    ).then((value) {
+      if (value != null && value is tax_model.SearchList) {
+        final itemDetails = purchaseOrderModel!.itemDetailsTab![parentIndex];
+
+        itemDetails.taxPopup ??= [];
+        while (itemDetails.taxPopup!.length <= taxIndex) {
+          itemDetails.taxPopup!.add(TaxPopup.empty());
+        }
+
+        final taxPopup = itemDetails.taxPopup![taxIndex];
+
+        taxPopup.taxCode = value.code ?? '';
+        taxPopup.discountPercent = value.percent ?? '0';
+
+        taxPopup.taxBasis = value.basis ?? '';
+        taxPopup.taxId = value.id;
+
+        // Calculate tax amounts based on line item net value
+        _calculateTaxAmounts(parentIndex, taxIndex);
+
+        taxPopup.taxPopUpPercentController?.text =
+            taxPopup.discountPercent ?? '';
+        taxPopup.taxPopUpRemarksController?.text = taxPopup.taxRemark ?? '';
+
+        notifyListeners();
+      }
+    });
+  }
+
+  // Calculate tax amounts based on line item net value
+  void _calculateTaxAmounts(int parentIndex, int taxIndex) {
+    if (purchaseOrderModel?.itemDetailsTab == null ||
+        parentIndex < 0 ||
+        parentIndex >= purchaseOrderModel!.itemDetailsTab!.length ||
+        taxIndex < 0 ||
+        taxIndex >=
+            purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!.length) {
+      return;
+    }
+
+    final itemDetails = purchaseOrderModel!.itemDetailsTab![parentIndex];
+    final taxPopup = itemDetails.taxPopup![taxIndex];
+
+    // Get the line item net value
+    double netValue = 0.0;
+    try {
+      netValue = double.parse(itemDetails.netValue ?? '0');
+    } catch (e) {
+      netValue = 0.0;
+    }
+
+    // Get the tax percentage
+    double taxPercent = 0.0;
+    try {
+      taxPercent = double.parse(taxPopup.discountPercent ?? '0');
+    } catch (e) {
+      taxPercent = 0.0;
+    }
+
+    // Calculate tax amount
+    double taxAmount = (netValue * taxPercent) / 100;
+
+    // For LC Amount, we'll use the same calculation for now
+    // You can modify this if there's a different exchange rate logic
+    double lcAmount = taxAmount;
+
+    // Update the tax popup with calculated values
+    taxPopup.discountValue = taxAmount.toStringAsFixed(2);
+    taxPopup.discountLcvalue = lcAmount.toStringAsFixed(2);
+  }
+
   @override
   void dispose() {
     // Dispose all controllers in organized groups
@@ -1507,6 +1752,7 @@ class PoApplicationVm extends ChangeNotifier {
     docLocDescCtrl.dispose();
     docNoTypeCtrl.dispose();
     docNoCtrl.dispose();
+
     statusCtrl.dispose();
   }
 
@@ -1607,6 +1853,7 @@ class PoApplicationVm extends ChangeNotifier {
     docLocDescCtrl.clear();
     docNoTypeCtrl.clear();
     docNoCtrl.clear();
+
     statusCtrl.clear();
   }
 
@@ -1797,20 +2044,40 @@ class PoApplicationVm extends ChangeNotifier {
   }
 
   /// Add new tax row
-  void onTaxPopupAddRow(int parentIndex) {
-    if (purchaseOrderModel?.itemDetailsTab != null) {
-      // Create new tax item
-      final newTax = TaxPopup();
-      newTax.isSelected = false;
+  // void onTaxPopupAddRow(int parentIndex) {
+  //   if (purchaseOrderModel?.itemDetailsTab == null ||
+  //       parentIndex < 0 ||
+  //       parentIndex >= purchaseOrderModel!.itemDetailsTab!.length) return;
 
-      // Add to tax popup list
-      if (purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup == null) {
-        purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup = [];
-      }
-      purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!.add(newTax);
+  //   final newTax = TaxPopup.empty();
+  //   newTax.isSelected = false;
 
-      notifyListeners();
-    }
+  //   purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup ??= [];
+  //   purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!.add(newTax);
+
+  //   print("New Tax Row Added for Item $parentIndex");
+  //   notifyListeners();
+  // }
+
+  TaxPopup onTaxPopupAddRow(int index) {
+    var taxPopupLine = TaxPopup();
+    taxPopupLine.srNo = 0;
+    taxPopupLine.taxLineId = 0;
+    taxPopupLine.taxId = 0;
+    taxPopupLine.taxCode = '';
+    taxPopupLine.currencyId = 0;
+    taxPopupLine.currencyCode = '';
+    taxPopupLine.discountPercent = '';
+    taxPopupLine.discountValue = '';
+    taxPopupLine.discountLcvalue = '';
+    taxPopupLine.taxRemark = '';
+    taxPopupLine.taxBasis = '';
+    taxPopupLine.taxPopUpPercentController = TextEditingController(text: '');
+    taxPopupLine.taxPopUpRemarksController = TextEditingController(text: '');
+
+    purchaseOrderModel?.itemDetailsTab![index].taxPopup?.add(taxPopupLine);
+    notifyListeners();
+    return taxPopupLine;
   }
 
   ///  Add a new empty Item Line
@@ -1903,6 +2170,39 @@ class PoApplicationVm extends ChangeNotifier {
     if (index >= 0 && index < taxPopups.length) {
       taxPopups.removeAt(index);
       notifyListeners();
+    }
+  }
+
+  void toggleTaxPopupOpen(int parentIndex, int taxIndex) {
+    if (purchaseOrderModel?.itemDetailsTab != null &&
+        parentIndex >= 0 &&
+        parentIndex < purchaseOrderModel!.itemDetailsTab!.length) {
+      final itemDetails = purchaseOrderModel!.itemDetailsTab![parentIndex];
+      if (itemDetails.taxPopup != null &&
+          taxIndex >= 0 &&
+          taxIndex < itemDetails.taxPopup!.length) {
+        itemDetails.taxPopup![taxIndex].isOpen =
+            !itemDetails.taxPopup![taxIndex].isOpen;
+        notifyListeners();
+      }
+    }
+  }
+
+  void updateTaxPopupControllers(int parentIndex, int taxIndex) {
+    if (purchaseOrderModel?.itemDetailsTab != null &&
+        parentIndex >= 0 &&
+        parentIndex < purchaseOrderModel!.itemDetailsTab!.length) {
+      final itemDetails = purchaseOrderModel!.itemDetailsTab![parentIndex];
+      if (itemDetails.taxPopup != null &&
+          taxIndex >= 0 &&
+          taxIndex < itemDetails.taxPopup!.length) {
+        final taxPopup = itemDetails.taxPopup![taxIndex];
+        // Update controller values to match the data
+        taxPopup.taxPopUpPercentController?.text =
+            taxPopup.discountPercent ?? '';
+        taxPopup.taxPopUpRemarksController?.text = taxPopup.taxRemark ?? '';
+        notifyListeners();
+      }
     }
   }
 }

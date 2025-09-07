@@ -1,4 +1,4 @@
-// ignore_for_file: no_logic_in_create_state, camel_case_types
+// ignore_for_file: no_logic_in_create_state, camel_case_types, use_super_parameters, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';

@@ -14,7 +14,7 @@ import 'package:petty_cash/view/login/ScanQRCodePage.dart';
 import 'package:petty_cash/view/login/SystemURLPage.dart';
 import 'package:petty_cash/view/login/ValidateIDKeyPage.dart';
 
-import 'package:petty_cash/view/po_transaction/po_transaction.dart';
+import 'package:petty_cash/view/po_transaction/transaction_page/po_transaction.dart';
 import 'package:petty_cash/view/purchase_order_dashboard/po_dashboard.dart';
 
 import 'package:petty_cash/view/startup_module/splash_screen.dart';

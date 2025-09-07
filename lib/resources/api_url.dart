@@ -42,4 +42,6 @@ class ApiUrl {
   static var getCommonRefTxnCodeList = 'erp_api/CommonReferenceTxnCodeList/';
   static var getRefDocNoList = 'erp_api/CommonReferenceDocNoList/';
   static var getItemDetailsSearch = 'erp_api/PurchaseOrderItemDetailSearch/';
+  static var getPoTaxLineItem = 'erp_api/PurchaseOrderTaxLineItem/';
+  static var getTaxSearchList = 'erp_api/PurchaseOrderTaxLineItem/';
 }

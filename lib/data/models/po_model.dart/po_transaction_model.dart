@@ -773,6 +773,10 @@ class TaxPopup {
   bool isOpen = true;
   bool isSelected = false;
 
+  // TextEditingController fields for UI
+  TextEditingController? taxPopUpPercentController;
+  TextEditingController? taxPopUpRemarksController;
+
   TaxPopup(
       {this.srNo,
       this.taxLineId,
@@ -786,7 +790,18 @@ class TaxPopup {
       this.taxRemark,
       this.taxBasis,
       isOpen,
-      isSelected});
+      isSelected}) {
+    // Initialize controllers
+    taxPopUpPercentController =
+        TextEditingController(text: discountPercent ?? '');
+    taxPopUpRemarksController = TextEditingController(text: taxRemark ?? '');
+  }
+
+  // Default constructor that always initializes controllers
+  TaxPopup.empty() {
+    taxPopUpPercentController = TextEditingController();
+    taxPopUpRemarksController = TextEditingController();
+  }
 
   TaxPopup.fromJson(Map<String, dynamic> json) {
     srNo = json['sr_no'];
@@ -800,6 +815,11 @@ class TaxPopup {
     discountLcvalue = json['discount_lcvalue'];
     taxRemark = json['tax_remark'];
     taxBasis = json['tax_basis'];
+
+    // Initialize controllers
+    taxPopUpPercentController =
+        TextEditingController(text: discountPercent ?? '');
+    taxPopUpRemarksController = TextEditingController(text: taxRemark ?? '');
   }
 
   Map<String, dynamic> toJson() {

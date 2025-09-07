@@ -975,9 +975,9 @@ class CustomViewOnlyTable extends StatelessWidget {
                           : header1IconData!(index),
                       iconColor: header1IconColor,
                       isSearch: isSearchHeader1,
-                      // onTap: header1Search == null
-                      //     ? () {}
-                      //     : () => header1Search!(index),
+                      onTap: header1Search == null
+                          ? () {}
+                          : () => header1Search!(index),
                       myDecoration: header1Decoration ??
                           BoxDecoration(color: Colors.amber.withOpacity(.1)),
                     ),
@@ -998,7 +998,9 @@ class CustomViewOnlyTable extends StatelessWidget {
                           : header2IconData!(index),
                       iconColor: header2IconColor,
                       isSearch: isSearchHeader2,
-                      // onTap: () => header2Search!(index),
+                      onTap: header2Search == null
+                          ? () {}
+                          : () => header2Search!(index),
                       onLongPress: () => header2LongPress?.call(index),
                       myDecoration: header2Decoration ??
                           BoxDecoration(color: Colors.amber.withOpacity(.1)),

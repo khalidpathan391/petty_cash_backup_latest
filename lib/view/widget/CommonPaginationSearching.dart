@@ -38,7 +38,7 @@ class PaginationSearching extends StatefulWidget {
   final String? supplierId;
 
   const PaginationSearching({
-    Key? key,
+    super.key,
     required this.url,
     required this.searchType,
     required this.txnType,
@@ -58,7 +58,7 @@ class PaginationSearching extends StatefulWidget {
     this.title = 'Common Searching',
     this.lookupCode,
     this.supplierId,
-  }) : super(key: key);
+  });
 
   @override
   PaginationSearchingState createState() =>

@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable
+// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable, prefer_conditional_assignment
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -741,9 +741,9 @@ class _HeaderTabState extends State<_HeaderTab> {
 
                     // Tab Bar
                     TabBar(
-                      tabs: [
-                        const Tab(text: 'Header'),
-                        const Tab(text: 'Validation'),
+                      tabs: const [
+                        Tab(text: 'Header'),
+                        Tab(text: 'Validation'),
                       ],
                       labelColor: context.resources.color.themeColor,
                       unselectedLabelColor: Colors.grey,
@@ -922,18 +922,20 @@ class _HeaderTabState extends State<_HeaderTab> {
       ),
       builder: (context) {
         final dW = MediaQuery.of(context).size.width;
+        final dH = MediaQuery.of(context).size.height;
+        final tS = dW * 0.035; // Dynamic text size
         final vm = Provider.of<PoApplicationVm>(context, listen: false);
 
         Widget labelWithField({required String label, required Widget field}) {
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
+            padding: EdgeInsets.symmetric(vertical: dH * 0.01),
             child: Row(
               children: [
                 Expanded(
                   flex: 3,
                   child: CommonTextView(
                     label: label,
-                    fontSize: 14,
+                    fontSize: tS * 1.2,
                     maxLine: 1,
                     overFlow: TextOverflow.ellipsis,
                   ),
@@ -959,9 +961,10 @@ class _HeaderTabState extends State<_HeaderTab> {
               label: label,
               controller: controller,
               enabled: false,
-              height: 36,
-              hintFontSize: 12,
-              suffixWidget: showSearch ? const Icon(Icons.search) : null,
+              height: dH * 0.045,
+              hintFontSize: tS * 0.9,
+              suffixWidget:
+                  showSearch ? Icon(Icons.search, size: tS * 1.2) : null,
             ),
           );
         }
@@ -973,8 +976,8 @@ class _HeaderTabState extends State<_HeaderTab> {
               label: label,
               controller: TextEditingController(text: value.toStringAsFixed(2)),
               enabled: false,
-              height: 36,
-              hintFontSize: 12,
+              height: dH * 0.045,
+              hintFontSize: tS * 0.9,
             ),
           );
         }
@@ -983,7 +986,7 @@ class _HeaderTabState extends State<_HeaderTab> {
           padding: EdgeInsets.only(
             left: dW * 0.03,
             right: dW * 0.03,
-            top: dW * 0.03,
+            top: dH * 0.05,
             bottom: MediaQuery.of(context).viewInsets.bottom + 16,
           ),
           child: SingleChildScrollView(
@@ -991,19 +994,19 @@ class _HeaderTabState extends State<_HeaderTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Header block
-                const CommonTextView(
+                CommonTextView(
                   label: "Net Value",
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: tS * 1.2,
                   color: Colors.black,
                 ),
                 const Divider(),
                 const SizedBox(height: 5),
-                const CommonTextView(
+                CommonTextView(
                   label: "Item Details",
                   alignment: Alignment.topCenter,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: tS * 1.2,
                   color: Colors.black,
                 ),
                 const SizedBox(height: 5),
@@ -1020,11 +1023,11 @@ class _HeaderTabState extends State<_HeaderTab> {
                 const Divider(),
                 const SizedBox(height: 5),
 
-                const CommonTextView(
+                CommonTextView(
                   label: "Header",
                   alignment: Alignment.topCenter,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: tS * 1.1,
                   color: Colors.black,
                 ),
                 const Divider(),
@@ -1043,7 +1046,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     CommonButton(
-                      text: "Close", fontSize: tS * 0.9,
+                      text: "Close", fontSize: tS * 1.1,
                       onPressed: () => Navigator.pop(context),
                       color: context.resources.color.themeColor,
                       textColor: Colors.white,
@@ -1491,7 +1494,7 @@ class _HeaderSummary extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 0),
           child: TransactionStart(
             label: 'Doc. No.*',
-            labelVal: vm.docNoCtrl.text,
+            labelVal: "${vm.docNoTypeCtrl.text} - ${vm.docNoCtrl.text}",
             label2: vm.statusCtrl.text.isEmpty ? 'New' : vm.statusCtrl.text,
             label2Color: Colors.green,
           ),
@@ -1554,20 +1557,6 @@ class _ItemDetailsTab extends StatelessWidget {
                         size: 15,
                       ),
                     ),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  taxPopupList(context, 0);
-                },
-                child: Container(
-                  margin: EdgeInsets.only(
-                      bottom: AppHeight(10), right: AppWidth(10)),
-                  child: Icon(
-                    Icons.attach_money,
-                    color: context.resources.color.themeColor,
-                    size: tS * 2.1,
                   ),
                 ),
               ),
@@ -1671,6 +1660,9 @@ class _ItemDetailsTab extends StatelessWidget {
                             //         index);
                             // taxPopupList
                             break;
+                          case 'Tax':
+                            taxPopupList(context, index);
+                            break;
                         }
                       },
                       itemBuilder: (BuildContext context) =>
@@ -1680,6 +1672,13 @@ class _ItemDetailsTab extends StatelessWidget {
                               child: ListTile(
                                 leading: Icon(Icons.attachment),
                                 title: Text('Attachments'),
+                              ),
+                            ),
+                            const PopupMenuItem<String>(
+                              value: 'Tax',
+                              child: ListTile(
+                                leading: Icon(Icons.account_balance),
+                                title: Text('Tax'),
                               ),
                             ),
                           ]),
@@ -1719,6 +1718,7 @@ class _ItemDetailsTab extends StatelessWidget {
                 row4Title: 'Quantity',
                 row4Label: (data) => data.quantity ?? '',
                 isTextRow4: true,
+                row4KeyboardType: TextInputType.number,
                 row4Controller: (index) =>
                     vm.purchaseOrderModel!.itemDetailsTab![index]
                         .quantityController ??
@@ -1743,7 +1743,7 @@ class _ItemDetailsTab extends StatelessWidget {
                 isRow7: true,
                 row7Title: 'Unit Price',
                 row7Label: (data) => data.unitPrice ?? '',
-                isTextRow7: (_) => true,
+                isTextRow7: (_) => true, row7KeyboardType: TextInputType.number,
                 row7Controller: (index) =>
                     vm.purchaseOrderModel!.itemDetailsTab![index]
                         .unitPriceController ??
@@ -1762,7 +1762,7 @@ class _ItemDetailsTab extends StatelessWidget {
                 isRow9: true,
                 row9Title: 'Discount %',
                 row9Label: (data) => data.discountPer ?? '',
-                isTextRow9: true,
+                isTextRow9: true, row9KeyboardType: TextInputType.number,
                 row9Controller: (index) =>
                     vm.purchaseOrderModel!.itemDetailsTab![index]
                         .discountController ??
@@ -1775,7 +1775,7 @@ class _ItemDetailsTab extends StatelessWidget {
                 isRow10: true,
                 row10Title: 'Discount Val',
                 row10Label: (data) => data.discountVal ?? '',
-                isTextRow10: true,
+                isTextRow10: true, row10KeyboardType: TextInputType.number,
                 row10Controller: (index) {
                   final item = vm.purchaseOrderModel!.itemDetailsTab![index];
                   if (item.discountValueController == null) {
@@ -1882,6 +1882,37 @@ class _ItemDetailsTab extends StatelessWidget {
   }
 
   void taxPopupList(BuildContext context, int parentIndex) {
+    // Check if net value is empty or 0 before opening tax popup
+    final vm = Provider.of<PoApplicationVm>(context, listen: false);
+    if (vm.purchaseOrderModel?.itemDetailsTab == null ||
+        parentIndex < 0 ||
+        parentIndex >= vm.purchaseOrderModel!.itemDetailsTab!.length) {
+      return;
+    }
+
+    final itemDetails = vm.purchaseOrderModel!.itemDetailsTab![parentIndex];
+    String? netValue = itemDetails.netValue;
+
+    // Validate net value
+    if (netValue == null ||
+        netValue.isEmpty ||
+        netValue == '0' ||
+        netValue == '0.0') {
+      // Show error message and don't open tax popup
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please net value is mandatory'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    final dW = MediaQuery.of(context).size.width;
+    final dH = MediaQuery.of(context).size.height;
+    final tS = dW * 0.035; // Dynamic text size
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1909,13 +1940,13 @@ class _ItemDetailsTab extends StatelessWidget {
                           title: CommonTextView(
                             label: 'Tax',
                             color: context.resources.color.colorWhite,
-                            fontSize: context.resources.dimension.appMediumText,
+                            fontSize: tS * 1.2,
                           ),
                           actions: [
                             IconButton(
                               icon: Icon(
                                 Icons.close,
-                                size: 25.0,
+                                size: tS * 2.5,
                                 color: context.resources.color.colorWhite,
                               ),
                               onPressed: () {
@@ -2021,14 +2052,8 @@ class _ItemDetailsTab extends StatelessWidget {
                                           provider.onTaxPopupSelected(
                                               parentIndex, index);
                                         },
-                                        header1Search: (index) {
-                                          // provider.callReEntry(
-                                          //     context, index, 1,
-                                          //     parentIndex: parentIndex);
-                                        },
                                         header1Decoration: const BoxDecoration(
                                             color: Colors.white),
-                                        isSearchHeader1: true,
                                         header0IconData: (index) {
                                           return provider
                                                   .purchaseOrderModel!
@@ -2042,35 +2067,22 @@ class _ItemDetailsTab extends StatelessWidget {
                                             data.currencyCode ?? 'N/A',
                                         // header2Decoration: const BoxDecoration(
                                         //     color: Colors.white),
-                                        header2Search: (index) {},
+                                        header1Search: (index) {
+                                          // Open tax search pagination - Tax Code search
+                                          provider.callItemTaxSearch(
+                                              context, parentIndex, index, 1);
+                                        },
+                                        isSearchHeader1: true,
                                         onOpen: (index) {
-                                          // provider.onTaxPopUp(
-                                          //     index, parentIndex);
+                                          provider.toggleTaxPopupOpen(
+                                              parentIndex, index);
                                         },
-                                        isTextRow1: (index) => true,
-                                        row1Tap: (index) {
-                                          // provider.updateTaxPopupAmounts(
-                                          //     parentIndex);
-                                        },
-                                        row1Controller: (index) {
-                                          // return provider
-                                          //     .bankPaymentModel!
-                                          //     .onAccountTab![parentIndex]
-                                          //     .taxPopup![index]
-                                          //     .taxPopUpPercentController;
-                                        },
-                                        row1KeyboardType: TextInputType.number,
-                                        row1TextOnChange: (val, childIndex) {
-                                          // provider.updateTaxLcAmountOnChange(
-                                          //     val, parentIndex, childIndex);
-                                        },
+                                        isTextRow1: (index) => false,
+                                        row1Tap: (index) {},
 
                                         row1Title: '%',
                                         row1Label: (data) =>
                                             data.discountPercent ?? 'N/A',
-                                        isRow1Search: true,
-                                        row1Decoration: const BoxDecoration(
-                                            color: Colors.white),
 
                                         isRow2: true,
                                         row2Tap: (index) {},
@@ -2082,20 +2094,16 @@ class _ItemDetailsTab extends StatelessWidget {
                                         row3Title: 'LC Amount',
                                         row3Label: (data) =>
                                             data.discountLcvalue ?? 'N/A',
-                                        row4Title: 'Remark', isRow4: true,
+                                        row4Title: 'Remark',
+                                        isRow4: true,
                                         isTextRow4: true,
-                                        row4Tap: (index) {},
-                                        row4Controller: (index) {
-                                          // return provider
-                                          //     .bankPaymentModel!
-                                          //     .onAccountTab![parentIndex]
-                                          //     .taxPopup![index]
-                                          //     .taxPopUpRemarksController;
-                                        },
-
-                                        row4TextOnChange: (val, index) {},
-                                        row4Label: (data) =>
-                                            data.taxRemark ?? 'N/A',
+                                        row4Controller: (index) =>
+                                            provider
+                                                .purchaseOrderModel!
+                                                .itemDetailsTab![parentIndex]
+                                                .taxPopup![index]
+                                                .taxPopUpRemarksController ??
+                                            TextEditingController(),
                                       ),
                                   ],
                                 ),
@@ -2107,25 +2115,28 @@ class _ItemDetailsTab extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   CommonButton(
-                                    buttonWidth: ButtonWidth.WRAP,
                                     text: 'OK',
+                                    fontSize: tS * 1.1,
                                     onPressed: () {
                                       // provider.saveTaxPopupData(
                                       //     context, parentIndex);
                                     },
-                                    color: Colors.green,
+                                    color: context.resources.color.themeColor,
+                                    textColor: Colors.white,
+                                    borderRadius: 8.0,
                                   ),
                                   const SizedBox(
                                     width: 10,
                                   ),
                                   CommonButton(
-                                    buttonWidth: ButtonWidth.WRAP,
                                     text: 'Close',
-                                    fontSize: tS * 0.5,
+                                    fontSize: tS * 1.1,
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
                                     color: Colors.red,
+                                    textColor: Colors.white,
+                                    borderRadius: 8.0,
                                   ),
                                 ],
                               ),

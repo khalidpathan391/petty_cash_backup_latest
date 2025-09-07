@@ -84,34 +84,47 @@ class SearchList {
   String? glCode;
   String? glDesc;
   String? descChangeAllow;
+  int? id;
+  String? code;
+  String? desc;
+  String? basis;
+  String? percent;
+  int? isRecover;
 
-  SearchList(
-      {this.itemId,
-      this.itemCode,
-      this.itemName,
-      this.itemDescription,
-      this.itemLongDescription,
-      this.stdRate,
-      this.itemDimension,
-      this.stockTf,
-      this.additionalInfoCode,
-      this.itemClassificationId,
-      this.medicineType,
-      this.itemIsBatch,
-      this.itemIsSerial,
-      this.itemCalibration,
-      this.traceBy,
-      this.isInspection,
-      this.itemLocatorTf,
-      this.itemLooseQty,
-      this.baseLooseQty,
-      this.uomId,
-      this.uomCode,
-      this.uomDimensional,
-      this.glCodeId,
-      this.glCode,
-      this.glDesc,
-      this.descChangeAllow});
+  SearchList({
+    this.itemId,
+    this.itemCode,
+    this.itemName,
+    this.itemDescription,
+    this.itemLongDescription,
+    this.stdRate,
+    this.itemDimension,
+    this.stockTf,
+    this.additionalInfoCode,
+    this.itemClassificationId,
+    this.medicineType,
+    this.itemIsBatch,
+    this.itemIsSerial,
+    this.itemCalibration,
+    this.traceBy,
+    this.isInspection,
+    this.itemLocatorTf,
+    this.itemLooseQty,
+    this.baseLooseQty,
+    this.uomId,
+    this.uomCode,
+    this.uomDimensional,
+    this.glCodeId,
+    this.glCode,
+    this.glDesc,
+    this.descChangeAllow,
+    this.id,
+    this.code,
+    this.desc,
+    this.basis,
+    this.percent,
+    this.isRecover,
+  });
 
   SearchList.fromJson(Map<String, dynamic> json) {
     itemId = json['item_id'];
@@ -140,6 +153,12 @@ class SearchList {
     glCode = json['gl_code'];
     glDesc = json['gl_desc'];
     descChangeAllow = json['desc_change_allow'];
+    id = json['id'];
+    code = json['code'];
+    desc = json['desc'];
+    basis = json['basis'];
+    percent = json['percent'];
+    isRecover = json['is_recover'];
   }
 
   Map<String, dynamic> toJson() {
@@ -170,6 +189,12 @@ class SearchList {
     data['gl_code'] = this.glCode;
     data['gl_desc'] = this.glDesc;
     data['desc_change_allow'] = this.descChangeAllow;
+    data['id'] = this.id;
+    data['code'] = this.code;
+    data['desc'] = this.desc;
+    data['basis'] = this.basis;
+    data['percent'] = this.percent;
+    data['is_recover'] = this.isRecover;
     return data;
   }
 }
