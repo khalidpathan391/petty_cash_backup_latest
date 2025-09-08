@@ -1,28 +1,20 @@
+// ignore_for_file: unnecessary_new, prefer_collection_literals, unnecessary_this
+
 class PoListingModel {
   bool? error;
   int? errorCode;
   String? errorDescription;
-  List<Listing>? listing;
-  int? noOfRecords;
+  PoListingData? data;
 
   PoListingModel(
-      {this.error,
-      this.errorCode,
-      this.errorDescription,
-      this.listing,
-      this.noOfRecords});
+      {this.error, this.errorCode, this.errorDescription, this.data});
 
   PoListingModel.fromJson(Map<String, dynamic> json) {
     error = json['error'];
     errorCode = json['error_code'];
     errorDescription = json['error_description'];
-    if (json['listing'] != null) {
-      listing = <Listing>[];
-      json['listing'].forEach((v) {
-        listing!.add(new Listing.fromJson(v));
-      });
-    }
-    noOfRecords = json['no_of_records'];
+    data =
+        json['data'] != null ? new PoListingData.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -30,15 +22,43 @@ class PoListingModel {
     data['error'] = this.error;
     data['error_code'] = this.errorCode;
     data['error_description'] = this.errorDescription;
-    if (this.listing != null) {
-      data['listing'] = this.listing!.map((v) => v.toJson()).toList();
+    if (this.data != null) {
+      data['data'] = this.data!.toJson();
     }
-    data['no_of_records'] = this.noOfRecords;
     return data;
   }
 }
 
-class Listing {
+class PoListingData {
+  int? totalRecords;
+  int? pageLimit;
+  List<SearchList>? searchList;
+
+  PoListingData({this.totalRecords, this.pageLimit, this.searchList});
+
+  PoListingData.fromJson(Map<String, dynamic> json) {
+    totalRecords = json['total_records'];
+    pageLimit = json['page_limit'];
+    if (json['search_list'] != null) {
+      searchList = <SearchList>[];
+      json['search_list'].forEach((v) {
+        searchList!.add(new SearchList.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['total_records'] = this.totalRecords;
+    data['page_limit'] = this.pageLimit;
+    if (this.searchList != null) {
+      data['search_list'] = this.searchList!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class SearchList {
   int? id;
   String? docDt;
   String? txnCode;
@@ -48,7 +68,7 @@ class Listing {
   String? crUidByName;
   String? crDate;
 
-  Listing(
+  SearchList(
       {this.id,
       this.docDt,
       this.txnCode,
@@ -58,7 +78,7 @@ class Listing {
       this.crUidByName,
       this.crDate});
 
-  Listing.fromJson(Map<String, dynamic> json) {
+  SearchList.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     docDt = json['doc_dt'];
     txnCode = json['txn_code'];

@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:petty_cash/data/models/po_model.dart/supplier_type_model.dart';
 
-import 'package:petty_cash/data/models/po_model.dart/tax_search_list_model.dart';
 import 'package:petty_cash/data/repository/general_rep.dart';
 import 'package:petty_cash/global.dart';
 import 'package:petty_cash/globalSize.dart';
@@ -16,7 +16,7 @@ import 'package:petty_cash/view/widget/custom_refresher.dart';
 import 'package:petty_cash/view/widget/erp_text_field.dart';
 import 'package:petty_cash/view/widget/listview_over_widget.dart';
 
-class CreateSupplierPagination extends StatefulWidget {
+class CreateSupplierCodePagination extends StatefulWidget {
   static const String id = "item_pagination_searching";
   final String url;
   final String searchType;
@@ -32,7 +32,7 @@ class CreateSupplierPagination extends StatefulWidget {
   final bool isItem;
   final String? supp_id;
 
-  const CreateSupplierPagination({
+  const CreateSupplierCodePagination({
     Key? key,
     required this.url,
     required this.searchType,
@@ -55,7 +55,7 @@ class CreateSupplierPagination extends StatefulWidget {
 
 //Searching issue check api or my side
 
-class WorkOrdeSrearchingState extends State<CreateSupplierPagination> {
+class WorkOrdeSrearchingState extends State<CreateSupplierCodePagination> {
   String search;
   //
   WorkOrdeSrearchingState(this.search);
@@ -99,7 +99,7 @@ class WorkOrdeSrearchingState extends State<CreateSupplierPagination> {
 
   Future<void> _fetchPage() async {
     _myRepo.postApi(widget.url, getData()).then((value) {
-      TaxPopupSearchListModel data = TaxPopupSearchListModel.fromJson(value);
+      SupplierTypeModel data = SupplierTypeModel.fromJson(value);
       if (data.errorCode == 200) {
         if (AppUtils.errorMessage.isEmpty) {
           if (data.data!.searchList!.length < 15) {
@@ -304,6 +304,19 @@ class WorkOrdeSrearchingState extends State<CreateSupplierPagination> {
                                   padding: const EdgeInsets.only(bottom: 3.0),
                                   child: Text(
                                     'Description: ${item.desc.toString()}',
+                                    maxLines: 2,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.black.withOpacity(.5),
+                                    ),
+                                  ),
+                                ),
+                              if (item.name.toString().isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 3.0),
+                                  child: Text(
+                                    'Name: ${item.name.toString()}',
                                     maxLines: 2,
                                     style: TextStyle(
                                       fontSize: 13,

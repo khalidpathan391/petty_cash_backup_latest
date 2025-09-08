@@ -217,6 +217,39 @@ class HeaderTab {
   String? remark;
   String? headerTermPopup;
 
+  // Terms data
+  String? terms;
+
+  // Supplier Creation data
+  String? supplierDesc;
+  String? supplierType;
+  String? supplierTypeDesc;
+  String? supplierAddress;
+  String? supplierAddressDesc;
+  String? supplierAddress2;
+
+  // Validation data
+  bool? crNoSelected;
+  String? crNoNumber;
+  String? crNoExpiry;
+  bool? zakatSelected;
+  String? zakatNumber;
+  String? zakatExpiry;
+  bool? vatSelected;
+  String? vatNumber;
+  String? vatExpiry;
+
+  // Dynamic Validation data
+  Map<String, bool>? dynamicValidationSelected;
+  Map<String, String>? dynamicValidationNumbers;
+  Map<String, String>? dynamicValidationExpiry;
+
+  // Fallback Validation data
+  bool? fallbackValidationSelected;
+  String? fallbackValidationType;
+  String? fallbackValidationNumber;
+  String? fallbackValidationExpiry;
+
   HeaderTab(
       {this.docDate,
       this.docLocId,
@@ -276,7 +309,30 @@ class HeaderTab {
       this.deliveryTermDesc,
       this.needByDate,
       this.remark,
-      this.headerTermPopup});
+      this.headerTermPopup,
+      this.terms,
+      this.supplierDesc,
+      this.supplierType,
+      this.supplierTypeDesc,
+      this.supplierAddress,
+      this.supplierAddressDesc,
+      this.supplierAddress2,
+      this.crNoSelected,
+      this.crNoNumber,
+      this.crNoExpiry,
+      this.zakatSelected,
+      this.zakatNumber,
+      this.zakatExpiry,
+      this.vatSelected,
+      this.vatNumber,
+      this.vatExpiry,
+      this.dynamicValidationSelected,
+      this.dynamicValidationNumbers,
+      this.dynamicValidationExpiry,
+      this.fallbackValidationSelected,
+      this.fallbackValidationType,
+      this.fallbackValidationNumber,
+      this.fallbackValidationExpiry});
 
   HeaderTab.fromJson(Map<String, dynamic> json) {
     docDate = json['doc_date'];
@@ -338,6 +394,45 @@ class HeaderTab {
     needByDate = json['need_by_date'];
     remark = json['remark'];
     headerTermPopup = json['header_term_popup'];
+
+    // Terms data
+    terms = json['terms'];
+
+    // Supplier Creation data
+    supplierDesc = json['supplier_desc'];
+    supplierType = json['supplier_type'];
+    supplierTypeDesc = json['supplier_type_desc'];
+    supplierAddress = json['supplier_address'];
+    supplierAddressDesc = json['supplier_address_desc'];
+    supplierAddress2 = json['supplier_address2'];
+
+    // Validation data
+    crNoSelected = json['cr_no_selected'];
+    crNoNumber = json['cr_no_number'];
+    crNoExpiry = json['cr_no_expiry'];
+    zakatSelected = json['zakat_selected'];
+    zakatNumber = json['zakat_number'];
+    zakatExpiry = json['zakat_expiry'];
+    vatSelected = json['vat_selected'];
+    vatNumber = json['vat_number'];
+    vatExpiry = json['vat_expiry'];
+
+    // Dynamic Validation data
+    dynamicValidationSelected = json['dynamic_validation_selected'] != null
+        ? Map<String, bool>.from(json['dynamic_validation_selected'])
+        : null;
+    dynamicValidationNumbers = json['dynamic_validation_numbers'] != null
+        ? Map<String, String>.from(json['dynamic_validation_numbers'])
+        : null;
+    dynamicValidationExpiry = json['dynamic_validation_expiry'] != null
+        ? Map<String, String>.from(json['dynamic_validation_expiry'])
+        : null;
+
+    // Fallback Validation data
+    fallbackValidationSelected = json['fallback_validation_selected'];
+    fallbackValidationType = json['fallback_validation_type'];
+    fallbackValidationNumber = json['fallback_validation_number'];
+    fallbackValidationExpiry = json['fallback_validation_expiry'];
   }
 
   Map<String, dynamic> toJson() {
@@ -401,6 +496,40 @@ class HeaderTab {
     data['need_by_date'] = this.needByDate;
     data['remark'] = this.remark;
     data['header_term_popup'] = this.headerTermPopup;
+
+    // Terms data
+    data['terms'] = this.terms;
+
+    // Supplier Creation data
+    data['supplier_desc'] = this.supplierDesc;
+    data['supplier_type'] = this.supplierType;
+    data['supplier_type_desc'] = this.supplierTypeDesc;
+    data['supplier_address'] = this.supplierAddress;
+    data['supplier_address_desc'] = this.supplierAddressDesc;
+    data['supplier_address2'] = this.supplierAddress2;
+
+    // Validation data
+    data['cr_no_selected'] = this.crNoSelected;
+    data['cr_no_number'] = this.crNoNumber;
+    data['cr_no_expiry'] = this.crNoExpiry;
+    data['zakat_selected'] = this.zakatSelected;
+    data['zakat_number'] = this.zakatNumber;
+    data['zakat_expiry'] = this.zakatExpiry;
+    data['vat_selected'] = this.vatSelected;
+    data['vat_number'] = this.vatNumber;
+    data['vat_expiry'] = this.vatExpiry;
+
+    // Dynamic Validation data
+    data['dynamic_validation_selected'] = this.dynamicValidationSelected;
+    data['dynamic_validation_numbers'] = this.dynamicValidationNumbers;
+    data['dynamic_validation_expiry'] = this.dynamicValidationExpiry;
+
+    // Fallback Validation data
+    data['fallback_validation_selected'] = this.fallbackValidationSelected;
+    data['fallback_validation_type'] = this.fallbackValidationType;
+    data['fallback_validation_number'] = this.fallbackValidationNumber;
+    data['fallback_validation_expiry'] = this.fallbackValidationExpiry;
+
     return data;
   }
 }
@@ -588,6 +717,10 @@ class ItemDetailsTab {
   String? glCode;
   String? glDesc;
   String? noteToReceiver;
+  String? taxAmount;
+  String? taxLcAmount;
+  String? taxCodes;
+  String? taxRemarks;
   List<TaxPopup>? taxPopup;
   List<LineItemAttachment>? itemLineAttachment;
   bool? isOpen;
@@ -634,6 +767,10 @@ class ItemDetailsTab {
     this.glCode,
     this.glDesc,
     this.noteToReceiver,
+    this.taxAmount,
+    this.taxLcAmount,
+    this.taxCodes,
+    this.taxRemarks,
     this.taxPopup,
     this.itemLineAttachment,
     this.isOpen,
@@ -687,8 +824,13 @@ class ItemDetailsTab {
     glCode = json['gl_code'];
     glDesc = json['gl_desc'];
     noteToReceiver = json['note_to_receiver'];
+    taxAmount = json['tax_amount'];
+    taxLcAmount = json['tax_lc_amount'];
+    taxCodes = json['tax_codes'];
+    taxRemarks = json['tax_remarks'];
+    // Always initialize taxPopup as empty list, even if API doesn't return it
+    taxPopup = <TaxPopup>[];
     if (json['tax_popup'] != null) {
-      taxPopup = <TaxPopup>[];
       json['tax_popup'].forEach((v) {
         taxPopup!.add(new TaxPopup.fromJson(v));
       });
@@ -747,6 +889,10 @@ class ItemDetailsTab {
     data['gl_desc'] = this.glDesc;
     data['note_to_receiver'] = this.noteToReceiver;
     data['note_to_receiver'] = noteToReceiverController?.text ?? noteToReceiver;
+    data['tax_amount'] = this.taxAmount;
+    data['tax_lc_amount'] = this.taxLcAmount;
+    data['tax_codes'] = this.taxCodes;
+    data['tax_remarks'] = this.taxRemarks;
     if (this.taxPopup != null) {
       data['tax_popup'] = this.taxPopup!.map((v) => v.toJson()).toList();
     }

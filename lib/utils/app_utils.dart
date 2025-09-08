@@ -769,6 +769,87 @@ class AppUtils {
     }
   }
 
+  // Custom Date Picker with CommonButton and dd-MMM-yyyy format
+  static Future<void> showCustomDatePickerAndUpdate(
+    BuildContext context,
+    Function(String) updateDate, {
+    DateTime? initialDate,
+    DateTime? firstDate,
+    DateTime? lastDate,
+  }) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate ?? DateTime.now(),
+      firstDate: firstDate ?? DateTime.now(),
+      lastDate: lastDate ?? DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: context.resources.color.themeColor,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+              secondary: context.resources.color.themeColor,
+              onSecondary: Colors.white,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: context.resources.color.themeColor,
+              ),
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: context.resources.color.themeColor,
+              ),
+            ),
+            checkboxTheme: CheckboxThemeData(
+              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return context.resources.color.themeColor;
+                }
+                return Colors.transparent;
+              }),
+              checkColor: MaterialStateProperty.all(Colors.white),
+              side: BorderSide(
+                color: context.resources.color.themeColor,
+                width: 2.0,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      // Format date as dd-MMM-yyyy (e.g., 07-Sep-2025)
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ];
+
+      final day = pickedDate.day.toString().padLeft(2, '0');
+      final month = months[pickedDate.month - 1];
+      final year = pickedDate.year;
+
+      final formattedDate = '$day-$month-$year';
+      updateDate(formattedDate);
+    }
+  }
+
 // permission handler
   static Future<bool> requestPermissionAndGetLocation() async {
     PermissionStatus status = await Permission.location.request();

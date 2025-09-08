@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:petty_cash/data/models/po_model.dart/po_listing_model.dart';
 import 'package:petty_cash/data/repository/general_rep.dart';
+import 'package:petty_cash/global.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
 import 'package:petty_cash/view/widget/common_text.dart';
 import 'package:petty_cash/view/widget/erp_text_field.dart';
@@ -26,7 +27,7 @@ class CommonPaginationSearching extends StatefulWidget {
 }
 
 class _CommonPaginationSearchingState extends State<CommonPaginationSearching> {
-  final PagingController<int, Listing> _pagingController =
+  final PagingController<int, SearchList> _pagingController =
       PagingController(firstPageKey: 0);
 
   final _myRepo = GeneralRepository();
@@ -46,24 +47,24 @@ class _CommonPaginationSearchingState extends State<CommonPaginationSearching> {
   Future<void> _fetchPage(int pageKey) async {
     try {
       final Map<String, String> requestData = {
-        'next_page_val': nextPageVal.toString(),
-        'no_of_rec': "15",
+        'user_id': Global.empData!.userId.toString(),
+        'company_id': Global.empData!.companyId.toString(),
+        'page_no': pageKey.toString(),
         'search_keyword': _searchKeyword,
-        'lookup_code': widget.lookupCode,
       };
 
       final response = await _myRepo.postApi(widget.url, requestData);
 
       final PoListingModel data = PoListingModel.fromJson(response);
 
-      if (data.errorCode == 200) {
-        final newItems = data.listing ?? [];
+      if (data.errorCode == 200 && data.data != null) {
+        final newItems = data.data!.searchList ?? [];
         final isLastPage = newItems.length < 15;
 
         if (isLastPage) {
           _pagingController.appendLastPage(newItems);
         } else {
-          nextPageVal = pageKey + 1; // or use data.noOfRecords if API requires
+          nextPageVal = pageKey + 1;
           _pagingController.appendPage(newItems, nextPageVal);
         }
       } else {
@@ -156,9 +157,9 @@ class _CommonPaginationSearchingState extends State<CommonPaginationSearching> {
               onRefresh: () async {
                 _pagingController.refresh();
               },
-              child: PagedListView<int, Listing>(
+              child: PagedListView<int, SearchList>(
                 pagingController: _pagingController,
-                builderDelegate: PagedChildBuilderDelegate<Listing>(
+                builderDelegate: PagedChildBuilderDelegate<SearchList>(
                   animateTransitions: true,
                   transitionDuration: const Duration(milliseconds: 300),
                   firstPageProgressIndicatorBuilder: (_) => const Center(

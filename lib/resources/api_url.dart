@@ -44,4 +44,7 @@ class ApiUrl {
   static var getItemDetailsSearch = 'erp_api/PurchaseOrderItemDetailSearch/';
   static var getPoTaxLineItem = 'erp_api/PurchaseOrderTaxLineItem/';
   static var getTaxSearchList = 'erp_api/PurchaseOrderTaxLineItem/';
+  static var getSupplierCodeSearchList = 'erp_api/CreateSupplierType/';
+  static var getSupplierAdddressSearchList = 'erp_api/CreateSupplierAddress/';
+  static var createSupplier = 'erp_api/CreateSupplierFromPo/';
 }

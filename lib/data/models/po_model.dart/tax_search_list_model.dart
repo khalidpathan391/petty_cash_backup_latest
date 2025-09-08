@@ -1,15 +1,15 @@
 // ignore_for_file: unnecessary_new, prefer_collection_literals, unnecessary_this
 
-class SupplierTypeModel {
+class TaxPopupSearchListModel {
   bool? error;
   int? errorCode;
   String? errorDescription;
   Data? data;
 
-  SupplierTypeModel(
+  TaxPopupSearchListModel(
       {this.error, this.errorCode, this.errorDescription, this.data});
 
-  SupplierTypeModel.fromJson(Map<String, dynamic> json) {
+  TaxPopupSearchListModel.fromJson(Map<String, dynamic> json) {
     error = json['error'];
     errorCode = json['error_code'];
     errorDescription = json['error_description'];
@@ -60,53 +60,13 @@ class Data {
 class SearchList {
   int? id;
   String? code;
+  String? desc;
+  String? basis;
+  String? percent;
+  int? isRecover;
   String? name;
   String? value;
   String? kLabel;
-  List<SupplierValidation>? supplierValidation;
-
-  SearchList(
-      {this.id,
-      this.code,
-      this.name,
-      this.value,
-      this.kLabel,
-      this.supplierValidation});
-
-  SearchList.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    code = json['code'];
-    name = json['name'];
-    value = json['value'];
-    kLabel = json['k_label'];
-    if (json['supplier_validation'] != null) {
-      supplierValidation = <SupplierValidation>[];
-      json['supplier_validation'].forEach((v) {
-        supplierValidation!.add(new SupplierValidation.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['code'] = this.code;
-    data['name'] = this.name;
-    data['value'] = this.value;
-    data['k_label'] = this.kLabel;
-    if (this.supplierValidation != null) {
-      data['supplier_validation'] =
-          this.supplierValidation!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class SupplierValidation {
-  int? id;
-  int? fieldId;
-  String? fieldCode;
-  String? fieldName;
   String? forCode;
   int? mandatoryTf;
   int? editableTf;
@@ -114,12 +74,16 @@ class SupplierValidation {
   int? defaultTf;
   String? minimum;
   String? maximum;
-
-  SupplierValidation(
+  SearchList(
       {this.id,
-      this.fieldId,
-      this.fieldCode,
-      this.fieldName,
+      this.code,
+      this.desc,
+      this.basis,
+      this.percent,
+      this.isRecover,
+      this.name,
+      this.value,
+      this.kLabel,
       this.forCode,
       this.mandatoryTf,
       this.editableTf,
@@ -128,11 +92,17 @@ class SupplierValidation {
       this.minimum,
       this.maximum});
 
-  SupplierValidation.fromJson(Map<String, dynamic> json) {
+  SearchList.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    fieldId = json['field_id'];
-    fieldCode = json['field_code'];
-    fieldName = json['field_name'];
+    code = json['code'];
+    desc = json['desc'];
+    basis = json['basis'];
+    percent = json['percent'];
+    isRecover = json['is_recover'];
+
+    name = json['name'];
+    value = json['value'];
+    kLabel = json['k_label'];
     forCode = json['for_code'];
     mandatoryTf = json['mandatory_tf'];
     editableTf = json['editable_tf'];
@@ -145,9 +115,15 @@ class SupplierValidation {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
-    data['field_id'] = this.fieldId;
-    data['field_code'] = this.fieldCode;
-    data['field_name'] = this.fieldName;
+    data['code'] = this.code;
+    data['desc'] = this.desc;
+    data['basis'] = this.basis;
+    data['percent'] = this.percent;
+    data['is_recover'] = this.isRecover;
+
+    data['name'] = this.name;
+    data['value'] = this.value;
+    data['k_label'] = this.kLabel;
     data['for_code'] = this.forCode;
     data['mandatory_tf'] = this.mandatoryTf;
     data['editable_tf'] = this.editableTf;

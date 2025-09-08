@@ -40,6 +40,10 @@ class AppRoutes {
       "user_profile": (context) => const UserProfile(),
       'po_transaction': (context) => const PoTransaction(),
       'po_dashboard': (context) => const DashboardScreen(),
+      // 'common_pagination': (context) => CommonPaginationSearching(
+      //   url: '', // This should be provided when navigating to this route
+      //   lookupCode: '', // This should be provided when navigating to this route
+      // ),
       // 'item_pagination_searching': (context) => const PoItemDetailsSeraching(),
     };
   }

@@ -75,16 +75,13 @@ class HomeMainVM extends ChangeNotifier {
   int selectedIndex = 2;
 
   void onItemTapped(int index, BuildContext context) {
-    // if (index == 4) {
-    //   // showAppListList();
-    //   // homeVMGlobal.getModulesListData(context);
-    //   getModulesListData(context);
-    // } else {
-    //   selectedIndex = index;
-    // }
-    // paginationIndex = 0;
+    if (index == 4) {
+      // Apps page - refresh modules list
+      getModulesListData();
+    } else {
+      selectedIndex = index;
+    }
     paginationIndex = 0;
-    moduleList = [];
     selectedIndex = index;
     notifyListeners();
   }
@@ -113,8 +110,7 @@ class HomeMainVM extends ChangeNotifier {
   }
 
   Future<void> getModulesListData() async {
-    // paginationIndex = 0;
-    // moduleList = [];
+    paginationIndex = 0;
     notifyListeners();
     isLoading = true;
     try {
@@ -122,13 +118,16 @@ class HomeMainVM extends ChangeNotifier {
         final value = await _myRepo.postApi(
             ApiUrl.baseUrl! + ApiUrl.dashBoard, getData());
         DashBoardModel dashBoardModel = DashBoardModel.fromJson(value);
-        moduleList = dashBoardModel.modulesLst!;
+        moduleList = dashBoardModel.modulesLst ?? [];
         filteredModuleList = moduleList;
         pageCount = (moduleList.length / itemsPerPage).ceil();
-        moduleList.isEmpty ? AppUtils.errorMessage = AppUtils.noDataFound : '';
+        if (moduleList.isEmpty) {
+          AppUtils.errorMessage = AppUtils.noDataFound;
+        }
       }
     } catch (e) {
       print(e.toString());
+      AppUtils.errorMessage = e.toString();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -137,7 +136,7 @@ class HomeMainVM extends ChangeNotifier {
 
   void searchModulesListData(String query) {
     if (query.isEmpty) {
-      filteredModuleList = moduleList;
+      filteredModuleList = List.from(moduleList);
       notifyListeners();
       return;
     }
@@ -145,8 +144,10 @@ class HomeMainVM extends ChangeNotifier {
     List<ModulesLst> result = [];
     for (int i = 0; i < moduleList.length; i++) {
       var module = moduleList[i];
-      if (module.moduleCode.toString().toLowerCase().contains(query) ||
-          module.moduleDesc.toString().toLowerCase().contains(query)) {
+      if ((module.moduleCode?.toString().toLowerCase().contains(query) ??
+              false) ||
+          (module.moduleDesc?.toString().toLowerCase().contains(query) ??
+              false)) {
         result.add(module);
       }
     }
@@ -154,11 +155,17 @@ class HomeMainVM extends ChangeNotifier {
     notifyListeners();
   }
 
-  /*void callTryAgain() {
+  void callTryAgain() {
     isLoading = true;
     notifyListeners();
     getModulesListData();
-  }*/
+  }
+
+  void refreshModulesList() {
+    moduleList.clear();
+    filteredModuleList.clear();
+    getModulesListData();
+  }
 
   List<String> menuList = [
     "viewUpdateAtt".tr(),
@@ -598,12 +605,19 @@ class HomeMainVM extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    pageController.dispose();
+    super.dispose();
+  }
+
   List<Menu> sideMenuList = [];
   List<Menu> filteredMenuList = [];
 
   void filterMenuList(String query) {
     if (query.isEmpty) {
-      filteredMenuList = sideMenuList;
+      filteredMenuList = List.from(sideMenuList);
       notifyListeners();
       return;
     }
@@ -611,7 +625,7 @@ class HomeMainVM extends ChangeNotifier {
     List<Menu> result = [];
     for (int i = 0; i < sideMenuList.length; i++) {
       var menu = sideMenuList[i];
-      if (menu.title.toString().toLowerCase().contains(query)) {
+      if (menu.title.toLowerCase().contains(query)) {
         result.add(menu);
       } else {
         List<Menu> filteredChildMenus = filterChildMenus(menu.child, query);
@@ -646,7 +660,7 @@ class HomeMainVM extends ChangeNotifier {
     List<Menu> result = [];
     for (int j = 0; j < children.length; j++) {
       var child = children[j];
-      if (child.title.toString().toLowerCase().contains(query)) {
+      if (child.title.toLowerCase().contains(query)) {
         result.add(child);
       } else {
         List<Menu> filteredSubChildMenus = filterChildMenus(child.child, query);
