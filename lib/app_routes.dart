@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:petty_cash/data/models/HomePage/DashBoardModel.dart';
 import 'package:petty_cash/view/HomeScreen.dart';
+import 'package:petty_cash/view/bottom_navigation_pages/Home_Pages/Filter.dart';
+import 'package:petty_cash/view/bottom_navigation_pages/Home_Pages/multi_filter.dart';
+import 'package:petty_cash/view/bottom_navigation_pages/Home_Pages/settings.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/IDCard/DDT/driving_license.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/digital_documents.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/my_account_details.dart';
@@ -13,6 +17,7 @@ import 'package:petty_cash/view/login/ScanQRCodeORGenerate.dart';
 import 'package:petty_cash/view/login/ScanQRCodePage.dart';
 import 'package:petty_cash/view/login/SystemURLPage.dart';
 import 'package:petty_cash/view/login/ValidateIDKeyPage.dart';
+import 'package:petty_cash/view/po_transaction/transaction_page/po_page_listing.dart';
 
 import 'package:petty_cash/view/po_transaction/transaction_page/po_transaction.dart';
 import 'package:petty_cash/view/purchase_order_dashboard/po_dashboard.dart';
@@ -38,13 +43,12 @@ class AppRoutes {
       SystemUrl.Id: (context) => const SystemUrl(),
       "my_account_details": (context) => const MyAccountDetails(),
       "user_profile": (context) => const UserProfile(),
-      'po_transaction': (context) => const PoTransaction(),
+      'po_transaction': (context) => PoTransaction(NotificationLst()),
       'po_dashboard': (context) => const DashboardScreen(),
-      // 'common_pagination': (context) => CommonPaginationSearching(
-      //   url: '', // This should be provided when navigating to this route
-      //   lookupCode: '', // This should be provided when navigating to this route
-      // ),
-      // 'item_pagination_searching': (context) => const PoItemDetailsSeraching(),
+      'po_listing': (context) => const PoListingPage(),
+      'home_filter': (context) => const HomeFilter(),
+      'setting_home': (context) => const SettingHome(),
+      'multi_filter_home': (context) => const MultiFilter(),
     };
   }
 }

@@ -26,7 +26,31 @@ class ApiUrl {
   // here  below Petty cash  api
 
   static var dashBoard = 'erp_api/crebri_dashboard/';
-  static var getCommonListing = 'erp_api/PoList/';
+  static var dashBoardTab = 'erp_notification/get_all_notification_tab/';
+  static var dashBoardFilter =
+      'erp_notification/get_all_sort_type_filter_type/';
+  static var dashBoardFilterApply =
+      'erp_notification/get_all_notification_list_new/';
+  static var dashBoardSetting =
+      'erp_notification/update_view_notification_priority/';
+  static var dashBoardSettingFYIClear = 'erp_notification/clear_all_fyi_api/';
+  static var dashBoardSettingNotification =
+      'erp_notification/notification_enable_disable/';
+  static var dashBoardMultiFilter = 'erp_notification/get_all_rules_data/';
+  static var dashBoardMultiFilterCondition =
+      'erp_notification/get_all_conditional_list/';
+  static var dashBoardMultiFilterTransaction =
+      'erp_notification/get_all_txn_list/';
+  static var dashBoardMultiFilterUser = 'erp_notification/get_all_user_list/';
+  static var dashBoardMultiFilterNotification =
+      'erp_notification/get_notification_type_rules/';
+  static var dashBoardMultiFilterAdd =
+      'erp_notification/save_all_notification_rules/';
+  static var dashBoardMultiFilterUpdate = 'erp_notification/update_view_rules/';
+  static var dashBoardMultiFilterDelete =
+      'erp_notification/delete_all_rules_data/';
+  static var getMenuPageList = 'erp_api/common_menu/';
+  static var getPoList = 'erp_api/PoList/';
   static var getPoTransaction = 'erp_api/PurchaseOrderSaveSubmit/';
   static var commonReferenceSearch = 'erp_api/common_reference_list/';
   static var txnCodeRef = 'erp_api/common_reference_txn_code_list/';

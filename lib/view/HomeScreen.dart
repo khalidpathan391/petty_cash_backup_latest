@@ -15,6 +15,7 @@ import 'package:petty_cash/resources/app_extension_context.dart';
 import 'package:petty_cash/utils/app_utils.dart';
 import 'package:petty_cash/view/common_annotated_region.dart';
 import 'package:petty_cash/view/connectivity_change_handler.dart';
+import 'package:petty_cash/view/widget/CommonDrawer.dart';
 import 'package:petty_cash/view/widget/CommonInkWell.dart';
 import 'package:petty_cash/view/widget/PageIndicator.dart';
 import 'package:petty_cash/view/widget/common_shimmer_view.dart';
@@ -45,7 +46,7 @@ class HomeScreenState extends State<HomeScreen> implements DialogClickListener {
   void initState() {
     homeVMGlobal = Provider.of(context, listen: false);
     super.initState();
-    homeVMGlobal.checkAppVersion(context);
+    // homeVMGlobal.checkAppVersion(context);
   }
 
   @override
@@ -116,8 +117,8 @@ class HomeScreenState extends State<HomeScreen> implements DialogClickListener {
                 key: scaffoldKey,
                 body: homeMainVM.pageOptions[homeMainVM.selectedIndex],
                 floatingActionButton: AppUtils.floatMenuIcon(context),
-                // endDrawer: Global.isArabic ? getDrawer(homeMainVM) : null,
-                // drawer: Global.isArabic ? null : getDrawer(homeMainVM),
+                endDrawer: Global.isArabic ? getDrawer(homeMainVM) : null,
+                drawer: Global.isArabic ? null : getDrawer(homeMainVM),
                 bottomNavigationBar: BottomNavigationBar(
                   items: [
                     // buildSvgNavigationBarItem(
@@ -639,98 +640,98 @@ class HomeScreenState extends State<HomeScreen> implements DialogClickListener {
     authVM!.logout(context);
   }
 
-  // Widget getDrawer(HomeMainVM homeMainVM) {
-  //   return SizedBox(
-  //     child: homeMainVM.selectedIndex == 4
-  //         ? CommonDrawer(
-  //             scaffoldKey: scaffoldKey,
-  //             menuList: homeMainVM,
-  //             onMenuItemClick: (data) {
-  //               homeMainVM.openModuleListPage(data, context);
-  //             },
-  //           )
-  //         : SafeArea(
-  //             child: Drawer(
-  //               shape: const RoundedRectangleBorder(
-  //                 borderRadius: BorderRadius.zero,
-  //               ),
-  //               child: Stack(
-  //                 children: [
-  //                   Column(
-  //                     children: <Widget>[
-  //                       Container(
-  //                         width: MediaQuery.of(context).size.width,
-  //                         padding: const EdgeInsets.all(10.0),
-  //                         color: context.resources.color.themeColor,
-  //                         child: Center(
-  //                             child: CommonTextView(
-  //                           label: "erpName".tr(),
-  //                           color: Colors.white,
-  //                           fontSize: 18,
-  //                         )),
-  //                       ),
-  //                       CommonTextView(
-  //                         label: "scanThisVcard".tr(),
-  //                         fontSize: 14,
-  //                         padding: EdgeInsets.all(5.0),
-  //                       ),
-  //                       Align(
-  //                         alignment: Alignment.center,
-  //                         child: QrImageView(
-  //                           data: callSetView(),
-  //                           version: QrVersions.auto,
-  //                           size: 200.0,
-  //                           backgroundColor: Colors.transparent,
-  //                           foregroundColor: Colors.black,
-  //                           padding: const EdgeInsets.only(top: 2.0),
-  //                         ),
-  //                       ),
-  //                       const CommonTextView(
-  //                         label: 'V-Card',
-  //                         fontSize: 14.0,
-  //                         fontFamily: 'Bold',
-  //                       ),
-  //                       const Divider(),
-  //                       ListView.separated(
-  //                           scrollDirection: Axis.vertical,
-  //                           shrinkWrap: true,
-  //                           itemCount: homeMainVM.menuList.length,
-  //                           separatorBuilder: (context, index) =>
-  //                               const Divider(),
-  //                           itemBuilder: (context, index) {
-  //                             return InkWell(
-  //                               onTap: () {
-  //                                 if (scaffoldKey.currentState!.isDrawerOpen) {
-  //                                   scaffoldKey.currentState!.openEndDrawer();
-  //                                 }
-  //                                 homeMainVM.onSideMenuItemClick(
-  //                                     index, context);
-  //                               },
-  //                               child: Padding(
-  //                                 padding: const EdgeInsets.all(5.0),
-  //                                 child: CommonTextView(
-  //                                   label: homeMainVM.menuList[index],
-  //                                   color: Colors.black,
-  //                                   fontSize: 14.0,
-  //                                 ),
-  //                               ),
-  //                             );
-  //                           }),
-  //                       const Divider(),
-  //                     ],
-  //                   ),
-  //                   Positioned(
-  //                       bottom: 0,
-  //                       child: CommonTextView(
-  //                         padding: const EdgeInsets.all(5.0),
-  //                         fontSize: 14.0,
-  //                         label: "currentApplicationVersion".tr() +
-  //                             " : ${Global.packageInfo.version}",
-  //                       ))
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //   );
-  // }
+  Widget getDrawer(HomeMainVM homeMainVM) {
+    return SizedBox(
+      child: homeMainVM.selectedIndex == 4
+          ? CommonDrawer(
+              scaffoldKey: scaffoldKey,
+              menuList: homeMainVM,
+              onMenuItemClick: (data) {
+                homeMainVM.openModuleListPage(data, context);
+              },
+            )
+          : SafeArea(
+              child: Drawer(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+                child: Stack(
+                  children: [
+                    Column(
+                      children: <Widget>[
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.all(10.0),
+                          color: context.resources.color.themeColor,
+                          child: Center(
+                              child: CommonTextView(
+                            label: "erpName".tr(),
+                            color: Colors.white,
+                            fontSize: 18,
+                          )),
+                        ),
+                        CommonTextView(
+                          label: "scanThisVcard".tr(),
+                          fontSize: 14,
+                          padding: EdgeInsets.all(5.0),
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: QrImageView(
+                            data: callSetView(),
+                            version: QrVersions.auto,
+                            size: 200.0,
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.only(top: 2.0),
+                          ),
+                        ),
+                        const CommonTextView(
+                          label: 'V-Card',
+                          fontSize: 14.0,
+                          fontFamily: 'Bold',
+                        ),
+                        const Divider(),
+                        ListView.separated(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            itemCount: homeMainVM.menuList.length,
+                            separatorBuilder: (context, index) =>
+                                const Divider(),
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  if (scaffoldKey.currentState!.isDrawerOpen) {
+                                    scaffoldKey.currentState!.openEndDrawer();
+                                  }
+                                  homeMainVM.onSideMenuItemClick(
+                                      index, context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: CommonTextView(
+                                    label: homeMainVM.menuList[index],
+                                    color: Colors.black,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                              );
+                            }),
+                        const Divider(),
+                      ],
+                    ),
+                    Positioned(
+                        bottom: 0,
+                        child: CommonTextView(
+                          padding: const EdgeInsets.all(5.0),
+                          fontSize: 14.0,
+                          label: "currentApplicationVersion".tr() +
+                              " : ${Global.packageInfo.version}",
+                        ))
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
 }

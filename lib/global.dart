@@ -10,7 +10,7 @@ import 'package:petty_cash/data/sources/local/shared_preference.dart';
 import 'package:petty_cash/resources/api_url.dart';
 
 class Global {
-  static String? mobileId = '';
+  static String? mobileId = 'xyz';
   static const String appName = 'CREBRI_ERP';
   static String? firebaseToken = '';
   static EmpData? empData;

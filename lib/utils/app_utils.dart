@@ -82,6 +82,9 @@ class AppUtils {
       Global.deviceId = identifier;
       Global.deviceModel = deviceName;
       Global.deviceVersion = deviceVersion;
+      DataPreferences.saveData("deviceName", deviceName);
+      DataPreferences.saveData("deviceVersion", deviceVersion);
+      DataPreferences.saveData("identifier", identifier);
     } on PlatformException {
       // print('Failed to get platform version');
     }

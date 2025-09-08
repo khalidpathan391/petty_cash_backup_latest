@@ -6,27 +6,21 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:petty_cash/data/models/po_model.dart/po_listing_model.dart';
 import 'package:petty_cash/data/repository/general_rep.dart';
 import 'package:petty_cash/global.dart';
+import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
 import 'package:petty_cash/view/widget/common_text.dart';
 import 'package:petty_cash/view/widget/erp_text_field.dart';
 
-class CommonPaginationSearching extends StatefulWidget {
-  static const String id = "common_pagination";
-  final String url;
-  final String lookupCode;
+class PoListingPage extends StatefulWidget {
+  static const String id = "po_listing";
 
-  const CommonPaginationSearching({
-    super.key,
-    required this.url,
-    required this.lookupCode,
-  });
+  const PoListingPage({super.key});
 
   @override
-  _CommonPaginationSearchingState createState() =>
-      _CommonPaginationSearchingState();
+  _PoListingPageState createState() => _PoListingPageState();
 }
 
-class _CommonPaginationSearchingState extends State<CommonPaginationSearching> {
+class _PoListingPageState extends State<PoListingPage> {
   final PagingController<int, SearchList> _pagingController =
       PagingController(firstPageKey: 0);
 
@@ -53,7 +47,7 @@ class _CommonPaginationSearchingState extends State<CommonPaginationSearching> {
         'search_keyword': _searchKeyword,
       };
 
-      final response = await _myRepo.postApi(widget.url, requestData);
+      final response = await _myRepo.postApi(ApiUrl.getPoList, requestData);
 
       final PoListingModel data = PoListingModel.fromJson(response);
 

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -15,6 +17,8 @@ import 'package:petty_cash/view/bottom_navigation_pages/CompanyPage.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/HomePage.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/NotificationPage.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/ProfilePage.dart';
+import 'package:petty_cash/view/po_transaction/transaction_page/po_page_listing.dart';
+import 'package:petty_cash/view/purchase_order_dashboard/po_dashboard.dart';
 import 'package:petty_cash/view/widget/app_version.dart';
 import 'package:provider/provider.dart';
 
@@ -28,8 +32,8 @@ class HomeMainVM extends ChangeNotifier {
     searchController = TextEditingController();
     searchController.text = '';
     pageOptions.addAll([
-      const NotificationPage(),
-      const ProfilePage(),
+      NotificationPage(),
+      ProfilePage(),
       HomePage(_callbackFunction),
       CompanyPage(),
       AppsPage(),
@@ -75,13 +79,16 @@ class HomeMainVM extends ChangeNotifier {
   int selectedIndex = 2;
 
   void onItemTapped(int index, BuildContext context) {
-    if (index == 4) {
-      // Apps page - refresh modules list
-      getModulesListData();
-    } else {
-      selectedIndex = index;
-    }
+    // if (index == 4) {
+    //   // showAppListList();
+    //   // homeVMGlobal.getModulesListData(context);
+    //   getModulesListData(context);
+    // } else {
+    //   selectedIndex = index;
+    // }
+    // paginationIndex = 0;
     paginationIndex = 0;
+    moduleList = [];
     selectedIndex = index;
     notifyListeners();
   }
@@ -110,7 +117,8 @@ class HomeMainVM extends ChangeNotifier {
   }
 
   Future<void> getModulesListData() async {
-    paginationIndex = 0;
+    // paginationIndex = 0;
+    // moduleList = [];
     notifyListeners();
     isLoading = true;
     try {
@@ -118,16 +126,13 @@ class HomeMainVM extends ChangeNotifier {
         final value = await _myRepo.postApi(
             ApiUrl.baseUrl! + ApiUrl.dashBoard, getData());
         DashBoardModel dashBoardModel = DashBoardModel.fromJson(value);
-        moduleList = dashBoardModel.modulesLst ?? [];
+        moduleList = dashBoardModel.modulesLst!;
         filteredModuleList = moduleList;
         pageCount = (moduleList.length / itemsPerPage).ceil();
-        if (moduleList.isEmpty) {
-          AppUtils.errorMessage = AppUtils.noDataFound;
-        }
+        moduleList.isEmpty ? AppUtils.errorMessage = AppUtils.noDataFound : '';
       }
     } catch (e) {
       print(e.toString());
-      AppUtils.errorMessage = e.toString();
     } finally {
       isLoading = false;
       notifyListeners();
@@ -136,7 +141,7 @@ class HomeMainVM extends ChangeNotifier {
 
   void searchModulesListData(String query) {
     if (query.isEmpty) {
-      filteredModuleList = List.from(moduleList);
+      filteredModuleList = moduleList;
       notifyListeners();
       return;
     }
@@ -144,10 +149,8 @@ class HomeMainVM extends ChangeNotifier {
     List<ModulesLst> result = [];
     for (int i = 0; i < moduleList.length; i++) {
       var module = moduleList[i];
-      if ((module.moduleCode?.toString().toLowerCase().contains(query) ??
-              false) ||
-          (module.moduleDesc?.toString().toLowerCase().contains(query) ??
-              false)) {
+      if (module.moduleCode.toString().toLowerCase().contains(query) ||
+          module.moduleDesc.toString().toLowerCase().contains(query)) {
         result.add(module);
       }
     }
@@ -155,17 +158,11 @@ class HomeMainVM extends ChangeNotifier {
     notifyListeners();
   }
 
-  void callTryAgain() {
+  /*void callTryAgain() {
     isLoading = true;
     notifyListeners();
     getModulesListData();
-  }
-
-  void refreshModulesList() {
-    moduleList.clear();
-    filteredModuleList.clear();
-    getModulesListData();
-  }
+  }*/
 
   List<String> menuList = [
     "viewUpdateAtt".tr(),
@@ -177,46 +174,7 @@ class HomeMainVM extends ChangeNotifier {
     "settings".tr()
   ];
 
-  // void onSideMenuItemClick(int index, BuildContext context) {
-  //   if (index == 0) {
-  //     // Provider.of<ThemeProvider>(context, listen: false)
-  //     //     .toggleTheme(AppUtils.getRandomColor());
-  //     Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //             builder: (context) => ViewAttendancePage(
-  //                 Global.empData!.empCode.toString(),
-  //                 Global.empData!.empName.toString()))).then((value) {});
-  //   } else if (index == 1) {
-  //     Navigator.push(context,
-  //             MaterialPageRoute(builder: (context) => DoorAccessDeviceList()))
-  //         .then((value) {});
-  //   } else if (index == 2) {
-  //     Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //             builder: (context) => MPProgressPage(
-  //                 Global.empData!.userId.toString(),
-  //                 Global.empData!.empCode.toString(),
-  //                 Global.empData!.empName.toString()))).then((value) {});
-  //   } else if (index == 3) {
-  //     Navigator.push(
-  //             context,
-  //             MaterialPageRoute(
-  //                 builder: (context) => const EmployeeClearanceViewPage()))
-  //         .then((value) {});
-  //   } else if (index == 4) {
-  //     Navigator.push(context,
-  //             MaterialPageRoute(builder: (context) => CommonDownloadView()))
-  //         .then((value) {});
-  //   } else if (index == 5) {
-  //     Navigator.push(context,
-  //             MaterialPageRoute(builder: (context) => const EmpAssetSearch()))
-  //         .then((value) {});
-  //   } else if (index == 6) {
-  //     Navigator.pushNamed(context, Settings.id).then((value) {});
-  //   }
-  // }
+  void onSideMenuItemClick(int index, BuildContext context) {}
 
   void onSideMenuItemColorClick(Color color, BuildContext context) {
     Provider.of<ThemeProvider>(context, listen: false).toggleTheme(color);
@@ -282,7 +240,7 @@ class HomeMainVM extends ChangeNotifier {
     pageType = code;
     pageIcon = iconData;
     notifyListeners();
-    // callMenuListApi(context);
+    callMenuListApi(context);
   }
 
   // List<Menu> moduleByMenuList = [];
@@ -298,35 +256,35 @@ class HomeMainVM extends ChangeNotifier {
 
   bool isMenuApiCalling = false;
 
-  // Future<void> callMenuListApi(BuildContext context) async {
-  //   isMenuApiCalling = true;
-  //   sideMenuList = [];
-  //   filteredMenuList = [];
-  //   try {
-  //     Navigator.pop(context);
-  //     pageOptions[pageOptions.length - 1] =
-  //         Common(context).getPageByCodeName(pageType.toString());
-  //     selectedIndex = pageOptions.length - 1;
-  //     changeSelectedItem(selectedIndex);
-  //     final value = await _myRepo.postApi(
-  //         ApiUrl.baseUrl! + ApiUrl.getMenuPageList, getMenuRequestData());
-  //     MenuResponse dashBoardModel = MenuResponse.fromJson(value);
-  //     sideMenuList = dashBoardModel.menu;
-  //     filteredMenuList = sideMenuList;
-  //   } catch (e) {
-  //     print(e.toString());
-  //   } finally {
-  //     isClicked = false;
-  //     isMenuApiCalling = false;
-  //     notifyListeners();
-  //   }
-  // }
+  Future<void> callMenuListApi(BuildContext context) async {
+    isMenuApiCalling = true;
+    sideMenuList = [];
+    filteredMenuList = [];
+    try {
+      Navigator.pop(context);
+      pageOptions[pageOptions.length - 1] =
+          DashboardScreen(); // Common(context).getPageByCodeName(pageType.toString());
+      selectedIndex = pageOptions.length - 1;
+      changeSelectedItem(selectedIndex);
+      final value = await _myRepo.postApi(
+          ApiUrl.baseUrl! + ApiUrl.getMenuPageList, getMenuRequestData());
+      MenuResponse dashBoardModel = MenuResponse.fromJson(value);
+      sideMenuList = dashBoardModel.menu;
+      filteredMenuList = sideMenuList;
+    } catch (e) {
+      print(e.toString());
+    } finally {
+      isClicked = false;
+      isMenuApiCalling = false;
+      notifyListeners();
+    }
+  }
 
-  // void openModuleListPage(Menu data, BuildContext context) {
-  //   // Navigator.pushNamed(context, CommonListingPage.id, arguments: data);
-  //   Global.menuData = data;
-  //   Navigator.pushNamed(context, CommonListingPage.id, arguments: "Wasi");
-  // }
+  void openModuleListPage(Menu data, BuildContext context) {
+    // Navigator.pushNamed(context, CommonListingPage.id, arguments: data);
+    Global.menuData = data;
+    Navigator.pushNamed(context, PoListingPage.id, arguments: "Wasi");
+  }
 
   void changeSelectedItem(int index) {
     selectedIndex = index;
@@ -605,19 +563,12 @@ class HomeMainVM extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    searchController.dispose();
-    pageController.dispose();
-    super.dispose();
-  }
-
   List<Menu> sideMenuList = [];
   List<Menu> filteredMenuList = [];
 
   void filterMenuList(String query) {
     if (query.isEmpty) {
-      filteredMenuList = List.from(sideMenuList);
+      filteredMenuList = sideMenuList;
       notifyListeners();
       return;
     }
@@ -625,7 +576,7 @@ class HomeMainVM extends ChangeNotifier {
     List<Menu> result = [];
     for (int i = 0; i < sideMenuList.length; i++) {
       var menu = sideMenuList[i];
-      if (menu.title.toLowerCase().contains(query)) {
+      if (menu.title.toString().toLowerCase().contains(query)) {
         result.add(menu);
       } else {
         List<Menu> filteredChildMenus = filterChildMenus(menu.child, query);
@@ -660,7 +611,7 @@ class HomeMainVM extends ChangeNotifier {
     List<Menu> result = [];
     for (int j = 0; j < children.length; j++) {
       var child = children[j];
-      if (child.title.toLowerCase().contains(query)) {
+      if (child.title.toString().toLowerCase().contains(query)) {
         result.add(child);
       } else {
         List<Menu> filteredSubChildMenus = filterChildMenus(child.child, query);

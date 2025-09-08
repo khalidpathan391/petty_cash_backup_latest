@@ -1,6 +1,7 @@
-// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable, prefer_conditional_assignment
+// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable, prefer_conditional_assignment, no_logic_in_create_state, unnecessary_null_comparison
 
 import 'package:flutter/material.dart';
+import 'package:petty_cash/data/models/HomePage/DashBoardModel.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 import 'package:petty_cash/data/models/po_model.dart/supplier_type_model.dart'
     as supplier_type;
@@ -31,20 +32,25 @@ import 'package:provider/provider.dart';
 
 class PoTransaction extends StatefulWidget {
   static String id = 'po_transaction';
-  const PoTransaction({super.key});
+  NotificationLst item;
+
+  PoTransaction(this.item, {super.key});
 
   @override
-  State<PoTransaction> createState() => _PoTransactionState();
+  State<PoTransaction> createState() => _PoTransactionState(item);
 }
 
 class _PoTransactionState extends State<PoTransaction>
     with TickerProviderStateMixin {
   late PoApplicationVm provider;
+  NotificationLst item;
   late TabController _tabController;
 
   int headerId = -1;
 
   bool _isInitialized = false;
+
+  _PoTransactionState(this.item);
 
   @override
   void initState() {
@@ -61,6 +67,9 @@ class _PoTransactionState extends State<PoTransaction>
     if (_isInitialized) return;
 
     headerId = ModalRoute.of(context)?.settings.arguments as int? ?? -1;
+    if (item != null) {
+      headerId = item.transactionId ?? -1;
+    }
 
     // Call API safely after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
