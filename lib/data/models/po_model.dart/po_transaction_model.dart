@@ -182,6 +182,9 @@ class HeaderTab {
   String? exchangeRate;
   String? discount;
   String? value;
+  String? grossValue;
+  String? discountValue;
+  String? netValue;
   int? paymentTermId;
   String? paymentTermCode;
   String? paymentTermDesc;
@@ -462,6 +465,9 @@ class HeaderTab {
     data['exchange_rate'] = this.exchangeRate;
     data['discount'] = this.discount;
     data['value'] = this.value;
+    data['gross_value'] = this.grossValue;
+    data['discount_value'] = this.discountValue;
+    data['net_value'] = this.netValue;
     data['payment_term_id'] = this.paymentTermId;
     data['payment_term_code'] = this.paymentTermCode;
     data['payment_term_desc'] = this.paymentTermDesc;
@@ -727,6 +733,7 @@ class ItemDetailsTab {
   bool? isSelected;
   TextEditingController? quantityController;
   TextEditingController? unitPriceController;
+  TextEditingController? grossValueController;
   TextEditingController? discountController;
   TextEditingController? discountValueController;
   TextEditingController? noteToReceiverController;
@@ -777,11 +784,13 @@ class ItemDetailsTab {
     this.isSelected,
     TextEditingController? quantityController,
     TextEditingController? unitPriceController,
+    TextEditingController? grossValueController,
     TextEditingController? discountController,
     TextEditingController? discountValueController,
     TextEditingController? noteToReceiverController,
   })  : quantityController = quantityController ?? TextEditingController(),
         unitPriceController = unitPriceController ?? TextEditingController(),
+        grossValueController = grossValueController ?? TextEditingController(),
         discountController = discountController ?? TextEditingController(),
         discountValueController =
             discountValueController ?? TextEditingController(),
@@ -845,6 +854,7 @@ class ItemDetailsTab {
     //  Controllers initialized with existing values
     quantityController = TextEditingController(text: quantity ?? '');
     unitPriceController = TextEditingController(text: unitPrice ?? '');
+    grossValueController = TextEditingController(text: grossValue ?? '');
     discountController = TextEditingController(text: discountPer ?? '');
     discountValueController = TextEditingController(text: discountVal ?? '');
     noteToReceiverController =
@@ -981,25 +991,6 @@ class TaxPopup {
     data['discount_lcvalue'] = this.discountLcvalue;
     data['tax_remark'] = this.taxRemark;
     data['tax_basis'] = this.taxBasis;
-    return data;
-  }
-}
-
-class WorkFlowIcons {
-  String? name;
-  String? icon;
-
-  WorkFlowIcons({this.name, this.icon});
-
-  WorkFlowIcons.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    icon = json['icon'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['name'] = this.name;
-    data['icon'] = this.icon;
     return data;
   }
 }

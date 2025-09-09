@@ -34,6 +34,7 @@ class CommonTextFormField extends StatelessWidget {
   final double? fontSize; // New parameter for font size
   final bool readOnly; // New parameter to disable keyboard
   final bool showCursor; // New parameter to hide cursor
+  final FocusNode? focusNode; // New parameter for custom focus node
 
   const CommonTextFormField({
     super.key,
@@ -66,6 +67,7 @@ class CommonTextFormField extends StatelessWidget {
     this.fontSize, // Initialize the new parameter
     this.readOnly = false, // Initialize readOnly parameter
     this.showCursor = true, // Initialize showCursor parameter
+    this.focusNode, // Initialize focusNode parameter
   });
 
   @override
@@ -77,6 +79,7 @@ class CommonTextFormField extends StatelessWidget {
         width: width,
         child: TextFormField(
           controller: controller,
+          focusNode: focusNode,
           obscureText: commonProvider.obscureText ? obscureText : false,
           keyboardType: keyboardType,
           inputFormatters: [

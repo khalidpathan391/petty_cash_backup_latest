@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/HomePage/DashBoardModel.dart';
+import 'package:petty_cash/data/models/common/common_work_flow_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 import 'package:petty_cash/data/models/po_model.dart/supplier_type_model.dart'
     as supplier_type;
@@ -15,6 +16,7 @@ import 'package:petty_cash/utils/app_utils.dart';
 import 'package:petty_cash/view/base/BaseGestureTouchSafeArea.dart';
 import 'package:petty_cash/view/common/transaction_common/common_header_transactions.dart';
 import 'package:petty_cash/view/common_annotated_region.dart';
+import 'package:petty_cash/view/po_transaction/WorkFlow/common_workflow_bottom_bar.dart';
 
 import 'package:petty_cash/view/widget/CustomAppBar.dart';
 import 'package:petty_cash/view/widget/common_button.dart';
@@ -124,6 +126,20 @@ class _PoTransactionState extends State<PoTransaction>
                 if (val) return;
               },
               child: Scaffold(
+                bottomNavigationBar: provider.isWFTab
+                    ? CommonWFBottomBar(
+                        // Global.transactionHeaderId set this value also
+                        //add bool? isApiLoading = false; in the model of wf api
+                        //below is used to save some value before calling wf api for 3 cases so if not saving just return true
+                        callSubmitApi: () async {
+                          return true;
+                        },
+                        remarks:
+                            provider.purchaseOrderModel!.rfiRemarks.toString(),
+                        wfList0: provider.purchaseOrderModel!.workFlowIcons ??
+                            <WorkFlowIcons>[],
+                      )
+                    : const SizedBox(),
                 appBar: CustomAppBar(
                   type: 'Purchase Order',
                   typeIcon: '',
@@ -253,6 +269,12 @@ class _PoTransactionState extends State<PoTransaction>
   }
 }
 
+// Custom focus node that always prevents keyboard opening
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
+}
+
 class _HeaderTab extends StatefulWidget {
   @override
   State<_HeaderTab> createState() => _HeaderTabState();
@@ -260,6 +282,8 @@ class _HeaderTab extends StatefulWidget {
 
 class _HeaderTabState extends State<_HeaderTab> {
   late quill.QuillController _remarkQuillCtrl;
+  // Custom focus node that always prevents keyboard opening
+  static final FocusNode _alwaysDisabledFocusNode = AlwaysDisabledFocusNode();
 
   @override
   void initState() {
@@ -808,7 +832,7 @@ class _HeaderTabState extends State<_HeaderTab> {
             controller: vm.fallbackValidationNumber,
             height: dH * 0.05,
             fontSize: tS * 0.75,
-            enabled: vm.fallbackValidationSelected,
+            enabled: false,
           ),
         ),
 
@@ -1045,6 +1069,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                                   field: CommonTextFormField(
                                     label: 'Supplier Description*',
                                     controller: vm.supplierDesc,
+                                    enabled: false,
                                     height: dH * 0.05,
                                     fontSize: tS * 0.75,
                                   ),
@@ -1424,10 +1449,6 @@ class _HeaderTabState extends State<_HeaderTab> {
   void _showTermsSheet() {
     // Debug: Print terms controller value when opening popup
     final vm = Provider.of<PoApplicationVm>(context, listen: false);
-    print('=== OPENING TERMS POPUP ===');
-    print('Terms controller text: ${vm.termsCtrl.text}');
-    print('HeaderTab terms field: ${vm.purchaseOrderModel?.headerTab?.terms}');
-    print('==========================');
 
     showModalBottomSheet(
       context: context,
@@ -1635,7 +1656,9 @@ class _HeaderTabState extends State<_HeaderTab> {
               child: CommonTextFormField(
                 label: label,
                 controller: controller,
+                focusNode: _alwaysDisabledFocusNode,
                 enabled: false,
+                readOnly: true,
                 height: dH * 0.05,
                 hintFontSize: tS * 0.75,
                 fontSize: tS * 0.75,
@@ -1652,343 +1675,366 @@ class _HeaderTabState extends State<_HeaderTab> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(dW * 0.04),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: CommonButton(
-                width: dW / 2.5,
-                height: dH * 0.05,
-                text: "Reference PR",
-                fontSize: tS * 0.7,
-                onPressed: () {
-                  _showReferencePRSheet();
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      child: GestureDetector(
+        onTap: () {
+          // Dismiss keyboard when tapping outside text fields
+          FocusScope.of(context).unfocus();
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: CommonButton(
+                  width: dW / 2.5,
+                  height: dH * 0.05,
+                  text: "Reference PR",
+                  fontSize: tS * 0.7,
+                  onPressed: () {
+                    _showReferencePRSheet();
+                  },
+                  borderRadius: dW * 0.02,
+                  disable: false,
+                  // color: themeColor, // Use the locally defined themeColor
+                ),
+              ),
+              PopupMenuButton<String>(
+                icon: Icon(
+                  Icons.more_vert,
+                  // color: themeColor,
+                  size: tS * 1.5,
+                ),
+                onSelected: (value) {
+                  if (value == 'create_supplier') {
+                    _showCreateSupplierSheet();
+                  } else if (value == 'net_value') {
+                    _showNetValueSheet();
+                  } else if (value == 'terms') {
+                    _showTermsSheet();
+                  }
                 },
-                borderRadius: dW * 0.02,
-                disable: false,
-                // color: themeColor, // Use the locally defined themeColor
-              ),
-            ),
-            PopupMenuButton<String>(
-              icon: Icon(
-                Icons.more_vert,
-                // color: themeColor,
-                size: tS * 1.5,
-              ),
-              onSelected: (value) {
-                if (value == 'create_supplier') {
-                  _showCreateSupplierSheet();
-                } else if (value == 'net_value') {
-                  _showNetValueSheet();
-                } else if (value == 'terms') {
-                  _showTermsSheet();
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  value: 'create_supplier',
-                  child: CommonTextView(
-                    label: 'Create Supplier',
-                    fontSize: tS * 0.9,
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    value: 'create_supplier',
+                    child: CommonTextView(
+                      label: 'Create Supplier',
+                      fontSize: tS * 0.9,
+                    ),
                   ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'net_value',
-                  child: CommonTextView(
-                    label: 'Net Value',
-                    fontSize: tS * 0.9,
+                  PopupMenuItem<String>(
+                    value: 'net_value',
+                    child: CommonTextView(
+                      label: 'Net Value',
+                      fontSize: tS * 0.9,
+                    ),
                   ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'terms',
-                  child: CommonTextView(
-                    label: 'Terms',
-                    fontSize: tS * 0.9,
+                  PopupMenuItem<String>(
+                    value: 'terms',
+                    child: CommonTextView(
+                      label: 'Terms',
+                      fontSize: tS * 0.9,
+                    ),
                   ),
-                ),
-              ],
-            )
-          ],
-        ),
-        combinedSearchField(
-            label: 'Doc. Loc.*',
-            code: vm.docLocCodeCtrl,
-            desc: vm.docLocDescCtrl),
-        combinedSearchField(
-            label: 'Reference*',
-            code: vm.referenceCtrl,
-            desc: vm.referenceDescCtrl,
-            showSearch: true),
-        labelWithField(
-            label: 'Ref. Doc.*',
-            field: Row(children: [
-              Expanded(
-                  flex: 2,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: vm.isReferenceDirect
-                        ? null
-                        : () {
-                            Provider.of<PoApplicationVm>(context, listen: false)
-                                .searchRefTxnCode(context);
-                          },
-                    child: AbsorbPointer(
-                      absorbing: true,
-                      child: Opacity(
-                        opacity: vm.isReferenceDirect ? 0.5 : 1.0,
-                        child: CommonTextFormField(
-                          label: 'Ref Doc Code',
-                          controller: vm.refDocCodeCtrl,
-                          enabled: false,
-                          height: dH * 0.05,
-                          hintFontSize: tS * 0.75,
-                          fontSize: tS * 0.75,
-                          suffixWidget: Icon(
-                            Icons.search,
-                            size: tS * 1.2,
-                            color: vm.isReferenceDirect ? Colors.grey : null,
+                ],
+              )
+            ],
+          ),
+          combinedSearchField(
+              label: 'Doc. Loc.*',
+              code: vm.docLocCodeCtrl,
+              desc: vm.docLocDescCtrl),
+          combinedSearchField(
+              label: 'Reference*',
+              code: vm.referenceCtrl,
+              desc: vm.referenceDescCtrl,
+              showSearch: true),
+          labelWithField(
+              label: 'Ref. Doc.*',
+              field: Row(children: [
+                Expanded(
+                    flex: 2,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: vm.isReferenceDirect
+                          ? null
+                          : () {
+                              Provider.of<PoApplicationVm>(context,
+                                      listen: false)
+                                  .searchRefTxnCode(context);
+                            },
+                      child: AbsorbPointer(
+                        absorbing: true,
+                        child: Opacity(
+                          opacity: vm.isReferenceDirect ? 0.5 : 1.0,
+                          child: CommonTextFormField(
+                            label: 'Ref Doc Code',
+                            controller: vm.refDocCodeCtrl,
+                            focusNode: _alwaysDisabledFocusNode,
+                            enabled: false,
+                            height: dH * 0.05,
+                            hintFontSize: tS * 0.75,
+                            fontSize: tS * 0.75,
+                            suffixWidget: Icon(
+                              Icons.search,
+                              size: tS * 1.2,
+                              color: vm.isReferenceDirect ? Colors.grey : null,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )),
-              const SizedBox(width: 4),
-              Expanded(
-                  flex: 3,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: vm.isReferenceDirect
-                        ? null
-                        : () {
-                            Provider.of<PoApplicationVm>(context, listen: false)
-                                .searchRefDocNo(context);
-                          },
-                    child: AbsorbPointer(
-                      absorbing: true,
-                      child: Opacity(
-                        opacity: vm.isReferenceDirect ? 0.5 : 1.0,
-                        child: CommonTextFormField(
-                          label: 'Ref Doc No',
-                          controller: vm.refDocNoCtrl,
-                          enabled: false,
-                          height: dH * 0.05,
-                          hintFontSize: tS * 0.75,
-                          fontSize: tS * 0.75,
-                          suffixWidget: vm.isReferenceDirect
-                              ? null
-                              : Icon(
-                                  Icons.search,
-                                  size: tS * 1.2,
-                                ),
+                    )),
+                const SizedBox(width: 4),
+                Expanded(
+                    flex: 3,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: vm.isReferenceDirect
+                          ? null
+                          : () {
+                              Provider.of<PoApplicationVm>(context,
+                                      listen: false)
+                                  .searchRefDocNo(context);
+                            },
+                      child: AbsorbPointer(
+                        absorbing: true,
+                        child: Opacity(
+                          opacity: vm.isReferenceDirect ? 0.5 : 1.0,
+                          child: CommonTextFormField(
+                            label: 'Ref Doc No',
+                            controller: vm.refDocNoCtrl,
+                            focusNode: _alwaysDisabledFocusNode,
+                            enabled: false,
+                            height: dH * 0.05,
+                            hintFontSize: tS * 0.75,
+                            fontSize: tS * 0.75,
+                            suffixWidget: vm.isReferenceDirect
+                                ? null
+                                : Icon(
+                                    Icons.search,
+                                    size: tS * 1.2,
+                                  ),
+                          ),
                         ),
                       ),
-                    ),
-                  )),
-            ])),
-        combinedSearchField(
-            label: 'Supplier*',
-            code: vm.supplierCtrl,
-            desc: TextEditingController(),
-            showSearch: true),
-        // labelWithField(
-        //     label: 'Sup Offer No.',
-        //     field: CommonTextFormField(
-        //       label: 'Sup Offer No.',
-        //       controller: vm.supOfferNoCtrl,
-        //       enabled: false,
-        //       height: dH * 0.05,
-        //       hintFontSize: tS * 0.75,
-        //       fontSize: tS * 0.75,
-        //     )),
-        // labelWithField(
-        //     label: 'Sup Offer Date*',
-        //     field: CommonTextFormField(
-        //       label: 'Sup Offer Date*',
-        //       controller: vm.supOfferDateCtrl,
-        //       enabled: false,
-        //       suffixWidget: const Icon(Icons.calendar_month),
-        //       height: dH * 0.05,
-        //       hintFontSize: tS * 0.75,
-        //       fontSize: tS * 0.75,
-        //     )),
-        combinedSearchField(
-            label: 'Currency*',
-            code: vm.currencyCodeCtrl,
-            desc: vm.currencyDescCtrl,
-            showSearch: true),
-        labelWithField(
-            label: 'Exchange Rate*',
-            field: CommonTextFormField(
+                    )),
+              ])),
+          combinedSearchField(
+              label: 'Supplier*',
+              code: vm.supplierCtrl,
+              desc: TextEditingController(),
+              showSearch: true),
+          // labelWithField(
+          //     label: 'Sup Offer No.',
+          //     field: CommonTextFormField(
+          //       label: 'Sup Offer No.',
+          //       controller: vm.supOfferNoCtrl,
+          //       enabled: false,
+          //       height: dH * 0.05,
+          //       hintFontSize: tS * 0.75,
+          //       fontSize: tS * 0.75,
+          //     )),
+          // labelWithField(
+          //     label: 'Sup Offer Date*',
+          //     field: CommonTextFormField(
+          //       label: 'Sup Offer Date*',
+          //       controller: vm.supOfferDateCtrl,
+          //       enabled: false,
+          //       suffixWidget: const Icon(Icons.calendar_month),
+          //       height: dH * 0.05,
+          //       hintFontSize: tS * 0.75,
+          //       fontSize: tS * 0.75,
+          //     )),
+          combinedSearchField(
+              label: 'Currency*',
+              code: vm.currencyCodeCtrl,
+              desc: vm.currencyDescCtrl,
+              showSearch: true),
+          labelWithField(
               label: 'Exchange Rate*',
-              controller: vm.exchangeRateCtrl,
-              enabled: false,
-              height: dH * 0.05,
-              hintFontSize: tS * 0.75,
+              field: CommonTextFormField(
+                label: 'Exchange Rate*',
+                controller: vm.exchangeRateCtrl,
+                focusNode: _alwaysDisabledFocusNode,
+                enabled: false,
+                readOnly: true,
+                height: dH * 0.05,
+                hintFontSize: tS * 0.75,
+                fontSize: tS * 0.75,
+              )),
+          labelWithField(
+              label: 'Discount / Value',
+              field: Row(children: [
+                Expanded(
+                    child: CommonTextFormField(
+                  label: 'Discount',
+                  controller: vm.discountCtrl,
+                  enabled: vm.hasItemDetailsFilled(),
+                  height: dH * 0.05,
+                  hintFontSize: tS * 0.75,
+                  fontSize: tS * 0.75,
+                  keyboardType: TextInputType.number,
+                  onChanged: vm.onDiscountChanged,
+                )),
+                const SizedBox(width: 8),
+                Expanded(
+                    child: CommonTextFormField(
+                  label: 'Value',
+                  controller: vm.valueCtrl,
+                  enabled: vm.hasItemDetailsFilled(),
+                  height: dH * 0.05,
+                  hintFontSize: tS * 0.75,
+                  fontSize: tS * 0.75,
+                  keyboardType: TextInputType.number,
+                  onChanged: vm.onValueChanged,
+                )),
+              ])),
+          labelWithField(
+              label: 'Payment Term*',
+              field: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    Provider.of<PoApplicationVm>(context, listen: false)
+                        .searchField(context, 'Payment Term*'),
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: CommonTextFormField(
+                    label: 'Payment Term*',
+                    controller: vm.paymentTermCtrl,
+                    focusNode: _alwaysDisabledFocusNode,
+                    enabled: false,
+                    readOnly: true,
+                    suffixWidget: const Icon(Icons.search),
+                    height: dH * 0.05,
+                    hintFontSize: tS * 0.75,
+                    fontSize: tS * 0.75,
+                  ),
+                ),
+              )),
+          labelWithField(
+              label: 'Mode of Shipment*',
+              field: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    Provider.of<PoApplicationVm>(context, listen: false)
+                        .searchField(context, 'Mode of Shipment*'),
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: CommonTextFormField(
+                    label: 'Mode of Shipment*',
+                    controller: vm.modeShipmentCtrl,
+                    focusNode: _alwaysDisabledFocusNode,
+                    enabled: false,
+                    readOnly: true,
+                    suffixWidget: const Icon(Icons.search),
+                    height: dH * 0.05,
+                    hintFontSize: tS * 0.75,
+                    fontSize: tS * 0.75,
+                  ),
+                ),
+              )),
+          labelWithField(
+              label: 'Mode of Payment*',
+              field: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () =>
+                    Provider.of<PoApplicationVm>(context, listen: false)
+                        .searchField(context, 'Mode of Payment*'),
+                child: AbsorbPointer(
+                  absorbing: true,
+                  child: CommonTextFormField(
+                    label: 'Mode of Payment*',
+                    controller: vm.modePaymentCtrl,
+                    focusNode: _alwaysDisabledFocusNode,
+                    enabled: false,
+                    readOnly: true,
+                    suffixWidget: const Icon(Icons.search),
+                    height: dH * 0.05,
+                    hintFontSize: tS * 0.75,
+                    fontSize: tS * 0.75,
+                  ),
+                ),
+              )),
+          combinedSearchField(
+              label: 'Charge Type*',
+              code: vm.chargeTypeCodeCtrl,
+              desc: vm.chargeTypeDescCtrl,
+              showSearch: true),
+          combinedSearchField(
+              label: 'Charge To*',
+              code: vm.chargeToCodeCtrl,
+              desc: vm.chargeToDescCtrl,
+              showSearch: true),
+          combinedSearchField(
+              label: 'Ship to Store Loc*',
+              code: vm.shipToStoreCodeCtrl,
+              desc: vm.shipToStoreDescCtrl,
+              showSearch: true),
+          combinedSearchField(
+              label: 'Purchase Type*',
+              code: vm.purchaseTypeCodeCtrl,
+              desc: vm.purchaseTypeDescCtrl,
+              showSearch: true),
+          combinedSearchField(
+              label: 'Petty Cash No*',
+              code: vm.pettyCashCodeCtrl,
+              desc: vm.pettyCashDescCtrl,
+              showSearch: true),
+          combinedSearchField(
+              label: 'Buyer ID*',
+              code: vm.buyerCodeCtrl,
+              desc: vm.buyerDescCtrl,
+              showSearch: true),
+          // labelWithField(
+          //     label: 'ETA*',
+          //     field: CommonTextFormField(
+          //       label: 'ETA*',
+          //       controller: vm.etaCtrl,
+          //       enabled: false,
+          //       suffixWidget: const Icon(Icons.calendar_month),
+          //       height: dH * 0.05,
+          //       hintFontSize: tS * 0.75,
+          //       fontSize: tS * 0.75,
+          //     )),
+          combinedSearchField(
+              label: 'Delivery Term*',
+              code: vm.deliveryTermCodeCtrl,
+              desc: vm.deliveryTermDescCtrl,
+              showSearch: true),
+          // labelWithField(
+          //     label: 'Need By Date*',
+          //     field: CommonTextFormField(
+          //       label: 'Need By Date*',
+          //       controller: vm.needByDateCtrl,
+          //       enabled: false,
+          //       suffixWidget: const Icon(Icons.calendar_month),
+          //       height: dH * 0.05,
+          //       hintFontSize: tS * 0.75,
+          //       fontSize: tS * 0.75,
+          //     )),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: CommonTextView(
+              label: 'Remark',
+              height: dH * 0.03,
               fontSize: tS * 0.75,
-            )),
-        labelWithField(
-            label: 'Discount / Value',
-            field: Row(children: [
-              Expanded(
-                  child: CommonTextFormField(
-                label: 'Discount',
-                controller: vm.discountCtrl,
-                enabled: vm.hasItemDetailsFilled(),
-                height: dH * 0.05,
-                hintFontSize: tS * 0.75,
-                fontSize: tS * 0.75,
-                keyboardType: TextInputType.number,
-                onChanged: vm.onDiscountChanged,
-              )),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: CommonTextFormField(
-                label: 'Value',
-                controller: vm.valueCtrl,
-                enabled: vm.hasItemDetailsFilled(),
-                height: dH * 0.05,
-                hintFontSize: tS * 0.75,
-                fontSize: tS * 0.75,
-                keyboardType: TextInputType.number,
-                onChanged: vm.onValueChanged,
-              )),
-            ])),
-        labelWithField(
-            label: 'Payment Term*',
-            field: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Provider.of<PoApplicationVm>(context, listen: false)
-                  .searchField(context, 'Payment Term*'),
-              child: AbsorbPointer(
-                absorbing: true,
-                child: CommonTextFormField(
-                  label: 'Payment Term*',
-                  controller: vm.paymentTermCtrl,
-                  enabled: false,
-                  suffixWidget: const Icon(Icons.search),
-                  height: dH * 0.05,
-                  hintFontSize: tS * 0.75,
-                  fontSize: tS * 0.75,
-                ),
-              ),
-            )),
-        labelWithField(
-            label: 'Mode of Shipment*',
-            field: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Provider.of<PoApplicationVm>(context, listen: false)
-                  .searchField(context, 'Mode of Shipment*'),
-              child: AbsorbPointer(
-                absorbing: true,
-                child: CommonTextFormField(
-                  label: 'Mode of Shipment*',
-                  controller: vm.modeShipmentCtrl,
-                  enabled: false,
-                  suffixWidget: const Icon(Icons.search),
-                  height: dH * 0.05,
-                  hintFontSize: tS * 0.75,
-                  fontSize: tS * 0.75,
-                ),
-              ),
-            )),
-        labelWithField(
-            label: 'Mode of Payment*',
-            field: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => Provider.of<PoApplicationVm>(context, listen: false)
-                  .searchField(context, 'Mode of Payment*'),
-              child: AbsorbPointer(
-                absorbing: true,
-                child: CommonTextFormField(
-                  label: 'Mode of Payment*',
-                  controller: vm.modePaymentCtrl,
-                  enabled: false,
-                  suffixWidget: const Icon(Icons.search),
-                  height: dH * 0.05,
-                  hintFontSize: tS * 0.75,
-                  fontSize: tS * 0.75,
-                ),
-              ),
-            )),
-        combinedSearchField(
-            label: 'Charge Type*',
-            code: vm.chargeTypeCodeCtrl,
-            desc: vm.chargeTypeDescCtrl,
-            showSearch: true),
-        combinedSearchField(
-            label: 'Charge To*',
-            code: vm.chargeToCodeCtrl,
-            desc: vm.chargeToDescCtrl,
-            showSearch: true),
-        combinedSearchField(
-            label: 'Ship to Store Loc*',
-            code: vm.shipToStoreCodeCtrl,
-            desc: vm.shipToStoreDescCtrl,
-            showSearch: true),
-        combinedSearchField(
-            label: 'Purchase Type*',
-            code: vm.purchaseTypeCodeCtrl,
-            desc: vm.purchaseTypeDescCtrl,
-            showSearch: true),
-        combinedSearchField(
-            label: 'Petty Cash No*',
-            code: vm.pettyCashCodeCtrl,
-            desc: vm.pettyCashDescCtrl,
-            showSearch: true),
-        combinedSearchField(
-            label: 'Buyer ID*',
-            code: vm.buyerCodeCtrl,
-            desc: vm.buyerDescCtrl,
-            showSearch: true),
-        // labelWithField(
-        //     label: 'ETA*',
-        //     field: CommonTextFormField(
-        //       label: 'ETA*',
-        //       controller: vm.etaCtrl,
-        //       enabled: false,
-        //       suffixWidget: const Icon(Icons.calendar_month),
-        //       height: dH * 0.05,
-        //       hintFontSize: tS * 0.75,
-        //       fontSize: tS * 0.75,
-        //     )),
-        combinedSearchField(
-            label: 'Delivery Term*',
-            code: vm.deliveryTermCodeCtrl,
-            desc: vm.deliveryTermDescCtrl,
-            showSearch: true),
-        // labelWithField(
-        //     label: 'Need By Date*',
-        //     field: CommonTextFormField(
-        //       label: 'Need By Date*',
-        //       controller: vm.needByDateCtrl,
-        //       enabled: false,
-        //       suffixWidget: const Icon(Icons.calendar_month),
-        //       height: dH * 0.05,
-        //       hintFontSize: tS * 0.75,
-        //       fontSize: tS * 0.75,
-        //     )),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: CommonTextView(
-            label: 'Remark',
-            height: dH * 0.03,
-            fontSize: tS * 0.75,
-            maxLine: 1,
-            overFlow: TextOverflow.ellipsis,
+              maxLine: 1,
+              overFlow: TextOverflow.ellipsis,
+            ),
           ),
-        ),
-        QuillTextField(
-          controller: Provider.of<PoApplicationVm>(context, listen: false)
-              .remarkQuillController,
-          onChange: (_) {
-            Provider.of<PoApplicationVm>(context, listen: false)
-                .setRemarkFromQuill();
-          },
-          height: MediaQuery.of(context).size.height * 0.4,
-        ),
-      ]),
+          QuillTextField(
+            controller: Provider.of<PoApplicationVm>(context, listen: false)
+                .remarkQuillController,
+            onChange: (_) {
+              Provider.of<PoApplicationVm>(context, listen: false)
+                  .setRemarkFromQuill();
+            },
+            height: MediaQuery.of(context).size.height * 0.4,
+          ),
+        ]),
+      ),
     );
   }
 }
@@ -2034,365 +2080,373 @@ class _ItemDetailsTab extends StatelessWidget {
     final vm = Provider.of<PoApplicationVm>(context);
     final items = vm.purchaseOrderModel?.itemDetailsTab ?? [];
 
-    return Column(
-      children: [
-        /// Top Controls (Select All, Add, Delete)
-        Container(
-          padding: EdgeInsets.only(
-            top: 10,
-            right: AppWidth(5),
-            left: AppWidth(5),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    border: Border.all(width: 1, color: Colors.grey),
-                    color: Colors.white),
-                margin:
-                    EdgeInsets.only(bottom: AppHeight(10), left: AppWidth(10)),
-                child: CommonTextFormField(
-                  height: AppHeight(30),
-                  width: AppWidth(255),
-                  label: 'Type to search...',
-                  maxLines: 1,
-                  isBorderUnderLine: false,
-                  isBorderSideNone: true,
-                  suffixWidget: Container(
-                    width: AppWidth(20),
-                    decoration: const BoxDecoration(
-                        border: Border(
-                            left: BorderSide(width: 1, color: Colors.grey))),
-                    child: GestureDetector(
-                      onTap: () {},
-                      child: const Icon(
-                        Icons.search,
-                        color: Colors.grey,
-                        size: 15,
+    return GestureDetector(
+      onTap: () {
+        // Dismiss keyboard when tapping outside text fields
+        FocusScope.of(context).unfocus();
+      },
+      child: Column(
+        children: [
+          /// Top Controls (Select All, Add, Delete)
+          Container(
+            padding: EdgeInsets.only(
+              top: 10,
+              right: AppWidth(5),
+              left: AppWidth(5),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      border: Border.all(width: 1, color: Colors.grey),
+                      color: Colors.white),
+                  margin: EdgeInsets.only(
+                      bottom: AppHeight(10), left: AppWidth(10)),
+                  child: CommonTextFormField(
+                    height: AppHeight(30),
+                    width: AppWidth(255),
+                    label: 'Type to search...',
+                    maxLines: 1,
+                    isBorderUnderLine: false,
+                    isBorderSideNone: true,
+                    enabled: false,
+                    suffixWidget: Container(
+                      width: AppWidth(20),
+                      decoration: const BoxDecoration(
+                          border: Border(
+                              left: BorderSide(width: 1, color: Colors.grey))),
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                          size: 15,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.only(
-            right: AppWidth(5),
-            left: AppWidth(10),
-          ),
-          child: Row(
-            children: [
-              /// Select All Checkbox
-              GestureDetector(
-                onTap: () {
-                  if (items.isNotEmpty) {
-                    vm.onItemDetailsSelectAll();
-                  }
-                },
-                child: Padding(
-                  padding: EdgeInsets.only(left: tS * 0.8),
-                  child: Icon(
-                    vm.isActionAll
-                        ? Icons.check_box
-                        : Icons.check_box_outline_blank,
-                    color: context.resources.color.themeColor,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 5),
-              const CommonTextView(label: 'Select All'),
-
-              /// Add & Delete Buttons
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        vm.addItemDetailsLine();
-                      },
-                      icon: Icon(
-                        Icons.add,
-                        color: context.resources.color.themeColor,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        vm.deleteItemDetailsLine();
-                      },
-                      icon: Icon(
-                        Icons.delete,
-                        color: context.resources.color.themeColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        /// Empty State
-        if (items.isEmpty)
-          const CommonEmptyList()
-        else
-
-          /// Table
-          Expanded(
-            child: SingleChildScrollView(
-              child: CustomViewOnlyTable(
-                data: items,
-                header1: 'Txn Code',
-                header2: 'Ref Do No',
-                isScrollable: false,
-                onOpen: (index) => vm.toggleItemOpen(index),
-                getHeader1: (data) => data.txnNo ?? '',
-                getHeader2: (data) => data.refDocNo ?? '',
-
-                /// Checkbox column (header0)
-                isIconHeader0: true,
-                header0IconColor: Colors.white,
-                header0IconTap: (index) {
-                  vm.onItemDetailsSelected(index);
-                },
-                header0IconData: (index) => items[index].isSelected == true
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank,
-                ischildHeader0: true,
-                headerChild: (index) => Expanded(
-                  child: PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert,
-                          size: 20, color: Colors.white),
-                      onSelected: (String result) {
-                        switch (result) {
-                          case 'Attachments':
-                            // provider
-                            //     .onAccountPopUpAttachment(
-                            //         context,
-                            //         index);
-                            // taxPopupList
-                            break;
-                          case 'Tax':
-                            taxPopupList(context, index);
-                            break;
-                        }
-                      },
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                            const PopupMenuItem<String>(
-                              value: 'Attachments',
-                              child: ListTile(
-                                leading: Icon(Icons.attachment),
-                                title: Text('Attachments'),
-                              ),
-                            ),
-                            const PopupMenuItem<String>(
-                              value: 'Tax',
-                              child: ListTile(
-                                leading: Icon(Icons.account_balance),
-                                title: Text('Tax'),
-                              ),
-                            ),
-                          ]),
-                ),
-
-                // Item Code - search
-                isRow1: true,
-                row1Title: 'Item Code',
-                row1Label: (data) => data.itemCode ?? '',
-                row1IconData: (i) => Icons.search,
-                isRow1Search: true,
-                row1Tap: (index) {
-                  vm.callItemSearch(context, index, 1);
-                },
-                row1Decoration:
-                    BoxDecoration(color: Colors.white.withOpacity(.1)),
-
-                // Desc
-                isRow2: true,
-                row2Title: 'Desc',
-                row2Label: (data) => data.itemDesc ?? '',
-
-                // UOM - search
-                isRow3: true,
-                row3Title: 'UOM',
-                row3Label: (data) => data.uom ?? '',
-                row3IconData: (i) => Icons.search,
-                isRow3Search: true,
-                row3Tap: (index) {
-                  vm.callItemSearch(context, index, 2);
-                },
-                row3Decoration:
-                    BoxDecoration(color: Colors.white.withOpacity(.1)),
-
-                // Quantity - textfield
-                isRow4: true,
-                row4Title: 'Quantity',
-                row4Label: (data) => data.quantity ?? '',
-                isTextRow4: true,
-                row4KeyboardType: TextInputType.number,
-                row4Controller: (index) =>
-                    vm.purchaseOrderModel!.itemDetailsTab![index]
-                        .quantityController ??
-                    TextEditingController(),
-                row4TextOnChange: (val, index) {
-                  vm.onQuantityChanged(val, index);
-                },
-
-                isRow5: true,
-                row5Title: 'Loose Quantity',
-                row5Label: (data) => data.looseQty ?? '',
-                // Loose quantity is non-clickable (read-only) - only updates when item is loaded from API
-                isTextRow5: false, // Explicitly disable text field
-
-                isRow6: true,
-                row6Title: 'Base Quantity',
-                row6Label: (data) => data.baseQty ?? '',
-                // Base quantity is non-clickable (read-only)
-                isTextRow6: false, // Explicitly disable text field
-
-                // Unit Price - textfield
-                isRow7: true,
-                row7Title: 'Unit Price',
-                row7Label: (data) => data.unitPrice ?? '',
-                isTextRow7: (_) => true, row7KeyboardType: TextInputType.number,
-                row7Controller: (index) =>
-                    vm.purchaseOrderModel!.itemDetailsTab![index]
-                        .unitPriceController ??
-                    TextEditingController(),
-                row7TextOnChange: (val, index) {
-                  vm.onUnitPriceChanged(val, index);
-                },
-
-                isRow8: true,
-                row8Title: 'Gross Value',
-                row8Label: (data) => data.grossValue ?? '',
-                // Gross value is non-clickable (calculated field)
-                isTextRow8: false, // Explicitly disable text field
-
-                // Discount %
-                isRow9: true,
-                row9Title: 'Discount %',
-                row9Label: (data) => data.discountPer ?? '',
-                isTextRow9: true, row9KeyboardType: TextInputType.number,
-                row9Controller: (index) =>
-                    vm.purchaseOrderModel!.itemDetailsTab![index]
-                        .discountController ??
-                    TextEditingController(),
-                row9TextOnChange: (val, index) {
-                  vm.onDiscountPercentageChanged(val, index);
-                },
-
-                // Discount Value
-                isRow10: true,
-                row10Title: 'Discount Val',
-                row10Label: (data) => data.discountVal ?? '',
-                isTextRow10: true, row10KeyboardType: TextInputType.number,
-                row10Controller: (index) {
-                  final item = vm.purchaseOrderModel!.itemDetailsTab![index];
-                  if (item.discountValueController == null) {
-                    item.discountValueController =
-                        TextEditingController(text: item.discountVal ?? '0');
-                  }
-                  return item.discountValueController!;
-                },
-                row10TextOnChange: (val, index) {
-                  vm.onDiscountValueChanged(val, index);
-                },
-
-                isRow11: true,
-                row11Title: 'Net Value',
-                row11Label: (data) => data.netValue ?? '',
-                // Net value is non-clickable (calculated field)
-                isTextRow11: false, // Explicitly disable text field
-                row11Tap: null, // Explicitly disable onTap
-
-                isRow12: true,
-                row12Title: 'Mnf. Desc',
-                row12Label: (data) => data.mnfDesc ?? '',
-                isTextRow12: false, // Explicitly disable text field
-                row12Tap: null, // Explicitly disable onTap
-
-                // Charge Type - search
-                isRow13: true,
-                row13Title: 'Charge Type',
-                row13Label: (data) => data.chargeTypeCode ?? '',
-                row13IconData: (i) => Icons.search,
-                isRow13Search: true,
-                row13Decoration:
-                    BoxDecoration(color: Colors.white.withOpacity(.1)),
-
-                isRow14: true,
-                row14Title: 'Charge Type Desc',
-                row14Label: (data) => data.chargeTypeName ?? '',
-                isTextRow14: false, // Explicitly disable text field
-                row14Tap: null, // Explicitly disable onTap
-
-                // Charge To - search
-                isRow15: true,
-                row15Title: 'Charge To',
-                row15Label: (data) => data.chargeToCode ?? '',
-                row15IconData: (i) => Icons.search,
-                isRow15Search: true,
-                row15Decoration:
-                    BoxDecoration(color: Colors.white.withOpacity(.1)),
-
-                isRow16: true,
-                row16Title: 'Charge To Desc',
-                row16Label: (data) => data.chargeToName ?? '',
-                isTextRow16: false, // Explicitly disable text field
-                row16Tap: null, // Explicitly disable onTap
-
-                isRow17: true,
-                row17Title: 'Need By Dt',
-                row17Label: (data) => data.needByDt ?? '',
-                isTextRow17: false, // Explicitly disable text field
-                row17Tap: null, // Explicitly disable onTap
-
-                isRow18: true,
-                row18Title: 'ETA',
-                row18Label: (data) => data.etaDate ?? '',
-                isTextRow18: false, // Explicitly disable text field
-                row18Tap: null, // Explicitly disable onTap
-
-                // GL Code - search
-                isRow19: true,
-                row19Title: 'GL Code',
-                row19Label: (data) => data.glCode ?? '',
-                row19IconData: (i) => Icons.search,
-                isRow19Search: true,
-                row19Tap: (index) {
-                  vm.callItemSearch(context, index, 3);
-                },
-                row19Decoration:
-                    BoxDecoration(color: Colors.white.withOpacity(.1)),
-
-                isRow20: true,
-                row20Title: 'GL Desc',
-                row20Label: (data) => data.glDesc ?? '',
-                isTextRow20: false, // Explicitly disable text field
-                row20Tap: null, // Explicitly disable onTap
-
-                // Note to Receiver
-                isRow21: true,
-                row21Title: 'Note to Receiver',
-                row21Label: (data) => data.noteToReceiver ?? '',
-                isTextRow21: true,
-                row21Controller: (index) =>
-                    vm.purchaseOrderModel!.itemDetailsTab![index]
-                        .noteToReceiverController ??
-                    TextEditingController(),
-                row21TextOnChange: (val, index) {
-                  vm.purchaseOrderModel!.itemDetailsTab![index].noteToReceiver =
-                      val;
-                },
-              ),
+              ],
             ),
           ),
-      ],
+          Container(
+            padding: EdgeInsets.only(
+              right: AppWidth(5),
+              left: AppWidth(10),
+            ),
+            child: Row(
+              children: [
+                /// Select All Checkbox
+                GestureDetector(
+                  onTap: () {
+                    if (items.isNotEmpty) {
+                      vm.onItemDetailsSelectAll();
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: tS * 0.8),
+                    child: Icon(
+                      vm.isActionAll
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank,
+                      color: context.resources.color.themeColor,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5),
+                const CommonTextView(label: 'Select All'),
+
+                /// Add & Delete Buttons
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          vm.addItemDetailsLine();
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          color: context.resources.color.themeColor,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          vm.deleteItemDetailsLine();
+                        },
+                        icon: Icon(
+                          Icons.delete,
+                          color: context.resources.color.themeColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          /// Empty State
+          if (items.isEmpty)
+            const CommonEmptyList()
+          else
+
+            /// Table
+            Expanded(
+              child: SingleChildScrollView(
+                child: CustomViewOnlyTable(
+                  data: items,
+                  header1: 'Txn Code',
+                  header2: 'Ref Do No',
+                  isScrollable: false,
+                  onOpen: (index) => vm.toggleItemOpen(index),
+                  getHeader1: (data) => data.txnNo ?? '',
+                  getHeader2: (data) => data.refDocNo ?? '',
+
+                  /// Checkbox column (header0)
+                  isIconHeader0: true,
+                  header0IconColor: Colors.white,
+                  header0IconTap: (index) {
+                    vm.onItemDetailsSelected(index);
+                  },
+                  header0IconData: (index) => items[index].isSelected == true
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank,
+                  ischildHeader0: true,
+                  headerChild: (index) => Expanded(
+                    child: PopupMenuButton<String>(
+                        icon: const Icon(Icons.more_vert,
+                            size: 20, color: Colors.white),
+                        onSelected: (String result) {
+                          switch (result) {
+                            case 'Attachments':
+                              // provider
+                              //     .onAccountPopUpAttachment(
+                              //         context,
+                              //         index);
+                              // taxPopupList
+                              break;
+                            case 'Tax':
+                              taxPopupList(context, index);
+                              break;
+                          }
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                              const PopupMenuItem<String>(
+                                value: 'Attachments',
+                                child: ListTile(
+                                  leading: Icon(Icons.attachment),
+                                  title: Text('Attachments'),
+                                ),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'Tax',
+                                child: ListTile(
+                                  leading: Icon(Icons.account_balance),
+                                  title: Text('Tax'),
+                                ),
+                              ),
+                            ]),
+                  ),
+
+                  // Item Code - search
+                  isRow1: true,
+                  row1Title: 'Item Code',
+                  row1Label: (data) => data.itemCode ?? '',
+                  row1IconData: (i) => Icons.search,
+                  isRow1Search: true,
+                  row1Tap: (index) {
+                    vm.callItemSearch(context, index, 1);
+                  },
+                  row1Decoration:
+                      BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                  // Desc
+                  isRow2: true,
+                  row2Title: 'Desc',
+                  row2Label: (data) => data.itemDesc ?? '',
+
+                  // UOM - search
+                  isRow3: true,
+                  row3Title: 'UOM',
+                  row3Label: (data) => data.uom ?? '',
+                  row3IconData: (i) => Icons.search,
+                  isRow3Search: true,
+                  row3Tap: (index) {
+                    vm.callItemSearch(context, index, 2);
+                  },
+                  row3Decoration:
+                      BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                  // Quantity - textfield
+                  isRow4: true,
+                  row4Title: 'Quantity',
+                  row4Label: (data) => data.quantity ?? '',
+                  isTextRow4: true,
+                  row4KeyboardType: TextInputType.number,
+                  row4Controller: (index) =>
+                      vm.purchaseOrderModel!.itemDetailsTab![index]
+                          .quantityController ??
+                      TextEditingController(),
+                  row4TextOnChange: (val, index) {
+                    vm.onQuantityChanged(val, index);
+                  },
+
+                  isRow5: true,
+                  row5Title: 'Loose Quantity',
+                  row5Label: (data) => data.looseQty ?? '',
+                  // Loose quantity is non-clickable (read-only) - only updates when item is loaded from API
+                  isTextRow5: false, // Explicitly disable text field
+
+                  isRow6: true,
+                  row6Title: 'Base Quantity',
+                  row6Label: (data) => data.baseQty ?? '',
+                  // Base quantity is non-clickable (read-only)
+                  isTextRow6: false, // Explicitly disable text field
+
+                  // Unit Price - textfield
+                  isRow7: true,
+                  row7Title: 'Unit Price',
+                  row7Label: (data) => data.unitPrice ?? '',
+                  isTextRow7: (_) => true,
+                  row7KeyboardType: TextInputType.number,
+                  row7Controller: (index) =>
+                      vm.purchaseOrderModel!.itemDetailsTab![index]
+                          .unitPriceController ??
+                      TextEditingController(),
+                  row7TextOnChange: (val, index) {
+                    vm.onUnitPriceChanged(val, index);
+                  },
+
+                  isRow8: true,
+                  row8Title: 'Gross Value',
+                  row8Label: (data) => data.grossValue ?? '',
+                  // Gross value is non-clickable (calculated field)
+                  isTextRow8: false, // Explicitly disable text field
+
+                  // Discount %
+                  isRow9: true,
+                  row9Title: 'Discount %',
+                  row9Label: (data) => data.discountPer ?? '',
+                  isTextRow9: true, row9KeyboardType: TextInputType.number,
+                  row9Controller: (index) =>
+                      vm.purchaseOrderModel!.itemDetailsTab![index]
+                          .discountController ??
+                      TextEditingController(),
+                  row9TextOnChange: (val, index) {
+                    vm.onDiscountPercentageChanged(val, index);
+                  },
+
+                  // Discount Value
+                  isRow10: true,
+                  row10Title: 'Discount Val',
+                  row10Label: (data) => data.discountVal ?? '',
+                  isTextRow10: true, row10KeyboardType: TextInputType.number,
+                  row10Controller: (index) {
+                    final item = vm.purchaseOrderModel!.itemDetailsTab![index];
+                    if (item.discountValueController == null) {
+                      item.discountValueController =
+                          TextEditingController(text: item.discountVal ?? '0');
+                    }
+                    return item.discountValueController!;
+                  },
+                  row10TextOnChange: (val, index) {
+                    vm.onDiscountValueChanged(val, index);
+                  },
+
+                  isRow11: true,
+                  row11Title: 'Net Value',
+                  row11Label: (data) => data.netValue ?? '',
+                  // Net value is non-clickable (calculated field)
+                  isTextRow11: false, // Explicitly disable text field
+                  row11Tap: null, // Explicitly disable onTap
+
+                  isRow12: true,
+                  row12Title: 'Mnf. Desc',
+                  row12Label: (data) => data.mnfDesc ?? '',
+                  isTextRow12: false, // Explicitly disable text field
+                  row12Tap: null, // Explicitly disable onTap
+
+                  // Charge Type - search
+                  isRow13: true,
+                  row13Title: 'Charge Type',
+                  row13Label: (data) => data.chargeTypeCode ?? '',
+                  row13IconData: (i) => Icons.search,
+                  isRow13Search: true,
+                  row13Decoration:
+                      BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                  isRow14: true,
+                  row14Title: 'Charge Type Desc',
+                  row14Label: (data) => data.chargeTypeName ?? '',
+                  isTextRow14: false, // Explicitly disable text field
+                  row14Tap: null, // Explicitly disable onTap
+
+                  // Charge To - search
+                  isRow15: true,
+                  row15Title: 'Charge To',
+                  row15Label: (data) => data.chargeToCode ?? '',
+                  row15IconData: (i) => Icons.search,
+                  isRow15Search: true,
+                  row15Decoration:
+                      BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                  isRow16: true,
+                  row16Title: 'Charge To Desc',
+                  row16Label: (data) => data.chargeToName ?? '',
+                  isTextRow16: false, // Explicitly disable text field
+                  row16Tap: null, // Explicitly disable onTap
+
+                  isRow17: true,
+                  row17Title: 'Need By Dt',
+                  row17Label: (data) => data.needByDt ?? '',
+                  isTextRow17: false, // Explicitly disable text field
+                  row17Tap: null, // Explicitly disable onTap
+
+                  isRow18: true,
+                  row18Title: 'ETA',
+                  row18Label: (data) => data.etaDate ?? '',
+                  isTextRow18: false, // Explicitly disable text field
+                  row18Tap: null, // Explicitly disable onTap
+
+                  // GL Code - search
+                  isRow19: true,
+                  row19Title: 'GL Code',
+                  row19Label: (data) => data.glCode ?? '',
+                  row19IconData: (i) => Icons.search,
+                  isRow19Search: true,
+                  row19Tap: (index) {
+                    vm.callItemSearch(context, index, 3);
+                  },
+                  row19Decoration:
+                      BoxDecoration(color: Colors.white.withOpacity(.1)),
+
+                  isRow20: true,
+                  row20Title: 'GL Desc',
+                  row20Label: (data) => data.glDesc ?? '',
+                  isTextRow20: false, // Explicitly disable text field
+                  row20Tap: null, // Explicitly disable onTap
+
+                  // Note to Receiver
+                  isRow21: true,
+                  row21Title: 'Note to Receiver',
+                  row21Label: (data) => data.noteToReceiver ?? '',
+                  isTextRow21: true,
+                  row21Controller: (index) =>
+                      vm.purchaseOrderModel!.itemDetailsTab![index]
+                          .noteToReceiverController ??
+                      TextEditingController(),
+                  row21TextOnChange: (val, index) {
+                    vm.purchaseOrderModel!.itemDetailsTab![index]
+                        .noteToReceiver = val;
+                  },
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 

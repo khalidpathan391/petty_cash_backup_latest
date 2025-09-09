@@ -722,6 +722,14 @@ class AppUtils {
     ));
   }
 
+  static String removeLastCharacter(String str) {
+    String data = '';
+    if (str.isNotEmpty) {
+      data = str.substring(0, str.length - 1);
+    }
+    return data;
+  }
+
   static List<Locale> getLangList() {
     return const [
       Locale('en', 'US'), // English

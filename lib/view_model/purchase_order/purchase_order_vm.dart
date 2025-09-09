@@ -93,6 +93,9 @@ class PoApplicationVm extends ChangeNotifier {
   final TextEditingController exchangeRateCtrl = TextEditingController();
   final TextEditingController discountCtrl = TextEditingController();
   final TextEditingController valueCtrl = TextEditingController();
+  final TextEditingController grossValueCtrl = TextEditingController();
+  final TextEditingController discountValueCtrl = TextEditingController();
+  final TextEditingController netValueCtrl = TextEditingController();
 
   /// Payment & Shipping Controllers
   final TextEditingController paymentTermCtrl = TextEditingController();
@@ -123,8 +126,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Remarks & Comments Controllers
   final TextEditingController remarkCtrl = TextEditingController();
-  final quill.QuillController remarkQuillController =
-      quill.QuillController.basic();
+  late final quill.QuillController remarkQuillController;
   final TextEditingController submitRemarksCtrl = TextEditingController();
   final TextEditingController termsCtrl = TextEditingController();
 
@@ -215,11 +217,23 @@ class PoApplicationVm extends ChangeNotifier {
   void setDefault() {
     tabHeaders.clear();
     tabHeaders = ['Header', 'Item Details'];
+    isWorkFlow = false;
+    isWFTab = false;
     myHeaderId = -1;
     notifyListeners();
   }
 
   PoApplicationVm() {
+    // Initialize Quill controller with error handling
+    try {
+      remarkQuillController = quill.QuillController.basic();
+    } catch (e) {
+      print('Error initializing Quill controller: $e');
+      remarkQuillController = quill.QuillController(
+        document: quill.Document(),
+        selection: const TextSelection.collapsed(offset: 0),
+      );
+    }
     _initializeControllerListeners();
   }
 
@@ -473,6 +487,9 @@ class PoApplicationVm extends ChangeNotifier {
     headerTab.exchangeRate = exchangeRateCtrl.text;
     headerTab.discount = discountCtrl.text;
     headerTab.value = valueCtrl.text;
+    headerTab.grossValue = grossValueCtrl.text;
+    headerTab.discountValue = discountValueCtrl.text;
+    headerTab.netValue = netValueCtrl.text;
 
     // Payment / Shipment / Delivery
     headerTab.paymentTermId = paymentTermId;
@@ -514,6 +531,7 @@ class PoApplicationVm extends ChangeNotifier {
     headerTab.needByDate = formatDateForBackend(needByDateCtrl.text);
     headerTab.remark = remarkCtrl.text;
     headerTab.terms = termsCtrl.text;
+    saveTermsData();
 
     // Supplier creation data
     headerTab.supplierCode = supplierCode.text;
@@ -908,6 +926,19 @@ class PoApplicationVm extends ChangeNotifier {
     }
   }
 
+  Map<String, String> getSubmitData() {
+    Map<String, String> data = {
+      'company_id': Global.empData!.companyId.toString(),
+      'user_id': Global.empData!.userId.toString(),
+      'header_id': myHeaderId != -1 ? myHeaderId.toString() : '0',
+      'is_view': '0',
+      'is_submit': '1',
+      'po_detail_all_data': sendData,
+      'default': '0',
+    };
+    return data;
+  }
+
   /// Submit Purchase Order API call
   Future<void> callPurchaseOrderSubmit(BuildContext context) async {
     // Show the loader while the operation is in progress
@@ -930,7 +961,7 @@ class PoApplicationVm extends ChangeNotifier {
 
       // Prepare data for API
       sendData = jsonEncode(purchaseOrderModel);
-      Map<String, String> data = getCreateData();
+      Map<String, String> data = getSubmitData();
       String url = ApiUrl.baseUrl! + ApiUrl.getPoTransaction;
 
       await _myRepo.postApi(url, data).then((value) async {
@@ -1283,6 +1314,11 @@ class PoApplicationVm extends ChangeNotifier {
     final grossValue = quantity * unitPrice;
     item.grossValue = grossValue.toStringAsFixed(2);
 
+    // Update controllers
+    if (item.grossValueController != null) {
+      item.grossValueController!.text = item.grossValue!;
+    }
+
     // Recalculate net value if discount exists
     calculateNetValue(index);
   }
@@ -1373,6 +1409,9 @@ class PoApplicationVm extends ChangeNotifier {
     final netValue = grossValue - discountValue;
     item.netValue = netValue.toStringAsFixed(2);
 
+    // Update header totals after line item calculation
+    calculateHeaderTotals();
+
     if (!_isDisposed) notifyListeners();
   }
 
@@ -1393,15 +1432,33 @@ class PoApplicationVm extends ChangeNotifier {
   }
 
   void _updateRemarkQuillFromText() {
-    final len = remarkQuillController.document.length;
-    remarkQuillController.document.delete(0, len);
-    if (remarkCtrl.text.isNotEmpty) {
-      remarkQuillController.document.insert(0, remarkCtrl.text);
+    try {
+      final len = remarkQuillController.document.length;
+      if (len > 0) {
+        remarkQuillController.document.delete(0, len);
+      }
+      if (remarkCtrl.text.isNotEmpty) {
+        remarkQuillController.document.insert(0, remarkCtrl.text);
+      }
+      // Clear any invalid selection
+      remarkQuillController.updateSelection(
+        const TextSelection.collapsed(offset: 0),
+        quill.ChangeSource.local,
+      );
+    } catch (e) {
+      print('Error updating Quill from text: $e');
+      // Reset the document if there's an error
+      remarkQuillController.document = quill.Document();
     }
   }
 
   void setRemarkFromQuill() {
-    remarkCtrl.text = remarkQuillController.document.toPlainText().trim();
+    try {
+      remarkCtrl.text = remarkQuillController.document.toPlainText().trim();
+    } catch (e) {
+      print('Error getting text from Quill: $e');
+      remarkCtrl.text = '';
+    }
   }
 
   /// Update all line items with current header charge type and charge to values
@@ -1460,6 +1517,8 @@ class PoApplicationVm extends ChangeNotifier {
                 TextEditingController(text: item.quantity ?? '1');
             item.unitPriceController ??=
                 TextEditingController(text: item.unitPrice ?? '');
+            item.grossValueController ??=
+                TextEditingController(text: item.grossValue ?? '0.00');
             item.discountController ??=
                 TextEditingController(text: item.discountPer ?? '0');
             item.discountValueController ??=
@@ -1482,6 +1541,9 @@ class PoApplicationVm extends ChangeNotifier {
 
         // Ensure all line items have at least one empty tax popup entry
         _ensureAllLineItemsHaveTaxPopup();
+
+        // Calculate header totals after loading data
+        calculateHeaderTotals();
       }
     } catch (e, st) {
       print("Error in callPoView: $e");
@@ -1572,6 +1634,48 @@ class PoApplicationVm extends ChangeNotifier {
     needByDateCtrl.text = _s(h['need_by_date']);
     remarkCtrl.text = _s(h['remark']);
     termsCtrl.text = _s(h['terms']);
+
+    // Update header values from header_net_val_popup if available
+    if (purchaseOrderModel?.headerNetValPopup != null &&
+        purchaseOrderModel!.headerNetValPopup!.isNotEmpty) {
+      final headerPopup = purchaseOrderModel!.headerNetValPopup![0];
+
+      // Debug: Print header popup values
+      print('🔍 Header Popup Values:');
+      print('  - itemGrossValue: ${headerPopup.itemGrossValue}');
+      print('  - itemDiscount: ${headerPopup.itemDiscount}');
+      print('  - itemNetValue: ${headerPopup.itemNetValue}');
+
+      // Update controllers with header popup values
+      grossValueCtrl.text = _s(headerPopup.itemGrossValue) ?? '0.00';
+      discountValueCtrl.text = _s(headerPopup.itemDiscount) ?? '0.00';
+      netValueCtrl.text = _s(headerPopup.itemNetValue) ?? '0.00';
+
+      // Update header tab model
+      if (purchaseOrderModel?.headerTab != null) {
+        purchaseOrderModel!.headerTab!.grossValue =
+            _s(headerPopup.itemGrossValue) ?? '0.00';
+        purchaseOrderModel!.headerTab!.discountValue =
+            _s(headerPopup.itemDiscount) ?? '0.00';
+        purchaseOrderModel!.headerTab!.netValue =
+            _s(headerPopup.itemNetValue) ?? '0.00';
+      }
+    } else {
+      // Fallback to header_tab values if header_net_val_popup is not available
+      print('🔍 Using fallback header values from header_tab');
+      grossValueCtrl.text = _s(h['gross_value']) ?? '0.00';
+      discountValueCtrl.text = _s(h['discount_value']) ?? '0.00';
+      netValueCtrl.text = _s(h['net_value']) ?? '0.00';
+
+      // Update header tab model with values from API
+      if (purchaseOrderModel?.headerTab != null) {
+        purchaseOrderModel!.headerTab!.grossValue =
+            _s(h['gross_value']) ?? '0.00';
+        purchaseOrderModel!.headerTab!.discountValue =
+            _s(h['discount_value']) ?? '0.00';
+        purchaseOrderModel!.headerTab!.netValue = _s(h['net_value']) ?? '0.00';
+      }
+    }
 
     // Debug: Print terms data from API
 
@@ -1956,6 +2060,8 @@ class PoApplicationVm extends ChangeNotifier {
               TextEditingController(text: newItem.quantity ?? '');
           newItem.unitPriceController =
               TextEditingController(text: newItem.unitPrice ?? '');
+          newItem.grossValueController =
+              TextEditingController(text: newItem.grossValue ?? '0.00');
           newItem.noteToReceiverController =
               TextEditingController(text: newItem.noteToReceiver ?? '');
 
@@ -2153,6 +2259,9 @@ class PoApplicationVm extends ChangeNotifier {
             if (item.unitPriceController != null && item.unitPrice != null) {
               item.unitPriceController!.text = item.unitPrice!;
             }
+            if (item.grossValueController != null) {
+              item.grossValueController!.text = item.grossValue ?? '0.00';
+            }
             if (item.discountValueController != null) {
               item.discountValueController!.text = item.discountVal ?? '0';
             }
@@ -2331,6 +2440,42 @@ class PoApplicationVm extends ChangeNotifier {
 
       notifyListeners();
     }
+  }
+
+  /// Calculate and update header totals
+  void calculateHeaderTotals() {
+    if (purchaseOrderModel?.headerTab == null) return;
+
+    final headerTab = purchaseOrderModel!.headerTab!;
+
+    // Calculate totals from line items
+    double totalGrossValue = 0.0;
+    double totalDiscountValue = 0.0;
+    double totalNetValue = 0.0;
+
+    if (purchaseOrderModel?.itemDetailsTab != null) {
+      for (final item in purchaseOrderModel!.itemDetailsTab!) {
+        try {
+          totalGrossValue += double.tryParse(item.grossValue ?? '0') ?? 0.0;
+          totalDiscountValue += double.tryParse(item.discountVal ?? '0') ?? 0.0;
+          totalNetValue += double.tryParse(item.netValue ?? '0') ?? 0.0;
+        } catch (e) {
+          print('Error parsing item values: $e');
+        }
+      }
+    }
+
+    // Update header values
+    headerTab.grossValue = totalGrossValue.toStringAsFixed(2);
+    headerTab.discountValue = totalDiscountValue.toStringAsFixed(2);
+    headerTab.netValue = totalNetValue.toStringAsFixed(2);
+
+    // Update controllers
+    grossValueCtrl.text = headerTab.grossValue ?? '0.00';
+    discountValueCtrl.text = headerTab.discountValue ?? '0.00';
+    netValueCtrl.text = headerTab.netValue ?? '0.00';
+
+    notifyListeners();
   }
 
   /// Ensure all line items have at least one empty tax popup entry
@@ -2740,6 +2885,9 @@ class PoApplicationVm extends ChangeNotifier {
     exchangeRateCtrl.dispose();
     discountCtrl.dispose();
     valueCtrl.dispose();
+    grossValueCtrl.dispose();
+    discountValueCtrl.dispose();
+    netValueCtrl.dispose();
   }
 
   /// Dispose Payment & Shipping Controllers
@@ -2883,7 +3031,18 @@ class PoApplicationVm extends ChangeNotifier {
   /// Clear all remarks & comments controllers
   void clearRemarksControllers() {
     remarkCtrl.clear();
-    remarkQuillController.clear();
+    try {
+      remarkQuillController.clear();
+      // Ensure selection is reset after clearing
+      remarkQuillController.updateSelection(
+        const TextSelection.collapsed(offset: 0),
+        quill.ChangeSource.local,
+      );
+    } catch (e) {
+      print('Error clearing Quill controller: $e');
+      // Reset the document if clearing fails
+      remarkQuillController.document = quill.Document();
+    }
     submitRemarksCtrl.clear();
   }
 

@@ -71,4 +71,15 @@ class ApiUrl {
   static var getSupplierCodeSearchList = 'erp_api/CreateSupplierType/';
   static var getSupplierAdddressSearchList = 'erp_api/CreateSupplierAddress/';
   static var createSupplier = 'erp_api/CreateSupplierFromPo/';
+
+  static var wfApprove = 'erp_api/approve_wf/';
+  static var wfReject = 'erp_api/reject_wf/';
+  static var wfRFI = 'erp_api/rfi_wf/';
+  static var wfForward = 'erp_api/forward_wf/';
+  static var wfFNA = 'erp_api/approve_and_forward_wf/';
+  static var wfReInit = 'erp_api/re_initiate_wf/';
+  static var wfApproveAmend = 'erp_api/approved_amendment/';
+  static var wfRejectAmend = 'erp_api/amend_reject_wf/';
+  static var wfReply = 'erp_api/reply_wf/';
+  static var wfMultiRFI = 'erp_api/multi_rfi_wf/';
 }

@@ -104,16 +104,61 @@ class _QuillTextFieldState extends State<QuillTextField> {
             ),
           ),
           Expanded(
-            child: QuillEditor.basic(
-              configurations: QuillEditorConfigurations(
-                controller: widget.controller,
-                enableSelectionToolbar: true,
-                sharedConfigurations: const QuillSharedConfigurations(
-                  locale: Locale('en'),
-                ),
-                placeholder: 'Add Text Here',
-                onTapOutside: (event, focusNode) {},
-              ),
+            child: Builder(
+              builder: (context) {
+                try {
+                  return QuillEditor.basic(
+                    configurations: QuillEditorConfigurations(
+                      controller: widget.controller,
+                      enableSelectionToolbar: true,
+                      sharedConfigurations: const QuillSharedConfigurations(
+                        locale: Locale('en'),
+                      ),
+                      placeholder: 'Add Text Here',
+                      onTapOutside: (event, focusNode) {
+                        // Clear selection when tapping outside
+                        try {
+                          widget.controller.updateSelection(
+                            const TextSelection.collapsed(offset: 0),
+                            ChangeSource.local,
+                          );
+                        } catch (e) {
+                          // Ignore selection errors
+                        }
+                      },
+                    ),
+                  );
+                } catch (e) {
+                  // Fallback UI if QuillEditor fails
+                  return Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: TextEditingController(
+                        text: widget.controller.document.toPlainText(),
+                      ),
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                        hintText: 'Add Text Here',
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) {
+                        // Update the Quill controller when text changes
+                        try {
+                          final len = widget.controller.document.length;
+                          if (len > 0) {
+                            widget.controller.document.delete(0, len);
+                          }
+                          if (value.isNotEmpty) {
+                            widget.controller.document.insert(0, value);
+                          }
+                        } catch (e) {
+                          // Ignore update errors
+                        }
+                      },
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
