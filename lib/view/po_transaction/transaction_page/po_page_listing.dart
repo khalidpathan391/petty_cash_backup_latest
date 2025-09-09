@@ -8,8 +8,10 @@ import 'package:petty_cash/data/repository/general_rep.dart';
 import 'package:petty_cash/global.dart';
 import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
+import 'package:petty_cash/utils/app_utils.dart';
 import 'package:petty_cash/view/widget/common_text.dart';
 import 'package:petty_cash/view/widget/erp_text_field.dart';
+import 'package:petty_cash/view/widget/CustomAppBar.dart';
 
 class PoListingPage extends StatefulWidget {
   static const String id = "po_listing";
@@ -42,9 +44,7 @@ class _PoListingPageState extends State<PoListingPage> {
     try {
       // Check if Global.empData is available
       if (Global.empData == null) {
-        print('=== ERROR: Global.empData is null ===');
-        _pagingController.error =
-            'User data not available. Please login again.';
+        AppUtils.errorMessage = '';
         return;
       }
 
@@ -55,34 +55,14 @@ class _PoListingPageState extends State<PoListingPage> {
         'search_keyword': _searchKeyword,
       };
 
-      print('=== PO LISTING API REQUEST ===');
-      print('Base URL: ${ApiUrl.baseUrl}');
-      print('Endpoint: ${ApiUrl.getPoList}');
-      print('Full URL: ${ApiUrl.baseUrl! + ApiUrl.getPoList}');
-      print('Request Data: $requestData');
-
       final response = await _myRepo.postApi(
           ApiUrl.baseUrl! + ApiUrl.getPoList, requestData);
 
-      print('=== PO LISTING API RESPONSE ===');
-      print('Response: $response');
-
       final PoListingModel data = PoListingModel.fromJson(response);
-
-      print('=== PARSED DATA ===');
-      print('Error: ${data.error}');
-      print('Error Code: ${data.errorCode}');
-      print('Error Description: ${data.errorDescription}');
-      print('Data: ${data.data}');
-      print('Search List Length: ${data.data?.searchList?.length}');
 
       if (data.error == false && data.errorCode == 200 && data.data != null) {
         final newItems = data.data!.searchList ?? [];
         final isLastPage = newItems.length < 15;
-
-        print('=== PAGINATION ===');
-        print('New Items Count: ${newItems.length}');
-        print('Is Last Page: $isLastPage');
 
         if (isLastPage) {
           _pagingController.appendLastPage(newItems);
@@ -91,15 +71,9 @@ class _PoListingPageState extends State<PoListingPage> {
           _pagingController.appendPage(newItems, nextPageVal);
         }
       } else {
-        print('=== ERROR ===');
-        print('Error: ${data.error}');
-        print('Error Code: ${data.errorCode}');
-        print('Error Description: ${data.errorDescription}');
         _pagingController.error = data.errorDescription ?? 'Unknown error';
       }
     } catch (error) {
-      print('=== EXCEPTION ===');
-      print('Error: $error');
       _pagingController.error = error;
     }
   }
@@ -117,21 +91,27 @@ class _PoListingPageState extends State<PoListingPage> {
 
     return Scaffold(
       backgroundColor: context.resources.color.colorWhite,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        centerTitle: true,
-        title: const CommonTextView(
-          label: 'Common Search',
-        ),
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Colors.black,
-          ),
-        ),
+      appBar: CustomAppBar(
+        type: 'Purchase Order',
+        typeIcon: Global.menuData!.menuIcon,
+        isTransaction: true,
+        isTransactionBack: true,
+        isAdd: true,
+        isSave: false,
+        isSubmit: false,
+        isList: false,
+        save: () {},
+        submitOrApproval: () {},
+        list: () {},
+        openNew: () {
+          // Open a new PO Transaction
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) =>  PoTransaction(headerId: 0),
+          //   ),
+          // );
+        },
       ),
       body: Column(
         children: [
