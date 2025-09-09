@@ -1523,6 +1523,8 @@ class PoApplicationVm extends ChangeNotifier {
                 ? shipToStoreDesc
                 : shipToStoreCode;
     shipToStoreDescCtrl.text = shipToStoreDesc;
+    print(
+        '🔍 Ship To Store - Code: "$shipToStoreCode", Desc: "$shipToStoreDesc", Final: "${shipToStoreCodeCtrl.text}"');
 
     // Purchase Type - concatenate code and description
     final purchaseTypeCode = _s(h['purchase_type_code']);
@@ -1534,6 +1536,8 @@ class PoApplicationVm extends ChangeNotifier {
                 ? purchaseTypeDesc
                 : purchaseTypeCode;
     purchaseTypeDescCtrl.text = purchaseTypeDesc;
+    print(
+        '🔍 Purchase Type - Code: "$purchaseTypeCode", Desc: "$purchaseTypeDesc", Final: "${purchaseTypeCodeCtrl.text}"');
 
     // Petty Cash - concatenate code and description
     final pettyCashCode = _s(h['petty_cash_code']);
@@ -1545,6 +1549,8 @@ class PoApplicationVm extends ChangeNotifier {
                 ? pettyCashDesc
                 : pettyCashCode;
     pettyCashDescCtrl.text = pettyCashDesc;
+    print(
+        '🔍 Petty Cash - Code: "$pettyCashCode", Desc: "$pettyCashDesc", Final: "${pettyCashCodeCtrl.text}"');
 
     // Buyer - concatenate code and description
     final buyerCode = _s(h['buyer_code']);
@@ -1875,60 +1881,30 @@ class PoApplicationVm extends ChangeNotifier {
           supplierAddressDesc.text = result.desc ?? '';
           break;
         case 'Ship to Store Loc*':
-          final code = result.code ?? '';
-          final desc = result.desc ?? '';
-          shipToStoreCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
-              ? '$code - $desc'
-              : desc.isNotEmpty
-                  ? desc
-                  : code;
-          shipToStoreDescCtrl.text = desc;
+          shipToStoreCodeCtrl.text = result.code ?? '';
+          shipToStoreDescCtrl.text = result.desc ?? '';
           shipToStoreId = result.id ?? 0;
           break;
         case 'Purchase Type*':
-          final code = result.code ?? '';
-          final desc = result.desc ?? '';
-          purchaseTypeCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
-              ? '$code - $desc'
-              : desc.isNotEmpty
-                  ? desc
-                  : code;
-          purchaseTypeDescCtrl.text = desc;
+          purchaseTypeCodeCtrl.text = result.code ?? '';
+          purchaseTypeDescCtrl.text = result.desc ?? '';
           purchaseTypeId = result.id ?? 0;
           break;
         case 'Petty Cash No*':
-          final code = result.code ?? '';
-          final desc = result.desc ?? '';
-          pettyCashCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
-              ? '$code - $desc'
-              : desc.isNotEmpty
-                  ? desc
-                  : code;
-          pettyCashDescCtrl.text = desc;
+          pettyCashCodeCtrl.text = result.code ?? '';
+          pettyCashDescCtrl.text = result.desc ?? '';
           pettyCashId = result.id ?? 0;
           break;
         case 'Buyer ID*':
-          final code = result.code ?? '';
-          final desc = result.desc ?? '';
-          buyerCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
-              ? '$code - $desc'
-              : desc.isNotEmpty
-                  ? desc
-                  : code;
-          buyerDescCtrl.text = desc;
+          buyerCodeCtrl.text = result.code ?? '';
+          buyerDescCtrl.text = result.desc ?? '';
           buyerId = result.id ?? buyerId; // update local variable
           purchaseOrderModel?.headerTab?.buyerId = buyerId; // update model
           chargeTypeCode = result.code ?? '';
           break;
         case 'Delivery Term*':
-          final code = result.code ?? '';
-          final desc = result.desc ?? '';
-          deliveryTermCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
-              ? '$code - $desc'
-              : desc.isNotEmpty
-                  ? desc
-                  : code;
-          deliveryTermDescCtrl.text = desc;
+          deliveryTermCodeCtrl.text = result.code ?? '';
+          deliveryTermDescCtrl.text = result.desc ?? '';
           deliveryTermId = result.id ?? 0;
           break;
       }
