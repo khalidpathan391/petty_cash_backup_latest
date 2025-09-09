@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:petty_cash/data/models/custom/upload_progress.dart';
@@ -24,6 +25,7 @@ class GeneralRepository {
 
   Future<dynamic> postApi(String url, dynamic data) async {
     AppUtils.errorMessage = '';
+    log("hii" + data.toString());
     try {
       dynamic response = await _apiServices.postApiResponse(url, data);
       if (response['error_code'] == 100) {

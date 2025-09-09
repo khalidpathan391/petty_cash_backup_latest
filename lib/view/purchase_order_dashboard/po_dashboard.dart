@@ -50,12 +50,12 @@ class _DashboardScreenState extends State<DashboardScreen>
                         )
                       : Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: dW * 0.04, vertical: dW * 0.02),
+                              horizontal: dW * 0.01, vertical: dW * 0.005),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildPettyCashCard(provider, themeColor),
-                              SizedBox(height: dH * 0.01),
+                              SizedBox(height: dH * 0.005),
                               CommonTextView(
                                 fontSize:
                                     context.resources.dimension.appMediumText +
@@ -67,10 +67,9 @@ class _DashboardScreenState extends State<DashboardScreen>
                               ),
                               Expanded(
                                 child: Card(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
+                                  elevation: 0,
                                   child: Padding(
-                                    padding: EdgeInsets.all(dW * 0.02),
+                                    padding: EdgeInsets.all(dW * 0.005),
                                     child: SingleChildScrollView(
                                       child: Column(
                                         crossAxisAlignment:

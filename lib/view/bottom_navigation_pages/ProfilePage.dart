@@ -9,7 +9,7 @@ import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/m
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/my_account_page.dart';
 import 'package:petty_cash/view/bottom_navigation_pages/Profile_Settings_Pages/user_profile.dart';
 import 'package:petty_cash/view/po_transaction/transaction_page/po_transaction.dart';
-import 'package:petty_cash/view/purchase_order_dashboard/po_dashboard.dart';
+
 import 'package:petty_cash/view/widget/CustomAppBar.dart';
 import 'package:petty_cash/view/widget/logout_bottom_sheet_widget.dart';
 import 'package:petty_cash/view_model/Authentication/AuthVM.dart';
@@ -349,9 +349,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 } else if (text == 'Register MPIN') {
                   Navigator.pushNamed(context, PoTransaction.id);
-                } else if (text == 'Setting And Privacy') {
-                  Navigator.pushNamed(context, DashboardScreen.id);
                 } else if (text == 'Change Password' ||
+                    text == 'Setting And Privacy' ||
                     // text == 'Register MPIN' ||
                     text == 'Setting And Privacy' ||
                     text == 'Feedback' ||

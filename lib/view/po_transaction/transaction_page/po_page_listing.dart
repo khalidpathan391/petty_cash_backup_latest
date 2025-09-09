@@ -1,4 +1,4 @@
-// ignore_for_file: no_logic_in_create_state, unused_import, camel_case_types, unused_local_variable, library_private_types_in_public_api
+// ignore_for_file: no_logic_in_create_state, unused_import, camel_case_types, unused_local_variable, library_private_types_in_public_api, avoid_print
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +40,14 @@ class _PoListingPageState extends State<PoListingPage> {
 
   Future<void> _fetchPage(int pageKey) async {
     try {
+      // Check if Global.empData is available
+      if (Global.empData == null) {
+        print('=== ERROR: Global.empData is null ===');
+        _pagingController.error =
+            'User data not available. Please login again.';
+        return;
+      }
+
       final Map<String, String> requestData = {
         'user_id': Global.empData!.userId.toString(),
         'company_id': Global.empData!.companyId.toString(),
@@ -47,13 +55,34 @@ class _PoListingPageState extends State<PoListingPage> {
         'search_keyword': _searchKeyword,
       };
 
-      final response = await _myRepo.postApi(ApiUrl.getPoList, requestData);
+      print('=== PO LISTING API REQUEST ===');
+      print('Base URL: ${ApiUrl.baseUrl}');
+      print('Endpoint: ${ApiUrl.getPoList}');
+      print('Full URL: ${ApiUrl.baseUrl! + ApiUrl.getPoList}');
+      print('Request Data: $requestData');
+
+      final response = await _myRepo.postApi(
+          ApiUrl.baseUrl! + ApiUrl.getPoList, requestData);
+
+      print('=== PO LISTING API RESPONSE ===');
+      print('Response: $response');
 
       final PoListingModel data = PoListingModel.fromJson(response);
 
-      if (data.errorCode == 200 && data.data != null) {
+      print('=== PARSED DATA ===');
+      print('Error: ${data.error}');
+      print('Error Code: ${data.errorCode}');
+      print('Error Description: ${data.errorDescription}');
+      print('Data: ${data.data}');
+      print('Search List Length: ${data.data?.searchList?.length}');
+
+      if (data.error == false && data.errorCode == 200 && data.data != null) {
         final newItems = data.data!.searchList ?? [];
         final isLastPage = newItems.length < 15;
+
+        print('=== PAGINATION ===');
+        print('New Items Count: ${newItems.length}');
+        print('Is Last Page: $isLastPage');
 
         if (isLastPage) {
           _pagingController.appendLastPage(newItems);
@@ -62,9 +91,15 @@ class _PoListingPageState extends State<PoListingPage> {
           _pagingController.appendPage(newItems, nextPageVal);
         }
       } else {
+        print('=== ERROR ===');
+        print('Error: ${data.error}');
+        print('Error Code: ${data.errorCode}');
+        print('Error Description: ${data.errorDescription}');
         _pagingController.error = data.errorDescription ?? 'Unknown error';
       }
     } catch (error) {
+      print('=== EXCEPTION ===');
+      print('Error: $error');
       _pagingController.error = error;
     }
   }

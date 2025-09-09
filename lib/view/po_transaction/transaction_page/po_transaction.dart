@@ -2415,33 +2415,22 @@ class _ItemDetailsTab extends StatelessWidget {
     print('Net Value Type: ${netValue.runtimeType}');
     print('=====================================');
 
-    // Validate net value - check for all possible empty/zero values
-    if (netValue == null ||
-        netValue.isEmpty ||
-        netValue.trim().isEmpty ||
-        netValue == '0' ||
-        netValue == '0.0' ||
-        netValue == '0.00' ||
-        netValue == '0.000' ||
-        double.tryParse(netValue) == 0.0) {
-      // Show error message and don't open tax popup
-      print('❌ NET VALUE VALIDATION FAILED - Tax popup will not open');
-      AppUtils.showToastRedBg(context, 'Please net value is mandatory');
-      return;
-    }
+    // Allow tax popup to open for all items - no validation needed
+    print('✅ Opening tax popup for item at index: $parentIndex');
 
     print('✅ NET VALUE VALIDATION PASSED - Opening tax popup');
 
-    // Ensure tax popup list exists (but don't add empty entries)
+    // Ensure tax popup list exists and add empty row if needed
     itemDetails.taxPopup ??= [];
-    print('Tax popup list: ${itemDetails.taxPopup!.length} items');
 
-    // Don't add empty entries - only show existing ones or empty UI
+    // If no tax entries exist, add one empty row for user to fill
     if (itemDetails.taxPopup!.isEmpty) {
-      print('Tax popup is empty - will show empty UI for user to add taxes');
-    } else {
-      print('Tax popup has ${itemDetails.taxPopup!.length} existing items');
+      print('Tax popup is empty - adding empty tax row');
+      final vm = Provider.of<PoApplicationVm>(context, listen: false);
+      vm.onTaxPopupAddRow(parentIndex);
     }
+
+    print('Tax popup list: ${itemDetails.taxPopup!.length} items');
 
     final dW = MediaQuery.of(context).size.width;
     final dH = MediaQuery.of(context).size.height;
@@ -2505,37 +2494,7 @@ class _ItemDetailsTab extends StatelessWidget {
                               child: SingleChildScrollView(
                                 child: Column(
                                   children: [
-                                    // Show empty message if no taxes
-                                    if (taxPopupList.isEmpty)
-                                      Container(
-                                        padding: EdgeInsets.all(tS * 2),
-                                        child: Column(
-                                          children: [
-                                            Icon(
-                                              Icons.receipt_long,
-                                              size: tS * 4,
-                                              color: Colors.grey[400],
-                                            ),
-                                            SizedBox(height: tS),
-                                            Text(
-                                              'No taxes added yet',
-                                              style: TextStyle(
-                                                fontSize: tS * 1.1,
-                                                color: Colors.grey[600],
-                                              ),
-                                            ),
-                                            SizedBox(height: tS * 0.5),
-                                            Text(
-                                              'Tap the search icon to add taxes',
-                                              style: TextStyle(
-                                                fontSize: tS * 0.9,
-                                                color: Colors.grey[500],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    // Show tax popup table
+                                    // Show tax popup table (always show table, even if empty)
                                     CustomViewOnlyTable(
                                       data: taxPopupList,
                                       header1: 'Code*',

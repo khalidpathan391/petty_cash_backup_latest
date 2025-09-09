@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names, unnecessary_this, prefer_conditional_assignment, curly_braces_in_flow_control_structures
+// ignore_for_file: unused_field, prefer_function_declarations_over_variables, avoid_print, unused_local_variable, use_build_context_synchronously, non_constant_identifier_names, unnecessary_this, prefer_conditional_assignment, curly_braces_in_flow_control_structures, unused_catch_stack
 
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
@@ -210,7 +210,7 @@ class PoApplicationVm extends ChangeNotifier {
   int supplierTypeId = 0;
   int supplierAddressId = 0;
   String chargeTypeCode = '';
-  List<TaxPopup> taxPopups = [];
+  // List<TaxPopup> taxPopups = [];
 
   void setDefault() {
     tabHeaders.clear();
@@ -252,38 +252,28 @@ class PoApplicationVm extends ChangeNotifier {
   void _updateHeaderNetValuePopup() {
     if (purchaseOrderModel?.headerNetValPopup == null) return;
 
-    final totalItemGrossValue =
-        getTotalGrossValue(); // Use gross value for item gross value
-    final totalItemNetValue =
-        _calculateTotalItemNetValue(); // Use net value for calculations
+    final totalItemGrossValue = getTotalGrossValue();
+    final totalItemNetValue = _calculateTotalItemNetValue();
     final headerDiscount = getHeaderDiscountValue();
     final headerValue = getHeaderValue();
 
     for (var netValPopup in purchaseOrderModel!.headerNetValPopup!) {
       // Update item-level calculations
-      netValPopup.itemGrossValue =
-          totalItemGrossValue.toString(); // Show gross value
-      netValPopup.itemDiscount = headerDiscount.toString();
+      netValPopup.itemGrossValue = totalItemGrossValue.toString();
+      netValPopup.itemDiscount =
+          getTotalDiscountValue().toString(); // Show total item discount
       netValPopup.itemGrossValAfterDis =
-          (totalItemGrossValue - headerDiscount).toString();
-      netValPopup.itemNetValue =
-          (totalItemGrossValue - headerDiscount).toString();
+          totalItemNetValue.toString(); // Show item net value
+      netValPopup.itemNetValue = totalItemNetValue.toString();
 
       // Update header-level calculations
       netValPopup.headerDiscount = headerDiscount.toString();
 
-      // Calculate final net value: Item Detail Net Value - Header Discount
-      // This should be the final amount after applying header discount
-      final finalNetValue = totalItemNetValue - headerDiscount;
-      netValPopup.headerNetValue = finalNetValue.toString();
+      // Calculate header net value: Item Details Net Value - Header Value
+      final headerNetValue = totalItemNetValue - headerValue;
+      netValPopup.headerNetValue = headerNetValue.toString();
 
       // Debug print to see what values we're working with
-      print("Header Popup Debug:");
-      print("  totalItemGrossValue: $totalItemGrossValue");
-      print("  totalItemNetValue: $totalItemNetValue");
-      print("  headerDiscount: $headerDiscount");
-      print("  headerValue: $headerValue");
-      print("  finalNetValue: $finalNetValue");
     }
   }
 
@@ -444,262 +434,407 @@ class PoApplicationVm extends ChangeNotifier {
   bool isSubmit = false;
 
   /// Prepare all data from UI controllers and populate the model
+  /// Prepare all data from UI controllers and populate the model
   void prepareAllDataForSave() {
-    // Ensure purchaseOrderModel exists, create if null
-    if (purchaseOrderModel == null) {
-      print('=== CREATING NEW PURCHASE ORDER MODEL ===');
-      purchaseOrderModel = PurchaseOrderModel();
+    // Ensure purchaseOrderModel exists
+    purchaseOrderModel ??= PurchaseOrderModel();
+
+    // ================= HEADER TAB =================
+    purchaseOrderModel!.headerTab ??= HeaderTab();
+    final headerTab = purchaseOrderModel!.headerTab!;
+
+    // Document info
+    headerTab.docDate = formatDateForBackend(docDateCtrl.text);
+    headerTab.docLocCode = docLocCodeCtrl.text;
+    headerTab.docLocDesc = docLocDescCtrl.text;
+    headerTab.docLocId = doc_id;
+    headerTab.txnNo = docNoCtrl.text;
+    headerTab.txnType = docNoTypeCtrl.text;
+    headerTab.statusCode = statusCtrl.text;
+
+    // Reference
+    headerTab.reference = referenceCtrl.text;
+    headerTab.referenceDesc = referenceDescCtrl.text;
+    headerTab.refDocId = referenceId;
+    headerTab.refDocCode = refDocCodeCtrl.text;
+    headerTab.refDocNo = refDocNoCtrl.text;
+
+    // Supplier
+    headerTab.supplierId = supp_id;
+    headerTab.supplierName = supplierCtrl.text;
+    headerTab.supplierOfferNo =
+        supOfferNoCtrl.text.isEmpty ? '' : supOfferNoCtrl.text;
+    headerTab.supplierOfferDate = formatDateForBackend(supOfferDateCtrl.text);
+
+    // Currency & values
+    headerTab.currencyId = currency_id;
+    headerTab.currencyCode = currencyCodeCtrl.text;
+    headerTab.currencyDescription = currencyDescCtrl.text;
+    headerTab.exchangeRate = exchangeRateCtrl.text;
+    headerTab.discount = discountCtrl.text;
+    headerTab.value = valueCtrl.text;
+
+    // Payment / Shipment / Delivery
+    headerTab.paymentTermId = paymentTermId;
+    headerTab.paymentTermCode = paymentTermCtrl.text;
+    headerTab.modeOfShipmentId = modeOfShipId;
+    headerTab.modeOfShipmentCode = modeShipmentCtrl.text;
+    headerTab.modeOfPaymentId = modePaymentId;
+    headerTab.modeOfPaymentCode = modePaymentCtrl.text;
+    headerTab.deliveryTermId = deliveryTermId;
+    headerTab.deliveryTermCode = deliveryTermCodeCtrl.text;
+    headerTab.deliveryTermDesc = deliveryTermDescCtrl.text;
+
+    // Charge / Ship To
+    headerTab.chargeTypeId = chargeTypeId;
+    headerTab.chargeTypeCode = chargeTypeCodeCtrl.text;
+    headerTab.chargeTypeDescription = chargeTypeDescCtrl.text;
+    headerTab.chargeToId = chargeToId;
+    headerTab.chargeToCode = chargeToCodeCtrl.text;
+    headerTab.chargeToDescription = chargeToDescCtrl.text;
+    headerTab.shipToStoreLocId = shipToStoreId;
+    headerTab.shipToStoreLocCode = shipToStoreCodeCtrl.text;
+    headerTab.shipToStoreLocDescription = shipToStoreDescCtrl.text;
+
+    // Purchase Type / Petty Cash
+    headerTab.purchaseTypeId = purchaseTypeId;
+    headerTab.purchaseTypeCode = purchaseTypeCodeCtrl.text;
+    headerTab.purchaseTypeDesc = purchaseTypeDescCtrl.text;
+    headerTab.pettyCashId = pettyCashId;
+    headerTab.pettyCashCode = pettyCashCodeCtrl.text;
+    headerTab.pettyCashDesc = pettyCashDescCtrl.text;
+
+    // Buyer
+    headerTab.buyerId = buyerId;
+    headerTab.buyerCode = buyerCodeCtrl.text;
+    headerTab.buyerDesc = buyerDescCtrl.text;
+
+    // Dates / Others
+    headerTab.headerEta = formatDateForBackend(etaCtrl.text);
+    headerTab.needByDate = formatDateForBackend(needByDateCtrl.text);
+    headerTab.remark = remarkCtrl.text;
+    headerTab.terms = termsCtrl.text;
+
+    // Supplier creation data
+    headerTab.supplierCode = supplierCode.text;
+    headerTab.supplierDesc = supplierDesc.text;
+    headerTab.supplierType = supplierType.text;
+    headerTab.supplierTypeDesc = supplierTypeDesc.text;
+    headerTab.supplierAddress = supplierAddress.text;
+    headerTab.supplierAddressDesc = supplierAddressDesc.text;
+    headerTab.supplierAddress2 = supplierAddress2.text;
+
+    // Validation data
+    headerTab.crNoSelected = crNoSelected;
+    headerTab.crNoNumber = crNoNumber.text;
+    headerTab.crNoExpiry = formatDateForBackend(crNoExpiry.text);
+    headerTab.zakatSelected = zakatSelected;
+    headerTab.zakatNumber = zakatNumber.text;
+    headerTab.zakatExpiry = formatDateForBackend(zakatExpiry.text);
+    headerTab.vatSelected = vatSelected;
+    headerTab.vatNumber = vatNumber.text;
+    headerTab.vatExpiry = formatDateForBackend(vatExpiry.text);
+
+    // Dynamic validations
+    headerTab.dynamicValidationSelected = dynamicValidationSelected;
+    headerTab.dynamicValidationNumbers =
+        dynamicValidationNumbers.map((key, ctrl) => MapEntry(key, ctrl.text));
+    headerTab.dynamicValidationExpiry = dynamicValidationExpiry
+        .map((key, ctrl) => MapEntry(key, formatDateForBackend(ctrl.text)));
+
+    // Fallback validation
+    headerTab.fallbackValidationSelected = fallbackValidationSelected;
+    headerTab.fallbackValidationType = fallbackValidationType.text;
+    headerTab.fallbackValidationNumber = fallbackValidationNumber.text;
+    headerTab.fallbackValidationExpiry =
+        formatDateForBackend(fallbackValidationExpiry.text);
+
+    // ================= ITEM DETAILS =================
+    purchaseOrderModel!.itemDetailsTab ??= [];
+    for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+      var item = purchaseOrderModel!.itemDetailsTab![i];
+
+      // Preserve original & convert dates
+      item.needByDt = formatDateForBackend(item.needByDt ?? '');
+      item.etaDate = formatDateForBackend(item.etaDate ?? '');
+
+      // From controller if available
+      if (item.noteToReceiverController != null) {
+        item.noteToReceiver = item.noteToReceiverController!.text;
+      }
+
+      // Recalculate values
+      calculateGrossValue(i);
+
+      // Copy header charge info
+      item.chargeTypeId = chargeTypeId;
+      item.chargeTypeCode = chargeTypeCodeCtrl.text;
+      item.chargeTypeName = chargeTypeDescCtrl.text;
+      item.chargeToId = chargeToId;
+      item.chargeToCode = chargeToCodeCtrl.text;
+      item.chargeToName = chargeToDescCtrl.text;
     }
 
-    // Set default values for mandatory fields
+    // ================= HEADER NET VALUE =================
+    final totalItemNetValue = _calculateTotalItemNetValue();
+    final headerDiscount = getHeaderDiscountValue();
+    final headerValue = double.tryParse(valueCtrl.text) ?? 0.0;
+    final headerNetValue = totalItemNetValue - headerValue;
 
-    if (purchaseOrderModel != null) {
-      // Ensure headerTab exists, create if null
-      if (purchaseOrderModel!.headerTab == null) {
-        print('=== CREATING NEW HEADER TAB ===');
-        purchaseOrderModel!.headerTab = HeaderTab();
+    if (purchaseOrderModel!.headerNetValPopup != null &&
+        purchaseOrderModel!.headerNetValPopup!.isNotEmpty) {
+      for (var netValPopup in purchaseOrderModel!.headerNetValPopup!) {
+        netValPopup.itemGrossValue = totalItemNetValue.toString();
+        netValPopup.itemDiscount = headerDiscount.toString();
+        netValPopup.itemGrossValAfterDis =
+            (totalItemNetValue - headerDiscount).toString();
+        netValPopup.itemNetValue =
+            (totalItemNetValue - headerDiscount).toString();
+        netValPopup.headerDiscount = headerDiscount.toString();
+        netValPopup.headerNetValue = headerNetValue.toString();
       }
-
-      // Update header tab data from controllers
-      final headerTab = purchaseOrderModel!.headerTab;
-      if (headerTab != null) {
-        headerTab.docDate = docDateCtrl.text;
-        headerTab.docLocCode = docLocCodeCtrl.text;
-        headerTab.docLocDesc = docLocDescCtrl.text;
-        headerTab.docLocId = doc_id;
-        headerTab.currencyId = currency_id;
-        headerTab.chargeTypeId = chargeTypeId;
-        headerTab.buyerId = buyerId;
-        headerTab.txnNo = docNoCtrl.text;
-        headerTab.txnType = docNoTypeCtrl.text;
-        headerTab.statusCode = statusCtrl.text;
-        headerTab.reference = referenceCtrl.text;
-        headerTab.referenceDesc = referenceDescCtrl.text;
-        headerTab.refDocId = referenceId;
-        headerTab.refDocCode = refDocCodeCtrl.text;
-        headerTab.refDocNo = refDocNoCtrl.text;
-
-        headerTab.supplierId = supp_id;
-        headerTab.supplierName = supplierCtrl.text;
-
-        headerTab.supplierOfferNo =
-            supOfferNoCtrl.text.isEmpty ? '' : supOfferNoCtrl.text;
-        // Always set current date for supplier offer date
-        headerTab.supplierOfferDate = supOfferDateCtrl.text;
-
-        headerTab.currencyId = currency_id;
-        headerTab.currencyCode = currencyCodeCtrl.text;
-        headerTab.currencyDescription = currencyDescCtrl.text;
-
-        headerTab.exchangeRate = exchangeRateCtrl.text;
-        headerTab.discount = discountCtrl.text;
-        headerTab.value = valueCtrl.text;
-
-        headerTab.paymentTermId = paymentTermId;
-        headerTab.paymentTermCode = paymentTermCtrl.text;
-
-        headerTab.modeOfShipmentId = modeOfShipId;
-        headerTab.modeOfShipmentCode = modeShipmentCtrl.text;
-
-        headerTab.modeOfPaymentId = modePaymentId;
-        headerTab.modeOfPaymentCode = modePaymentCtrl.text;
-
-        headerTab.deliveryTermId = deliveryTermId;
-        headerTab.deliveryTermCode = deliveryTermCodeCtrl.text;
-        headerTab.deliveryTermDesc = deliveryTermDescCtrl.text;
-
-        headerTab.chargeTypeId = chargeTypeId;
-        headerTab.chargeTypeCode = chargeTypeCodeCtrl.text;
-        headerTab.chargeTypeDescription = chargeTypeDescCtrl.text;
-
-        headerTab.chargeToId = chargeToId;
-        headerTab.chargeToCode = chargeToCodeCtrl.text;
-        headerTab.chargeToDescription = chargeToDescCtrl.text;
-
-        headerTab.shipToStoreLocId = shipToStoreId;
-        headerTab.shipToStoreLocCode = shipToStoreCodeCtrl.text;
-        headerTab.shipToStoreLocDescription = shipToStoreDescCtrl.text;
-
-        headerTab.purchaseTypeId = purchaseTypeId;
-        headerTab.purchaseTypeCode = purchaseTypeCodeCtrl.text;
-        headerTab.purchaseTypeDesc = purchaseTypeDescCtrl.text;
-
-        headerTab.pettyCashId = pettyCashId;
-        headerTab.pettyCashCode = pettyCashCodeCtrl.text;
-        headerTab.pettyCashDesc = pettyCashDescCtrl.text;
-
-        headerTab.buyerId = buyerId;
-        headerTab.buyerCode = buyerCodeCtrl.text;
-        headerTab.buyerDesc = buyerDescCtrl.text;
-
-        headerTab.headerEta = etaCtrl.text;
-        headerTab.needByDate = needByDateCtrl.text;
-        headerTab.remark = remarkCtrl.text;
-
-        // Save Terms data
-        headerTab.terms = termsCtrl.text;
-
-        // Save Supplier Creation data
-        headerTab.supplierCode = supplierCode.text;
-        headerTab.supplierDesc = supplierDesc.text;
-        headerTab.supplierType = supplierType.text;
-        headerTab.supplierTypeDesc = supplierTypeDesc.text;
-        headerTab.supplierAddress = supplierAddress.text;
-        headerTab.supplierAddressDesc = supplierAddressDesc.text;
-        headerTab.supplierAddress2 = supplierAddress2.text;
-
-        // Save Validation data
-        headerTab.crNoSelected = crNoSelected;
-        headerTab.crNoNumber = crNoNumber.text;
-        headerTab.crNoExpiry = crNoExpiry.text;
-        headerTab.zakatSelected = zakatSelected;
-        headerTab.zakatNumber = zakatNumber.text;
-        headerTab.zakatExpiry = zakatExpiry.text;
-        headerTab.vatSelected = vatSelected;
-        headerTab.vatNumber = vatNumber.text;
-        headerTab.vatExpiry = vatExpiry.text;
-
-        // Save Dynamic Validation data
-        headerTab.dynamicValidationSelected = dynamicValidationSelected;
-        headerTab.dynamicValidationNumbers = dynamicValidationNumbers
-            .map((key, controller) => MapEntry(key, controller.text));
-        headerTab.dynamicValidationExpiry = dynamicValidationExpiry
-            .map((key, controller) => MapEntry(key, controller.text));
-
-        // Save Fallback Validation data
-        headerTab.fallbackValidationSelected = fallbackValidationSelected;
-        headerTab.fallbackValidationType = fallbackValidationType.text;
-        headerTab.fallbackValidationNumber = fallbackValidationNumber.text;
-        headerTab.fallbackValidationExpiry = fallbackValidationExpiry.text;
-      }
-
-      // Ensure itemDetailsTab exists, create if null
-      if (purchaseOrderModel!.itemDetailsTab == null) {
-        purchaseOrderModel!.itemDetailsTab = [];
-      }
-
-      // Update item details tab data
-
-      if (purchaseOrderModel!.itemDetailsTab != null) {
-        for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
-          var item = purchaseOrderModel!.itemDetailsTab![i];
-
-          // Basic item data
-          item.srNo = item.srNo; // Ensure srNo is preserved
-          item.itemId = item.itemId;
-          item.itemCode = item.itemCode;
-          item.itemDesc = item.itemDesc;
-          item.uomId = item.uomId;
-          item.uom = item.uom;
-          item.uomDesc = item.uomDesc;
-          item.quantity = item.quantity;
-          item.unitPrice = item.unitPrice;
-          item.glId = item.glId;
-          item.glCode = item.glCode;
-          item.glDesc = item.glDesc;
-          item.noteToReceiver = item.noteToReceiver;
-
-          // Always set current date for item date fields
-
-          // Recalculate item values to ensure they're up to date
-          calculateGrossValue(i);
-
-          // Save charge type and charge to IDs from header
-          item.chargeTypeId = chargeTypeId;
-          item.chargeTypeCode = chargeTypeCodeCtrl.text;
-          item.chargeTypeName = chargeTypeDescCtrl.text;
-          item.chargeToId = chargeToId;
-          item.chargeToCode = chargeToCodeCtrl.text;
-          item.chargeToName = chargeToDescCtrl.text;
-
-          // Debug: Print charge type and charge to IDs
-
-          // Save Tax popup data (already calculated and saved by saveTaxPopupData method)
-          // The tax data is already stored in the item when saveTaxPopupData is called
-          // This includes: taxAmount, taxLcAmount, taxCodes, taxRemarks
-
-          // Save any additional item-specific data from controllers
-          if (item.noteToReceiverController != null) {
-            item.noteToReceiver = item.noteToReceiverController!.text;
-          }
-        }
-      }
-
-      // Update header net value popup data
-      if (purchaseOrderModel!.headerNetValPopup != null) {
-        // Calculate and update header net value popup data
-        final totalItemNetValue = _calculateTotalItemNetValue();
-        final headerDiscount = getHeaderDiscountValue();
-        final headerValue = double.tryParse(valueCtrl.text) ?? 0.0;
-
-        for (var netValPopup in purchaseOrderModel!.headerNetValPopup!) {
-          // Update item-level calculations
-          netValPopup.itemGrossValue = totalItemNetValue.toString();
-          netValPopup.itemDiscount = headerDiscount.toString();
-          netValPopup.itemGrossValAfterDis =
-              (totalItemNetValue - headerDiscount).toString();
-          netValPopup.itemNetValue =
-              (totalItemNetValue - headerDiscount).toString();
-
-          // Update header-level calculations
-          netValPopup.headerDiscount = headerDiscount.toString();
-          netValPopup.headerNetValue = headerValue.toString();
-        }
-      } else {
-        // Create header net value popup data if it doesn't exist
-        final totalItemNetValue = _calculateTotalItemNetValue();
-        final headerDiscount = getHeaderDiscountValue();
-        final headerValue = double.tryParse(valueCtrl.text) ?? 0.0;
-
-        purchaseOrderModel!.headerNetValPopup = [
-          HeaderNetValPopup(
-            itemGrossValue: totalItemNetValue.toString(),
-            itemDiscount: headerDiscount.toString(),
-            itemGrossValAfterDis:
-                (totalItemNetValue - headerDiscount).toString(),
-            itemNetValue: (totalItemNetValue - headerDiscount).toString(),
-            headerDiscount: headerDiscount.toString(),
-            headerNetValue: headerValue.toString(),
-          )
-        ];
-      }
-
-      // Always send create supplier data as per backend structure
-      purchaseOrderModel!.createSupplier = [
-        CreateSupplier(
-          crSuppCode: supplierCode.text.isEmpty ? '' : supplierCode.text,
-          crSuppDesc: supplierDesc.text.isEmpty ? '' : supplierDesc.text,
-          crSuppTypeId: supplierTypeId,
-          crSuppTypeCode: supplierType.text.isEmpty ? '' : supplierType.text,
-          crSuppTypeDesc:
-              supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text,
-          crSuppAddressId: supplierAddressId,
-          crSuppAddressCode:
-              supplierAddress.text.isEmpty ? '' : supplierAddress.text,
-          crSuppAddressDesc:
-              supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text,
+    } else {
+      purchaseOrderModel!.headerNetValPopup = [
+        HeaderNetValPopup(
+          itemGrossValue: totalItemNetValue.toString(),
+          itemDiscount: headerDiscount.toString(),
+          itemGrossValAfterDis: (totalItemNetValue - headerDiscount).toString(),
+          itemNetValue: (totalItemNetValue - headerDiscount).toString(),
+          headerDiscount: headerDiscount.toString(),
+          headerNetValue: headerNetValue.toString(),
         )
       ];
-
-      // Debug: Print complete model structure
-
-      // Debug: Print the actual JSON being sent
-
-      if (purchaseOrderModel!.createSupplier != null &&
-          purchaseOrderModel!.createSupplier!.isNotEmpty) {
-        final supplier = purchaseOrderModel!.createSupplier!.first;
-      }
-
-      // Always send reference PR data as per backend structure
-      purchaseOrderModel!.referencePR = [];
-
-      // Always send header attachment list as per backend structure
-      purchaseOrderModel!.headerAttachmentLst = [];
-
-      // Always send approval level status as per backend structure
-      purchaseOrderModel!.apprvlLvlStatus = [];
     }
+
+    // ================= CREATE SUPPLIER =================
+    purchaseOrderModel!.createSupplier = [
+      CreateSupplier(
+        crSuppCode: supplierCode.text.isEmpty ? '' : supplierCode.text,
+        crSuppDesc: supplierDesc.text.isEmpty ? '' : supplierDesc.text,
+        crSuppTypeId: supplierTypeId,
+        crSuppTypeCode: supplierType.text.isEmpty ? '' : supplierType.text,
+        crSuppTypeDesc:
+            supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text,
+        crSuppAddressId: supplierAddressId,
+        crSuppAddressCode:
+            supplierAddress.text.isEmpty ? '' : supplierAddress.text,
+        crSuppAddressDesc:
+            supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text,
+      )
+    ];
+
+    // ================= ALWAYS EMPTY LISTS =================
+    purchaseOrderModel!.referencePR = [];
+    purchaseOrderModel!.headerAttachmentLst = [];
+    purchaseOrderModel!.apprvlLvlStatus = [];
   }
+
+  // void prepareAllDataForSave() {
+  //   // Ensure purchaseOrderModel exists
+  //   purchaseOrderModel ??= PurchaseOrderModel();
+
+  //   // ================= HEADER TAB =================
+  //   purchaseOrderModel!.headerTab ??= HeaderTab();
+  //   final headerTab = purchaseOrderModel!.headerTab!;
+
+  //   // Document info
+  //   headerTab.docDate = formatDateForBackend(docDateCtrl.text);
+  //   headerTab.docLocCode = docLocCodeCtrl.text;
+  //   headerTab.docLocDesc = docLocDescCtrl.text;
+  //   headerTab.docLocId = doc_id;
+  //   headerTab.txnNo = docNoCtrl.text;
+  //   headerTab.txnType = docNoTypeCtrl.text;
+  //   headerTab.statusCode = statusCtrl.text;
+
+  //   // Reference
+  //   headerTab.reference = referenceCtrl.text;
+  //   headerTab.referenceDesc = referenceDescCtrl.text;
+  //   headerTab.refDocId = referenceId;
+  //   headerTab.refDocCode = refDocCodeCtrl.text;
+  //   headerTab.refDocNo = refDocNoCtrl.text;
+
+  //   // Supplier
+  //   headerTab.supplierId = supp_id;
+  //   headerTab.supplierName = supplierCtrl.text;
+  //   headerTab.supplierOfferNo =
+  //       supOfferNoCtrl.text.isEmpty ? '' : supOfferNoCtrl.text;
+  //   headerTab.supplierOfferDate = formatDateForBackend(supOfferDateCtrl.text);
+  //   // 👉 If always today: headerTab.supplierOfferDate = formatDateForBackend(DateTime.now().toString());
+
+  //   // Currency & values
+  //   headerTab.currencyId = currency_id;
+  //   headerTab.currencyCode = currencyCodeCtrl.text;
+  //   headerTab.currencyDescription = currencyDescCtrl.text;
+  //   headerTab.exchangeRate = exchangeRateCtrl.text;
+  //   headerTab.discount = discountCtrl.text;
+  //   headerTab.value = valueCtrl.text;
+
+  //   // Payment / Shipment / Delivery
+  //   headerTab.paymentTermId = paymentTermId;
+  //   headerTab.paymentTermCode = paymentTermCtrl.text;
+  //   headerTab.modeOfShipmentId = modeOfShipId;
+  //   headerTab.modeOfShipmentCode = modeShipmentCtrl.text;
+  //   headerTab.modeOfPaymentId = modePaymentId;
+  //   headerTab.modeOfPaymentCode = modePaymentCtrl.text;
+  //   headerTab.deliveryTermId = deliveryTermId;
+  //   headerTab.deliveryTermCode = deliveryTermCodeCtrl.text;
+  //   headerTab.deliveryTermDesc = deliveryTermDescCtrl.text;
+
+  //   // Charge / Ship To
+  //   headerTab.chargeTypeId = chargeTypeId;
+  //   headerTab.chargeTypeCode = chargeTypeCodeCtrl.text;
+  //   headerTab.chargeTypeDescription = chargeTypeDescCtrl.text;
+  //   headerTab.chargeToId = chargeToId;
+  //   headerTab.chargeToCode = chargeToCodeCtrl.text;
+  //   headerTab.chargeToDescription = chargeToDescCtrl.text;
+  //   headerTab.shipToStoreLocId = shipToStoreId;
+  //   headerTab.shipToStoreLocCode = shipToStoreCodeCtrl.text;
+  //   headerTab.shipToStoreLocDescription = shipToStoreDescCtrl.text;
+
+  //   // Purchase Type / Petty Cash
+  //   headerTab.purchaseTypeId = purchaseTypeId;
+  //   headerTab.purchaseTypeCode = purchaseTypeCodeCtrl.text;
+  //   headerTab.purchaseTypeDesc = purchaseTypeDescCtrl.text;
+  //   headerTab.pettyCashId = pettyCashId;
+  //   headerTab.pettyCashCode = pettyCashCodeCtrl.text;
+  //   headerTab.pettyCashDesc = pettyCashDescCtrl.text;
+
+  //   // Buyer
+  //   headerTab.buyerId = buyerId;
+  //   headerTab.buyerCode = buyerCodeCtrl.text;
+  //   headerTab.buyerDesc = buyerDescCtrl.text;
+
+  //   // Dates / Others
+  //   headerTab.headerEta = formatDateForBackend(etaCtrl.text);
+  //   headerTab.needByDate = formatDateForBackend(needByDateCtrl.text);
+  //   headerTab.remark = remarkCtrl.text;
+  //   headerTab.terms = termsCtrl.text;
+
+  //   // Supplier creation data
+  //   headerTab.supplierCode = supplierCode.text;
+  //   headerTab.supplierDesc = supplierDesc.text;
+  //   headerTab.supplierType = supplierType.text;
+  //   headerTab.supplierTypeDesc = supplierTypeDesc.text;
+  //   headerTab.supplierAddress = supplierAddress.text;
+  //   headerTab.supplierAddressDesc = supplierAddressDesc.text;
+  //   headerTab.supplierAddress2 = supplierAddress2.text;
+
+  //   // Validation data
+  //   headerTab.crNoSelected = crNoSelected;
+  //   headerTab.crNoNumber = crNoNumber.text;
+  //   headerTab.crNoExpiry = formatDateForBackend(crNoExpiry.text);
+  //   headerTab.zakatSelected = zakatSelected;
+  //   headerTab.zakatNumber = zakatNumber.text;
+  //   headerTab.zakatExpiry = formatDateForBackend(zakatExpiry.text);
+  //   headerTab.vatSelected = vatSelected;
+  //   headerTab.vatNumber = vatNumber.text;
+  //   headerTab.vatExpiry = formatDateForBackend(vatExpiry.text);
+
+  //   // Dynamic validations
+  //   headerTab.dynamicValidationSelected = dynamicValidationSelected;
+  //   headerTab.dynamicValidationNumbers =
+  //       dynamicValidationNumbers.map((key, ctrl) => MapEntry(key, ctrl.text));
+  //   headerTab.dynamicValidationExpiry = dynamicValidationExpiry
+  //       .map((key, ctrl) => MapEntry(key, formatDateForBackend(ctrl.text)));
+
+  //   // Fallback validation
+  //   headerTab.fallbackValidationSelected = fallbackValidationSelected;
+  //   headerTab.fallbackValidationType = fallbackValidationType.text;
+  //   headerTab.fallbackValidationNumber = fallbackValidationNumber.text;
+  //   headerTab.fallbackValidationExpiry =
+  //       formatDateForBackend(fallbackValidationExpiry.text);
+
+  //   // ================= ITEM DETAILS =================
+  //   purchaseOrderModel!.itemDetailsTab ??= [];
+  //   for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+  //     var item = purchaseOrderModel!.itemDetailsTab![i];
+
+  //     // Preserve original
+  //     item.srNo = item.srNo;
+  //     item.itemId = item.itemId;
+  //     item.itemCode = item.itemCode;
+  //     item.itemDesc = item.itemDesc;
+  //     item.uomId = item.uomId;
+  //     item.uom = item.uom;
+  //     item.uomDesc = item.uomDesc;
+  //     item.quantity = item.quantity;
+  //     item.unitPrice = item.unitPrice;
+  //     item.glId = item.glId;
+  //     item.glCode = item.glCode;
+  //     item.glDesc = item.glDesc;
+  //     item.needByDt = formatDateForBackend(item.needByDt);
+  //     item.etaDate = formatDateForBackend(item.etaDate);
+
+  //     // From controller if available
+  //     if (item.noteToReceiverController != null) {
+  //       item.noteToReceiver = item.noteToReceiverController!.text;
+  //     }
+
+  //     // Recalculate values
+  //     calculateGrossValue(i);
+
+  //     // Copy header charge info
+  //     item.chargeTypeId = chargeTypeId;
+  //     item.chargeTypeCode = chargeTypeCodeCtrl.text;
+  //     item.chargeTypeName = chargeTypeDescCtrl.text;
+  //     item.chargeToId = chargeToId;
+  //     item.chargeToCode = chargeToCodeCtrl.text;
+  //     item.chargeToName = chargeToDescCtrl.text;
+  //   }
+
+  //   // ================= HEADER NET VALUE =================
+  //   final totalItemNetValue = _calculateTotalItemNetValue();
+  //   final headerDiscount = getHeaderDiscountValue();
+  //   final headerValue = double.tryParse(valueCtrl.text) ?? 0.0;
+  //   final headerNetValue = totalItemNetValue - headerValue;
+
+  //   if (purchaseOrderModel!.headerNetValPopup != null &&
+  //       purchaseOrderModel!.headerNetValPopup!.isNotEmpty) {
+  //     for (var netValPopup in purchaseOrderModel!.headerNetValPopup!) {
+  //       netValPopup.itemGrossValue = totalItemNetValue.toString();
+  //       netValPopup.itemDiscount = headerDiscount.toString();
+  //       netValPopup.itemGrossValAfterDis =
+  //           (totalItemNetValue - headerDiscount).toString();
+  //       netValPopup.itemNetValue =
+  //           (totalItemNetValue - headerDiscount).toString();
+  //       netValPopup.headerDiscount = headerDiscount.toString();
+  //       netValPopup.headerNetValue = headerNetValue.toString();
+  //     }
+  //   } else {
+  //     purchaseOrderModel!.headerNetValPopup = [
+  //       HeaderNetValPopup(
+  //         itemGrossValue: totalItemNetValue.toString(),
+  //         itemDiscount: headerDiscount.toString(),
+  //         itemGrossValAfterDis: (totalItemNetValue - headerDiscount).toString(),
+  //         itemNetValue: (totalItemNetValue - headerDiscount).toString(),
+  //         headerDiscount: headerDiscount.toString(),
+  //         headerNetValue: headerNetValue.toString(),
+  //       )
+  //     ];
+  //   }
+
+  //   // ================= CREATE SUPPLIER =================
+  //   purchaseOrderModel!.createSupplier = [
+  //     CreateSupplier(
+  //       crSuppCode: supplierCode.text.isEmpty ? '' : supplierCode.text,
+  //       crSuppDesc: supplierDesc.text.isEmpty ? '' : supplierDesc.text,
+  //       crSuppTypeId: supplierTypeId,
+  //       crSuppTypeCode: supplierType.text.isEmpty ? '' : supplierType.text,
+  //       crSuppTypeDesc:
+  //           supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text,
+  //       crSuppAddressId: supplierAddressId,
+  //       crSuppAddressCode:
+  //           supplierAddress.text.isEmpty ? '' : supplierAddress.text,
+  //       crSuppAddressDesc:
+  //           supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text,
+  //     )
+  //   ];
+
+  //   // ================= ALWAYS EMPTY LISTS =================
+  //   purchaseOrderModel!.referencePR = [];
+  //   purchaseOrderModel!.headerAttachmentLst = [];
+  //   purchaseOrderModel!.apprvlLvlStatus = [];
+  // }
 
   Map<String, String> getCreateData() {
     Map<String, String> data = {
@@ -737,10 +872,12 @@ class PoApplicationVm extends ChangeNotifier {
 
       // Prepare data for API
       sendData = jsonEncode(purchaseOrderModel);
+      print("senddata333:$sendData");
       Map<String, String> data = getCreateData();
       String url = ApiUrl.baseUrl! + ApiUrl.getPoTransaction;
-
+      print("senddata:$sendData");
       await _myRepo.postApi(url, data).then((value) async {
+        print("value:$value");
         if (value['error_code'] == 200) {
           AppUtils.showToastGreenBg(
               context, value['error_description'].toString());
@@ -910,10 +1047,12 @@ class PoApplicationVm extends ChangeNotifier {
 
     try {
       final discount = double.parse(discountText);
+      final totalItemNetValue = _calculateTotalItemNetValue();
 
-      // Set the value to be the same as the entered discount
-      // This means the header value equals the header discount
-      valueCtrl.text = discount.toStringAsFixed(2);
+      // Calculate value as: (Total Item Net Value * Discount Percentage) / 100
+      // This gives the discount value based on percentage
+      final calculatedValue = (totalItemNetValue * discount) / 100;
+      valueCtrl.text = calculatedValue.toStringAsFixed(2);
     } catch (e) {
       print('Error calculating value from discount: $e');
     }
@@ -931,10 +1070,13 @@ class PoApplicationVm extends ChangeNotifier {
 
     try {
       final value = double.parse(valueText);
+      final totalItemNetValue = _calculateTotalItemNetValue();
 
-      // Set the discount to be the same as the entered value
-      // This means the header discount equals the header value
-      discountCtrl.text = value.toStringAsFixed(2);
+      // Calculate discount percentage as: (Header Value / Total Item Net Value) * 100
+      // This gives the discount percentage based on value
+      final calculatedDiscount =
+          totalItemNetValue > 0 ? (value / totalItemNetValue) * 100 : 0;
+      discountCtrl.text = calculatedDiscount.toStringAsFixed(2);
     } catch (e) {
       print('Error calculating discount from value: $e');
     }
@@ -1011,11 +1153,11 @@ class PoApplicationVm extends ChangeNotifier {
     }
   }
 
-  /// Get final net value (item details + header)
+  /// Get final net value (item details - header value)
   double getFinalNetValue() {
     final itemNetValue = getTotalNetValue();
     final headerValue = getHeaderValue();
-    return itemNetValue + headerValue;
+    return itemNetValue - headerValue;
   }
 
   // ==================== ITEM CALCULATION METHODS ====================
@@ -2073,15 +2215,8 @@ class PoApplicationVm extends ChangeNotifier {
     final itemDetails = purchaseOrderModel!.itemDetailsTab![parentIndex];
     String? netValue = itemDetails.netValue;
 
-    // Validate net value
-    if (netValue == null ||
-        netValue.isEmpty ||
-        netValue == '0' ||
-        netValue == '0.0') {
-      // Show error message and don't open tax popup
-      AppUtils.showToastRedBg(context, 'Please net value is mandatory');
-      return;
-    }
+    // Allow tax popup to open for all items - no validation needed
+    print('✅ Opening tax popup for item at index: $parentIndex');
 
     if (type == 1) {
       // Tax Code search
@@ -2871,9 +3006,6 @@ class PoApplicationVm extends ChangeNotifier {
             .map((item) => item.srNo ?? 0)
             .reduce((a, b) => a > b ? a : b);
         nextSrNo = maxSrNo + 1;
-        print('Existing items found. Max srNo: $maxSrNo, Next srNo: $nextSrNo');
-        print(
-            'Existing items count: ${purchaseOrderModel!.itemDetailsTab!.length}');
       } else {
         print('No existing items. Using srNo: $nextSrNo');
       }
@@ -2926,22 +3058,13 @@ class PoApplicationVm extends ChangeNotifier {
       purchaseOrderModel?.itemDetailsTab ??= [];
       purchaseOrderModel!.itemDetailsTab!.add(newItem);
 
-      print(
-          'New line item added successfully. Total items: ${purchaseOrderModel!.itemDetailsTab!.length}');
-      print('=== NEW LINE ITEM ADDED ===');
-
       // Debug: Verify the item was actually added
       if (purchaseOrderModel!.itemDetailsTab!.isNotEmpty) {
         final lastItem = purchaseOrderModel!.itemDetailsTab!.last;
-        print('Last added item: ${lastItem.itemCode} - ${lastItem.itemDesc}');
-        print('Item has taxPopup: ${lastItem.taxPopup != null}');
-        print('Item taxPopup length: ${lastItem.taxPopup?.length ?? 0}');
       }
 
       if (!_isDisposed) notifyListeners();
     } catch (e, stackTrace) {
-      print('Error adding new line item: $e');
-      print('Stack trace: $stackTrace');
       // Re-throw the error so it can be handled by the calling code
       rethrow;
     }
@@ -2976,6 +3099,25 @@ class PoApplicationVm extends ChangeNotifier {
         itemDetails.taxPopup![taxIndex].isOpen =
             !itemDetails.taxPopup![taxIndex].isOpen;
         notifyListeners();
+      }
+    }
+  }
+
+  // Date Formate
+  String formatDateForBackend(String? dateStr) {
+    if (dateStr == null || dateStr.trim().isEmpty) return "";
+    try {
+      // Case 1: Already in backend format (08-Sep-2025)
+      final parsed = DateFormat("dd-MMM-yyyy").parse(dateStr);
+      return DateFormat("dd-MMM-yyyy").format(parsed);
+    } catch (_) {
+      try {
+        // Case 2: Flutter often gives yyyy-MM-dd (2025-09-08)
+        final parsed = DateFormat("yyyy-MM-dd").parse(dateStr);
+        return DateFormat("dd-MMM-yyyy").format(parsed);
+      } catch (_) {
+        // Fallback → send as is
+        return dateStr;
       }
     }
   }
