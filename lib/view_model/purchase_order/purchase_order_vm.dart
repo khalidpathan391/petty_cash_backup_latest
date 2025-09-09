@@ -228,7 +228,6 @@ class PoApplicationVm extends ChangeNotifier {
     try {
       remarkQuillController = quill.QuillController.basic();
     } catch (e) {
-      print('Error initializing Quill controller: $e');
       remarkQuillController = quill.QuillController(
         document: quill.Document(),
         selection: const TextSelection.collapsed(offset: 0),
@@ -385,7 +384,6 @@ class PoApplicationVm extends ChangeNotifier {
       // Debug: Print missing fields
 
       for (String field in missingFields) {}
-      print("=================================");
 
       return false;
     }
@@ -646,213 +644,6 @@ class PoApplicationVm extends ChangeNotifier {
     purchaseOrderModel!.headerAttachmentLst = [];
     purchaseOrderModel!.apprvlLvlStatus = [];
   }
-
-  // void prepareAllDataForSave() {
-  //   // Ensure purchaseOrderModel exists
-  //   purchaseOrderModel ??= PurchaseOrderModel();
-
-  //   // ================= HEADER TAB =================
-  //   purchaseOrderModel!.headerTab ??= HeaderTab();
-  //   final headerTab = purchaseOrderModel!.headerTab!;
-
-  //   // Document info
-  //   headerTab.docDate = formatDateForBackend(docDateCtrl.text);
-  //   headerTab.docLocCode = docLocCodeCtrl.text;
-  //   headerTab.docLocDesc = docLocDescCtrl.text;
-  //   headerTab.docLocId = doc_id;
-  //   headerTab.txnNo = docNoCtrl.text;
-  //   headerTab.txnType = docNoTypeCtrl.text;
-  //   headerTab.statusCode = statusCtrl.text;
-
-  //   // Reference
-  //   headerTab.reference = referenceCtrl.text;
-  //   headerTab.referenceDesc = referenceDescCtrl.text;
-  //   headerTab.refDocId = referenceId;
-  //   headerTab.refDocCode = refDocCodeCtrl.text;
-  //   headerTab.refDocNo = refDocNoCtrl.text;
-
-  //   // Supplier
-  //   headerTab.supplierId = supp_id;
-  //   headerTab.supplierName = supplierCtrl.text;
-  //   headerTab.supplierOfferNo =
-  //       supOfferNoCtrl.text.isEmpty ? '' : supOfferNoCtrl.text;
-  //   headerTab.supplierOfferDate = formatDateForBackend(supOfferDateCtrl.text);
-  //   // 👉 If always today: headerTab.supplierOfferDate = formatDateForBackend(DateTime.now().toString());
-
-  //   // Currency & values
-  //   headerTab.currencyId = currency_id;
-  //   headerTab.currencyCode = currencyCodeCtrl.text;
-  //   headerTab.currencyDescription = currencyDescCtrl.text;
-  //   headerTab.exchangeRate = exchangeRateCtrl.text;
-  //   headerTab.discount = discountCtrl.text;
-  //   headerTab.value = valueCtrl.text;
-
-  //   // Payment / Shipment / Delivery
-  //   headerTab.paymentTermId = paymentTermId;
-  //   headerTab.paymentTermCode = paymentTermCtrl.text;
-  //   headerTab.modeOfShipmentId = modeOfShipId;
-  //   headerTab.modeOfShipmentCode = modeShipmentCtrl.text;
-  //   headerTab.modeOfPaymentId = modePaymentId;
-  //   headerTab.modeOfPaymentCode = modePaymentCtrl.text;
-  //   headerTab.deliveryTermId = deliveryTermId;
-  //   headerTab.deliveryTermCode = deliveryTermCodeCtrl.text;
-  //   headerTab.deliveryTermDesc = deliveryTermDescCtrl.text;
-
-  //   // Charge / Ship To
-  //   headerTab.chargeTypeId = chargeTypeId;
-  //   headerTab.chargeTypeCode = chargeTypeCodeCtrl.text;
-  //   headerTab.chargeTypeDescription = chargeTypeDescCtrl.text;
-  //   headerTab.chargeToId = chargeToId;
-  //   headerTab.chargeToCode = chargeToCodeCtrl.text;
-  //   headerTab.chargeToDescription = chargeToDescCtrl.text;
-  //   headerTab.shipToStoreLocId = shipToStoreId;
-  //   headerTab.shipToStoreLocCode = shipToStoreCodeCtrl.text;
-  //   headerTab.shipToStoreLocDescription = shipToStoreDescCtrl.text;
-
-  //   // Purchase Type / Petty Cash
-  //   headerTab.purchaseTypeId = purchaseTypeId;
-  //   headerTab.purchaseTypeCode = purchaseTypeCodeCtrl.text;
-  //   headerTab.purchaseTypeDesc = purchaseTypeDescCtrl.text;
-  //   headerTab.pettyCashId = pettyCashId;
-  //   headerTab.pettyCashCode = pettyCashCodeCtrl.text;
-  //   headerTab.pettyCashDesc = pettyCashDescCtrl.text;
-
-  //   // Buyer
-  //   headerTab.buyerId = buyerId;
-  //   headerTab.buyerCode = buyerCodeCtrl.text;
-  //   headerTab.buyerDesc = buyerDescCtrl.text;
-
-  //   // Dates / Others
-  //   headerTab.headerEta = formatDateForBackend(etaCtrl.text);
-  //   headerTab.needByDate = formatDateForBackend(needByDateCtrl.text);
-  //   headerTab.remark = remarkCtrl.text;
-  //   headerTab.terms = termsCtrl.text;
-
-  //   // Supplier creation data
-  //   headerTab.supplierCode = supplierCode.text;
-  //   headerTab.supplierDesc = supplierDesc.text;
-  //   headerTab.supplierType = supplierType.text;
-  //   headerTab.supplierTypeDesc = supplierTypeDesc.text;
-  //   headerTab.supplierAddress = supplierAddress.text;
-  //   headerTab.supplierAddressDesc = supplierAddressDesc.text;
-  //   headerTab.supplierAddress2 = supplierAddress2.text;
-
-  //   // Validation data
-  //   headerTab.crNoSelected = crNoSelected;
-  //   headerTab.crNoNumber = crNoNumber.text;
-  //   headerTab.crNoExpiry = formatDateForBackend(crNoExpiry.text);
-  //   headerTab.zakatSelected = zakatSelected;
-  //   headerTab.zakatNumber = zakatNumber.text;
-  //   headerTab.zakatExpiry = formatDateForBackend(zakatExpiry.text);
-  //   headerTab.vatSelected = vatSelected;
-  //   headerTab.vatNumber = vatNumber.text;
-  //   headerTab.vatExpiry = formatDateForBackend(vatExpiry.text);
-
-  //   // Dynamic validations
-  //   headerTab.dynamicValidationSelected = dynamicValidationSelected;
-  //   headerTab.dynamicValidationNumbers =
-  //       dynamicValidationNumbers.map((key, ctrl) => MapEntry(key, ctrl.text));
-  //   headerTab.dynamicValidationExpiry = dynamicValidationExpiry
-  //       .map((key, ctrl) => MapEntry(key, formatDateForBackend(ctrl.text)));
-
-  //   // Fallback validation
-  //   headerTab.fallbackValidationSelected = fallbackValidationSelected;
-  //   headerTab.fallbackValidationType = fallbackValidationType.text;
-  //   headerTab.fallbackValidationNumber = fallbackValidationNumber.text;
-  //   headerTab.fallbackValidationExpiry =
-  //       formatDateForBackend(fallbackValidationExpiry.text);
-
-  //   // ================= ITEM DETAILS =================
-  //   purchaseOrderModel!.itemDetailsTab ??= [];
-  //   for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
-  //     var item = purchaseOrderModel!.itemDetailsTab![i];
-
-  //     // Preserve original
-  //     item.srNo = item.srNo;
-  //     item.itemId = item.itemId;
-  //     item.itemCode = item.itemCode;
-  //     item.itemDesc = item.itemDesc;
-  //     item.uomId = item.uomId;
-  //     item.uom = item.uom;
-  //     item.uomDesc = item.uomDesc;
-  //     item.quantity = item.quantity;
-  //     item.unitPrice = item.unitPrice;
-  //     item.glId = item.glId;
-  //     item.glCode = item.glCode;
-  //     item.glDesc = item.glDesc;
-  //     item.needByDt = formatDateForBackend(item.needByDt);
-  //     item.etaDate = formatDateForBackend(item.etaDate);
-
-  //     // From controller if available
-  //     if (item.noteToReceiverController != null) {
-  //       item.noteToReceiver = item.noteToReceiverController!.text;
-  //     }
-
-  //     // Recalculate values
-  //     calculateGrossValue(i);
-
-  //     // Copy header charge info
-  //     item.chargeTypeId = chargeTypeId;
-  //     item.chargeTypeCode = chargeTypeCodeCtrl.text;
-  //     item.chargeTypeName = chargeTypeDescCtrl.text;
-  //     item.chargeToId = chargeToId;
-  //     item.chargeToCode = chargeToCodeCtrl.text;
-  //     item.chargeToName = chargeToDescCtrl.text;
-  //   }
-
-  //   // ================= HEADER NET VALUE =================
-  //   final totalItemNetValue = _calculateTotalItemNetValue();
-  //   final headerDiscount = getHeaderDiscountValue();
-  //   final headerValue = double.tryParse(valueCtrl.text) ?? 0.0;
-  //   final headerNetValue = totalItemNetValue - headerValue;
-
-  //   if (purchaseOrderModel!.headerNetValPopup != null &&
-  //       purchaseOrderModel!.headerNetValPopup!.isNotEmpty) {
-  //     for (var netValPopup in purchaseOrderModel!.headerNetValPopup!) {
-  //       netValPopup.itemGrossValue = totalItemNetValue.toString();
-  //       netValPopup.itemDiscount = headerDiscount.toString();
-  //       netValPopup.itemGrossValAfterDis =
-  //           (totalItemNetValue - headerDiscount).toString();
-  //       netValPopup.itemNetValue =
-  //           (totalItemNetValue - headerDiscount).toString();
-  //       netValPopup.headerDiscount = headerDiscount.toString();
-  //       netValPopup.headerNetValue = headerNetValue.toString();
-  //     }
-  //   } else {
-  //     purchaseOrderModel!.headerNetValPopup = [
-  //       HeaderNetValPopup(
-  //         itemGrossValue: totalItemNetValue.toString(),
-  //         itemDiscount: headerDiscount.toString(),
-  //         itemGrossValAfterDis: (totalItemNetValue - headerDiscount).toString(),
-  //         itemNetValue: (totalItemNetValue - headerDiscount).toString(),
-  //         headerDiscount: headerDiscount.toString(),
-  //         headerNetValue: headerNetValue.toString(),
-  //       )
-  //     ];
-  //   }
-
-  //   // ================= CREATE SUPPLIER =================
-  //   purchaseOrderModel!.createSupplier = [
-  //     CreateSupplier(
-  //       crSuppCode: supplierCode.text.isEmpty ? '' : supplierCode.text,
-  //       crSuppDesc: supplierDesc.text.isEmpty ? '' : supplierDesc.text,
-  //       crSuppTypeId: supplierTypeId,
-  //       crSuppTypeCode: supplierType.text.isEmpty ? '' : supplierType.text,
-  //       crSuppTypeDesc:
-  //           supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text,
-  //       crSuppAddressId: supplierAddressId,
-  //       crSuppAddressCode:
-  //           supplierAddress.text.isEmpty ? '' : supplierAddress.text,
-  //       crSuppAddressDesc:
-  //           supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text,
-  //     )
-  //   ];
-
-  //   // ================= ALWAYS EMPTY LISTS =================
-  //   purchaseOrderModel!.referencePR = [];
-  //   purchaseOrderModel!.headerAttachmentLst = [];
-  //   purchaseOrderModel!.apprvlLvlStatus = [];
-  // }
 
   Map<String, String> getCreateData() {
     Map<String, String> data = {
@@ -1490,7 +1281,35 @@ class PoApplicationVm extends ChangeNotifier {
       final dynamic response = await _myRepo.postApi(url, getData(headerId));
 
       if (response != null) {
-        purchaseOrderModel = PurchaseOrderModel.fromJson(response);
+        // Load status first before parsing the full model
+        if (response['header_tab'] != null) {
+          final headerTab = response['header_tab'];
+          statusCtrl.text = headerTab['status_description']?.toString() ?? '';
+          print('🔍 Direct status load from API: "${statusCtrl.text}"');
+
+          // Check WorkFlow tab immediately after loading status
+          final currentStatus = statusCtrl.text.trim().toUpperCase();
+          if (currentStatus == 'SUBMITTED') {
+            isWorkFlow = true;
+            isWFTab = true;
+            if (!tabHeaders.contains('WorkFlow')) {
+              tabHeaders.add('WorkFlow');
+            }
+            print('🔍 WorkFlow tab added for SUBMITTED status');
+          } else {
+            isWorkFlow = false;
+            isWFTab = false;
+            tabHeaders.removeWhere((tab) => tab == 'WorkFlow');
+            print('🔍 WorkFlow tab removed for status: $currentStatus');
+          }
+        }
+
+        try {
+          purchaseOrderModel = PurchaseOrderModel.fromJson(response);
+        } catch (parseError) {
+          print('Error parsing PurchaseOrderModel: $parseError');
+          // Continue with status already loaded above
+        }
 
         if (purchaseOrderModel?.headerId != null) {
           myHeaderId = purchaseOrderModel!.headerId!;
@@ -1499,8 +1318,16 @@ class PoApplicationVm extends ChangeNotifier {
 
         if (purchaseOrderModel?.headerTab != null) {
           // Debug: Print full header data from API
+          print(
+              '🔍 HeaderTab statusDescription: "${purchaseOrderModel!.headerTab!.statusDescription}"');
+          print(
+              '🔍 HeaderTab toJson(): ${purchaseOrderModel!.headerTab!.toJson()}');
+          print('🔍 About to call _applyHeaderData with headerTab data');
 
           _applyHeaderData(purchaseOrderModel!.headerTab!.toJson());
+
+          print(
+              '🔍 After _applyHeaderData - statusCtrl.text: "${statusCtrl.text}"');
           hasDataLoaded = true;
         }
 
@@ -1591,19 +1418,40 @@ class PoApplicationVm extends ChangeNotifier {
   /// Return data map for API call depending on myHeaderId
 
   void _applyHeaderData(Map<String, dynamic> h) {
+    print('🔍 _applyHeaderData called with data: $h');
+    print(
+        '🔍 _applyHeaderData - status_description: "${h['status_description']}"');
+
     docDateCtrl.text = _s(h['doc_date']);
     docLocCodeCtrl.text = _s(h['doc_loc_code']);
     docLocDescCtrl.text = _s(h['doc_loc_desc']);
     docNoTypeCtrl.text = _s(h['txn_type']);
     docNoCtrl.text = _s(h['txn_no']);
+    print('🔍 Raw status_description from API: "${h['status_description']}"');
+    print(
+        '🔍 Type of status_description: ${h['status_description'].runtimeType}');
+    print('🔍 Is status_description null: ${h['status_description'] == null}');
+    print(
+        '🔍 Is status_description empty: ${h['status_description']?.toString().isEmpty}');
+
     statusCtrl.text = _s(h['status_description']);
+    print('🔍 Status loaded from API: "${statusCtrl.text}"');
+    print('🔍 Status controller text length: ${statusCtrl.text.length}');
 
     referenceCtrl.text = _s(h['reference']);
     referenceDescCtrl.text = _s(h['reference_desc']);
     referenceSelectedCode =
         referenceDescCtrl.text.isEmpty ? 'DIRECT' : referenceDescCtrl.text;
 
-    supplierCtrl.text = _s(h['supplier_code']);
+    // Supplier - concatenate code and description
+    final supplierCode = _s(h['supplier_code']);
+    final supplierDesc = _s(h['supplier_name']);
+    supplierCtrl.text = supplierCode.isNotEmpty && supplierDesc.isNotEmpty
+        ? '$supplierCode - $supplierDesc'
+        : supplierDesc.isNotEmpty
+            ? supplierDesc
+            : supplierCode;
+
     supOfferNoCtrl.text = _s(h['supplier_offer_no']);
     supOfferDateCtrl.text = _s(h['supplier_offer_date']);
     currencyCodeCtrl.text = _s(h['currency_code']);
@@ -1611,69 +1459,151 @@ class PoApplicationVm extends ChangeNotifier {
     exchangeRateCtrl.text = _s(h['exchange_rate']);
     discountCtrl.text = _s(h['discount']);
     valueCtrl.text = _s(h['value']);
-    paymentTermCtrl.text = _s(h['payment_term_desc']);
-    modeShipmentCtrl.text = _s(h['mode_of_shipment_desc']);
-    modePaymentCtrl.text = _s(h['mode_of_payment_desc']);
-    chargeTypeCodeCtrl.text = _s(h['charge_type_code']);
-    chargeTypeDescCtrl.text = _s(h['charge_type_description']);
+
+    // Payment Term - concatenate code and description
+    final paymentTermCode = _s(h['payment_term_code']);
+    final paymentTermDesc = _s(h['payment_term_desc']);
+    paymentTermCtrl.text =
+        paymentTermCode.isNotEmpty && paymentTermDesc.isNotEmpty
+            ? '$paymentTermCode - $paymentTermDesc'
+            : paymentTermDesc.isNotEmpty
+                ? paymentTermDesc
+                : paymentTermCode;
+
+    // Mode of Shipment - concatenate code and description
+    final modeShipmentCode = _s(h['mode_of_shipment_code']);
+    final modeShipmentDesc = _s(h['mode_of_shipment_desc']);
+    modeShipmentCtrl.text =
+        modeShipmentCode.isNotEmpty && modeShipmentDesc.isNotEmpty
+            ? '$modeShipmentCode - $modeShipmentDesc'
+            : modeShipmentDesc.isNotEmpty
+                ? modeShipmentDesc
+                : modeShipmentCode;
+
+    // Mode of Payment - concatenate code and description
+    final modePaymentCode = _s(h['mode_of_payment_code']);
+    final modePaymentDesc = _s(h['mode_of_payment_desc']);
+    modePaymentCtrl.text =
+        modePaymentCode.isNotEmpty && modePaymentDesc.isNotEmpty
+            ? '$modePaymentCode - $modePaymentDesc'
+            : modePaymentDesc.isNotEmpty
+                ? modePaymentDesc
+                : modePaymentCode;
+
+    // Charge Type - concatenate code and description
+    final chargeTypeCode = _s(h['charge_type_code']);
+    final chargeTypeDesc = _s(h['charge_type_description']);
+    chargeTypeCodeCtrl.text =
+        chargeTypeCode.isNotEmpty && chargeTypeDesc.isNotEmpty
+            ? '$chargeTypeCode - $chargeTypeDesc'
+            : chargeTypeDesc.isNotEmpty
+                ? chargeTypeDesc
+                : chargeTypeCode;
+    chargeTypeDescCtrl.text = chargeTypeDesc;
     // Set chargeTypeCode variable for charge to search functionality
-    chargeTypeCode = _s(h['charge_type_code']);
-    chargeToCodeCtrl.text = _s(h['charge_to_code']);
-    chargeToDescCtrl.text = _s(h['charge_to_description']);
-    shipToStoreCodeCtrl.text = _s(h['ship_to_store_loc_code']);
-    shipToStoreDescCtrl.text = _s(h['ship_to_store_loc_description']);
-    purchaseTypeCodeCtrl.text = _s(h['purchase_type_code']);
-    purchaseTypeDescCtrl.text = _s(h['purchase_type_desc']);
-    pettyCashCodeCtrl.text = _s(h['petty_cash_code']);
-    pettyCashDescCtrl.text = _s(h['petty_cash_desc']);
-    buyerCodeCtrl.text = _s(h['buyer_code']);
-    buyerDescCtrl.text = _s(h['buyer_desc']);
+    this.chargeTypeCode = chargeTypeCode;
+
+    // Charge To - concatenate code and description
+    final chargeToCode = _s(h['charge_to_code']);
+    final chargeToDesc = _s(h['charge_to_description']);
+    chargeToCodeCtrl.text = chargeToCode.isNotEmpty && chargeToDesc.isNotEmpty
+        ? '$chargeToCode - $chargeToDesc'
+        : chargeToDesc.isNotEmpty
+            ? chargeToDesc
+            : chargeToCode;
+    chargeToDescCtrl.text = chargeToDesc;
+
+    // Ship To Store - concatenate code and description
+    final shipToStoreCode = _s(h['ship_to_store_loc_code']);
+    final shipToStoreDesc = _s(h['ship_to_store_loc_description']);
+    shipToStoreCodeCtrl.text =
+        shipToStoreCode.isNotEmpty && shipToStoreDesc.isNotEmpty
+            ? '$shipToStoreCode - $shipToStoreDesc'
+            : shipToStoreDesc.isNotEmpty
+                ? shipToStoreDesc
+                : shipToStoreCode;
+    shipToStoreDescCtrl.text = shipToStoreDesc;
+
+    // Purchase Type - concatenate code and description
+    final purchaseTypeCode = _s(h['purchase_type_code']);
+    final purchaseTypeDesc = _s(h['purchase_type_desc']);
+    purchaseTypeCodeCtrl.text =
+        purchaseTypeCode.isNotEmpty && purchaseTypeDesc.isNotEmpty
+            ? '$purchaseTypeCode - $purchaseTypeDesc'
+            : purchaseTypeDesc.isNotEmpty
+                ? purchaseTypeDesc
+                : purchaseTypeCode;
+    purchaseTypeDescCtrl.text = purchaseTypeDesc;
+
+    // Petty Cash - concatenate code and description
+    final pettyCashCode = _s(h['petty_cash_code']);
+    final pettyCashDesc = _s(h['petty_cash_desc']);
+    pettyCashCodeCtrl.text =
+        pettyCashCode.isNotEmpty && pettyCashDesc.isNotEmpty
+            ? '$pettyCashCode - $pettyCashDesc'
+            : pettyCashDesc.isNotEmpty
+                ? pettyCashDesc
+                : pettyCashCode;
+    pettyCashDescCtrl.text = pettyCashDesc;
+
+    // Buyer - concatenate code and description
+    final buyerCode = _s(h['buyer_code']);
+    final buyerDesc = _s(h['buyer_desc']);
+    buyerCodeCtrl.text = buyerCode.isNotEmpty && buyerDesc.isNotEmpty
+        ? '$buyerCode - $buyerDesc'
+        : buyerDesc.isNotEmpty
+            ? buyerDesc
+            : buyerCode;
+    buyerDescCtrl.text = buyerDesc;
+
     etaCtrl.text = _s(h['header_eta']);
-    deliveryTermCodeCtrl.text = _s(h['delivery_term_code']);
-    deliveryTermDescCtrl.text = _s(h['delivery_term_desc']);
+
+    // Delivery Term - concatenate code and description
+    final deliveryTermCode = _s(h['delivery_term_code']);
+    final deliveryTermDesc = _s(h['delivery_term_desc']);
+    deliveryTermCodeCtrl.text =
+        deliveryTermCode.isNotEmpty && deliveryTermDesc.isNotEmpty
+            ? '$deliveryTermCode - $deliveryTermDesc'
+            : deliveryTermDesc.isNotEmpty
+                ? deliveryTermDesc
+                : deliveryTermCode;
+    deliveryTermDescCtrl.text = deliveryTermDesc;
     needByDateCtrl.text = _s(h['need_by_date']);
     remarkCtrl.text = _s(h['remark']);
-    termsCtrl.text = _s(h['terms']);
+    termsCtrl.text = _s(h['header_term_popup']);
+    print('🔍 Terms loaded from API: "${termsCtrl.text}"');
+    print('🔍 Raw header_term_popup from API: "${h['header_term_popup']}"');
 
     // Update header values from header_net_val_popup if available
     if (purchaseOrderModel?.headerNetValPopup != null &&
         purchaseOrderModel!.headerNetValPopup!.isNotEmpty) {
       final headerPopup = purchaseOrderModel!.headerNetValPopup![0];
 
-      // Debug: Print header popup values
-      print('🔍 Header Popup Values:');
-      print('  - itemGrossValue: ${headerPopup.itemGrossValue}');
-      print('  - itemDiscount: ${headerPopup.itemDiscount}');
-      print('  - itemNetValue: ${headerPopup.itemNetValue}');
-
       // Update controllers with header popup values
-      grossValueCtrl.text = _s(headerPopup.itemGrossValue) ?? '0.00';
-      discountValueCtrl.text = _s(headerPopup.itemDiscount) ?? '0.00';
-      netValueCtrl.text = _s(headerPopup.itemNetValue) ?? '0.00';
+      grossValueCtrl.text = _s(headerPopup.itemGrossValue);
+      discountValueCtrl.text = _s(headerPopup.itemDiscount);
+      netValueCtrl.text = _s(headerPopup.itemNetValue);
 
       // Update header tab model
       if (purchaseOrderModel?.headerTab != null) {
         purchaseOrderModel!.headerTab!.grossValue =
-            _s(headerPopup.itemGrossValue) ?? '0.00';
+            _s(headerPopup.itemGrossValue);
         purchaseOrderModel!.headerTab!.discountValue =
-            _s(headerPopup.itemDiscount) ?? '0.00';
-        purchaseOrderModel!.headerTab!.netValue =
-            _s(headerPopup.itemNetValue) ?? '0.00';
+            _s(headerPopup.itemDiscount);
+        purchaseOrderModel!.headerTab!.netValue = _s(headerPopup.itemNetValue);
       }
     } else {
       // Fallback to header_tab values if header_net_val_popup is not available
       print('🔍 Using fallback header values from header_tab');
-      grossValueCtrl.text = _s(h['gross_value']) ?? '0.00';
-      discountValueCtrl.text = _s(h['discount_value']) ?? '0.00';
-      netValueCtrl.text = _s(h['net_value']) ?? '0.00';
+      grossValueCtrl.text = _s(h['gross_value']);
+      discountValueCtrl.text = _s(h['discount_value']);
+      netValueCtrl.text = _s(h['net_value']);
 
       // Update header tab model with values from API
       if (purchaseOrderModel?.headerTab != null) {
-        purchaseOrderModel!.headerTab!.grossValue =
-            _s(h['gross_value']) ?? '0.00';
-        purchaseOrderModel!.headerTab!.discountValue =
-            _s(h['discount_value']) ?? '0.00';
-        purchaseOrderModel!.headerTab!.netValue = _s(h['net_value']) ?? '0.00';
+        purchaseOrderModel!.headerTab!.grossValue = _s(h['gross_value']);
+        purchaseOrderModel!.headerTab!.discountValue = _s(h['discount_value']);
+        purchaseOrderModel!.headerTab!.netValue = _s(h['net_value']);
       }
     }
 
@@ -1692,10 +1622,21 @@ class PoApplicationVm extends ChangeNotifier {
     pettyCashId = h['petty_cash_id'] ?? 0;
     buyerId = h['buyer_id'] ?? 0;
     _updateRemarkQuillFromText();
+
     if (!_isDisposed) notifyListeners();
   }
 
-  String _s(dynamic v) => v == null ? '' : v.toString();
+  String _s(dynamic v) {
+    final result = v == null ? '' : v.toString();
+    if (v != null && result.isEmpty) {
+      print(
+          '🔍 _s() function: Input was not null but result is empty. Input: "$v", Type: ${v.runtimeType}');
+    }
+    if (v != null && v.toString().toLowerCase().contains('status')) {
+      print('🔍 _s() function processing status: Input="$v", Result="$result"');
+    }
+    return result;
+  }
 
   void toggleItemOpen(int index) {
     if (purchaseOrderModel?.itemDetailsTab == null) return;
@@ -1934,30 +1875,60 @@ class PoApplicationVm extends ChangeNotifier {
           supplierAddressDesc.text = result.desc ?? '';
           break;
         case 'Ship to Store Loc*':
-          shipToStoreCodeCtrl.text = result.code ?? '';
-          shipToStoreDescCtrl.text = result.desc ?? '';
+          final code = result.code ?? '';
+          final desc = result.desc ?? '';
+          shipToStoreCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
+              ? '$code - $desc'
+              : desc.isNotEmpty
+                  ? desc
+                  : code;
+          shipToStoreDescCtrl.text = desc;
           shipToStoreId = result.id ?? 0;
           break;
         case 'Purchase Type*':
-          purchaseTypeCodeCtrl.text = result.code ?? '';
-          purchaseTypeDescCtrl.text = result.desc ?? '';
+          final code = result.code ?? '';
+          final desc = result.desc ?? '';
+          purchaseTypeCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
+              ? '$code - $desc'
+              : desc.isNotEmpty
+                  ? desc
+                  : code;
+          purchaseTypeDescCtrl.text = desc;
           purchaseTypeId = result.id ?? 0;
           break;
         case 'Petty Cash No*':
-          pettyCashCodeCtrl.text = result.code ?? '';
-          pettyCashDescCtrl.text = result.desc ?? '';
+          final code = result.code ?? '';
+          final desc = result.desc ?? '';
+          pettyCashCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
+              ? '$code - $desc'
+              : desc.isNotEmpty
+                  ? desc
+                  : code;
+          pettyCashDescCtrl.text = desc;
           pettyCashId = result.id ?? 0;
           break;
         case 'Buyer ID*':
-          buyerCodeCtrl.text = result.code ?? '';
-          buyerDescCtrl.text = result.desc ?? '';
+          final code = result.code ?? '';
+          final desc = result.desc ?? '';
+          buyerCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
+              ? '$code - $desc'
+              : desc.isNotEmpty
+                  ? desc
+                  : code;
+          buyerDescCtrl.text = desc;
           buyerId = result.id ?? buyerId; // update local variable
           purchaseOrderModel?.headerTab?.buyerId = buyerId; // update model
           chargeTypeCode = result.code ?? '';
           break;
         case 'Delivery Term*':
-          deliveryTermCodeCtrl.text = result.code ?? '';
-          deliveryTermDescCtrl.text = result.desc ?? '';
+          final code = result.code ?? '';
+          final desc = result.desc ?? '';
+          deliveryTermCodeCtrl.text = code.isNotEmpty && desc.isNotEmpty
+              ? '$code - $desc'
+              : desc.isNotEmpty
+                  ? desc
+                  : code;
+          deliveryTermDescCtrl.text = desc;
           deliveryTermId = result.id ?? 0;
           break;
       }
@@ -2325,7 +2296,6 @@ class PoApplicationVm extends ChangeNotifier {
     String? netValue = itemDetails.netValue;
 
     // Allow tax popup to open for all items - no validation needed
-    print('✅ Opening tax popup for item at index: $parentIndex');
 
     if (type == 1) {
       // Tax Code search
@@ -2493,9 +2463,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Save all tax popup data for all line items
   void _saveAllTaxPopupData() {
-    print('=== _saveAllTaxPopupData START ===');
     if (purchaseOrderModel?.itemDetailsTab == null) {
-      print('itemDetailsTab is null, returning');
       return;
     }
 
@@ -2504,8 +2472,6 @@ class PoApplicationVm extends ChangeNotifier {
     for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
       final itemDetails = purchaseOrderModel!.itemDetailsTab![i];
       final taxPopupList = itemDetails.taxPopup;
-      print(
-          'Item $i: ${itemDetails.itemCode} - taxPopup length: ${taxPopupList?.length ?? 0}');
 
       // If tax popup is null or empty, set it to empty list to avoid backend errors
       if (taxPopupList == null || taxPopupList.isEmpty) {
@@ -2781,15 +2747,6 @@ class PoApplicationVm extends ChangeNotifier {
       headerTab.supplierAddress2 =
           supplierAddress2.text.isEmpty ? '' : supplierAddress2.text;
     }
-
-    print('Create Supplier data saved to model:');
-    print('Code: ${supplierCode.text}');
-    print('Desc: ${supplierDesc.text}');
-    print('Type: ${supplierType.text}');
-    print('Type Desc: ${supplierTypeDesc.text}');
-    print('Address: ${supplierAddress.text}');
-    print('Address Desc: ${supplierAddressDesc.text}');
-    print('Address2: ${supplierAddress2.text}');
   }
 
   /// Update model from create supplier API response

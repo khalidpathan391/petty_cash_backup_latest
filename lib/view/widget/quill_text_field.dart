@@ -43,6 +43,11 @@ class _QuillTextFieldState extends State<QuillTextField> {
     final screenHeight = MediaQuery.of(context).size.height;
     final containerHeight = widget.height ?? screenHeight * 0.3;
 
+    print(
+        '🔍 QuillTextField building with controller: ${widget.controller.hashCode}');
+    print(
+        '🔍 QuillTextField document length: ${widget.controller.document.length}');
+
     return Container(
       height: containerHeight,
       decoration: BoxDecoration(
@@ -111,6 +116,9 @@ class _QuillTextFieldState extends State<QuillTextField> {
                     configurations: QuillEditorConfigurations(
                       controller: widget.controller,
                       enableSelectionToolbar: true,
+                      autoFocus: false,
+                      expands: true,
+                      scrollable: true,
                       sharedConfigurations: const QuillSharedConfigurations(
                         locale: Locale('en'),
                       ),
@@ -129,6 +137,7 @@ class _QuillTextFieldState extends State<QuillTextField> {
                     ),
                   );
                 } catch (e) {
+                  print('QuillEditor error: $e');
                   // Fallback UI if QuillEditor fails
                   return Container(
                     padding: const EdgeInsets.all(8.0),
@@ -137,9 +146,12 @@ class _QuillTextFieldState extends State<QuillTextField> {
                         text: widget.controller.document.toPlainText(),
                       ),
                       maxLines: null,
+                      expands: true,
+                      textAlignVertical: TextAlignVertical.top,
                       decoration: const InputDecoration(
                         hintText: 'Add Text Here',
                         border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
                       ),
                       onChanged: (value) {
                         // Update the Quill controller when text changes

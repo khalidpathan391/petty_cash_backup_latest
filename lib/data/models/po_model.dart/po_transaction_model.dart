@@ -964,7 +964,9 @@ class TaxPopup {
     taxLineId = json['tax_line_id'];
     taxId = json['tax_id'];
     taxCode = json['tax_code'];
-    currencyId = json['currency_id'];
+    currencyId = json['currency_id'] is String
+        ? int.tryParse(json['currency_id'])
+        : json['currency_id'];
     currencyCode = json['currency_code'];
     discountPercent = json['discount_percent'];
     discountValue = json['discount_value'];

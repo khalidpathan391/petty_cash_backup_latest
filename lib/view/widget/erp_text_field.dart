@@ -35,6 +35,9 @@ class CommonTextFormField extends StatelessWidget {
   final bool readOnly; // New parameter to disable keyboard
   final bool showCursor; // New parameter to hide cursor
   final FocusNode? focusNode; // New parameter for custom focus node
+  final bool
+      preventKeyboard; // New parameter to completely prevent keyboard opening
+  final VoidCallback? onTap; // New parameter for tap handling
 
   const CommonTextFormField({
     super.key,
@@ -68,6 +71,8 @@ class CommonTextFormField extends StatelessWidget {
     this.readOnly = false, // Initialize readOnly parameter
     this.showCursor = true, // Initialize showCursor parameter
     this.focusNode, // Initialize focusNode parameter
+    this.preventKeyboard = false, // Initialize preventKeyboard parameter
+    this.onTap, // Initialize onTap parameter
   });
 
   @override
@@ -77,107 +82,112 @@ class CommonTextFormField extends StatelessWidget {
         margin: margin,
         height: height,
         width: width,
-        child: TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          obscureText: commonProvider.obscureText ? obscureText : false,
-          keyboardType: keyboardType,
-          inputFormatters: [
-            UpperCaseTextFormatter(allCaps),
-            LengthLimitingTextInputFormatter(maxLength),
-          ],
-          onChanged: onChanged,
-          maxLines: maxLines,
-          cursorColor: cursorColor,
-          readOnly: readOnly,
-          showCursor: showCursor,
-          style: TextStyle(
-            color: textColor,
-            fontSize: fontSize ??
-                context.resources.dimension
-                    .appBigText, // Use the new fontSize parameter
-            fontFamily: font,
-          ),
-          textInputAction: textInputAction,
-          onFieldSubmitted: onFieldSubmitted,
-          decoration: InputDecoration(
-            isDense: false,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            fillColor: context.resources.color.colorTextFormFieldFill,
-            focusedBorder: isBorderUnderLine
-                ? UnderlineInputBorder(
-                    borderSide: isBorderSideNone
-                        ? BorderSide.none
-                        : BorderSide(
-                            color: context.resources.color.themeColor
-                                .withOpacity(0.8),
-                            width: 1.5,
-                          ),
-                  )
-                : OutlineInputBorder(
-                    borderSide: isBorderSideNone
-                        ? BorderSide.none
-                        : BorderSide(
-                            color: context.resources.color.themeColor
-                                .withOpacity(0.8),
-                            width: 1.5),
-                  ),
-            enabledBorder: isBorderUnderLine
-                ? UnderlineInputBorder(
-                    borderSide: isBorderSideNone
-                        ? BorderSide.none
-                        : BorderSide(
-                            color: context.resources.color.themeColor
-                                .withOpacity(0.3),
-                            width: 1,
-                          ),
-                  )
-                : OutlineInputBorder(
-                    borderSide: isBorderSideNone
-                        ? BorderSide.none
-                        : BorderSide(
-                            color: context.resources.color.themeColor
-                                .withOpacity(0.3),
-                            width: 1,
-                          ),
-                  ),
-            labelText: showLabel ? label : null,
-            labelStyle: getStyle1(context),
-            hintText: label,
-            hintStyle: getStyle(context),
-            counterText: counterText,
-            suffixIcon: suffixIcon
-                ? IconButton(
-                    onPressed: () {
-                      commonProvider.setObscureText();
-                    },
-                    icon: Icon(commonProvider.obscureText
-                        ? Icons.visibility_off
-                        : Icons.visibility))
-                : suffixWidget,
-            prefixIcon: prefixWidget,
-            counterStyle: getStyle(context),
-            disabledBorder: isBorderUnderLine
-                ? UnderlineInputBorder(
-                    borderSide: isBorderSideNone
-                        ? BorderSide.none
-                        : BorderSide(
-                            color: context.resources.color.themeColor
-                                .withOpacity(0.3),
-                            width: 1,
-                          ),
-                  )
-                : OutlineInputBorder(
-                    borderSide: isBorderSideNone
-                        ? BorderSide.none
-                        : BorderSide(
-                            color: context.resources.color.themeColor
-                                .withOpacity(0.3),
-                            width: 1,
-                          ),
-                  ),
-            enabled: enabled,
+        child: GestureDetector(
+          onTap: onTap,
+          child: TextFormField(
+            controller: controller,
+            focusNode: preventKeyboard ? FocusNode() : focusNode,
+            enabled: preventKeyboard ? false : enabled,
+            autofocus: false,
+            obscureText: commonProvider.obscureText ? obscureText : false,
+            keyboardType: preventKeyboard ? TextInputType.none : keyboardType,
+            inputFormatters: [
+              UpperCaseTextFormatter(allCaps),
+              LengthLimitingTextInputFormatter(maxLength),
+            ],
+            onChanged: onChanged,
+            maxLines: maxLines,
+            cursorColor: cursorColor,
+            readOnly: readOnly,
+            showCursor: showCursor,
+            style: TextStyle(
+              color: textColor,
+              fontSize: fontSize ??
+                  context.resources.dimension
+                      .appBigText, // Use the new fontSize parameter
+              fontFamily: font,
+            ),
+            textInputAction: textInputAction,
+            onFieldSubmitted: onFieldSubmitted,
+            decoration: InputDecoration(
+              isDense: false,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              fillColor: context.resources.color.colorTextFormFieldFill,
+              focusedBorder: isBorderUnderLine
+                  ? UnderlineInputBorder(
+                      borderSide: isBorderSideNone
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: context.resources.color.themeColor
+                                  .withOpacity(0.8),
+                              width: 1.5,
+                            ),
+                    )
+                  : OutlineInputBorder(
+                      borderSide: isBorderSideNone
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: context.resources.color.themeColor
+                                  .withOpacity(0.8),
+                              width: 1.5),
+                    ),
+              enabledBorder: isBorderUnderLine
+                  ? UnderlineInputBorder(
+                      borderSide: isBorderSideNone
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: context.resources.color.themeColor
+                                  .withOpacity(0.3),
+                              width: 1,
+                            ),
+                    )
+                  : OutlineInputBorder(
+                      borderSide: isBorderSideNone
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: context.resources.color.themeColor
+                                  .withOpacity(0.3),
+                              width: 1,
+                            ),
+                    ),
+              labelText: showLabel ? label : null,
+              labelStyle: getStyle1(context),
+              hintText: label,
+              hintStyle: getStyle(context),
+              counterText: counterText,
+              suffixIcon: suffixIcon
+                  ? IconButton(
+                      onPressed: () {
+                        commonProvider.setObscureText();
+                      },
+                      icon: Icon(commonProvider.obscureText
+                          ? Icons.visibility_off
+                          : Icons.visibility))
+                  : suffixWidget,
+              prefixIcon: prefixWidget,
+              counterStyle: getStyle(context),
+              disabledBorder: isBorderUnderLine
+                  ? UnderlineInputBorder(
+                      borderSide: isBorderSideNone
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: context.resources.color.themeColor
+                                  .withOpacity(0.3),
+                              width: 1,
+                            ),
+                    )
+                  : OutlineInputBorder(
+                      borderSide: isBorderSideNone
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: context.resources.color.themeColor
+                                  .withOpacity(0.3),
+                              width: 1,
+                            ),
+                    ),
+              enabled: enabled,
+            ),
           ),
         ),
       );
@@ -213,5 +223,15 @@ class UpperCaseTextFormatter extends TextInputFormatter {
       text: isNeedAllCaps ? newValue.text.toUpperCase() : newValue.text,
       selection: newValue.selection,
     );
+  }
+}
+
+class AlwaysDisabledFocusNode extends FocusNode {
+  @override
+  bool get hasFocus => false;
+
+  @override
+  void requestFocus([FocusNode? node]) {
+    // Do nothing
   }
 }

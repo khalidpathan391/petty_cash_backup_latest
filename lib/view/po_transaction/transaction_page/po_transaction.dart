@@ -17,6 +17,7 @@ import 'package:petty_cash/view/base/BaseGestureTouchSafeArea.dart';
 import 'package:petty_cash/view/common/transaction_common/common_header_transactions.dart';
 import 'package:petty_cash/view/common_annotated_region.dart';
 import 'package:petty_cash/view/po_transaction/WorkFlow/common_workflow_bottom_bar.dart';
+import 'package:petty_cash/view/po_transaction/WorkFlow/new_wf_common.dart';
 
 import 'package:petty_cash/view/widget/CustomAppBar.dart';
 import 'package:petty_cash/view/widget/common_button.dart';
@@ -255,6 +256,35 @@ class _PoTransactionState extends State<PoTransaction>
                                   children: [
                                     _HeaderTab(),
                                     _ItemDetailsTab(),
+                                    // Work Flow
+                                    if (provider.isWorkFlow)
+                                      if (provider.isSubmit ||
+                                          provider.isApproved)
+                                        NewWFCommon(
+                                            listData: provider
+                                                .purchaseOrderModel!
+                                                .apprvlLvlStatus!),
+                                    // if (provider.isWorkFlow)
+                                    //   provider.purchaseOrderModel
+                                    //                   ?.apprvlLvlStatus !=
+                                    //               null &&
+                                    //           provider.purchaseOrderModel!
+                                    //               .apprvlLvlStatus!.isNotEmpty
+                                    //       ? NewWFCommon(
+                                    //           listData: provider
+                                    //               .purchaseOrderModel!
+                                    //               .apprvlLvlStatus!)
+                                    //       : Container(
+                                    //           padding: EdgeInsets.all(20),
+                                    //           child: Center(
+                                    //             child: CommonTextView(
+                                    //               label:
+                                    //                   'No WorkFlow data available',
+                                    //               fontSize: 16,
+                                    //               color: Colors.grey[600],
+                                    //             ),
+                                    //           ),
+                                    //         ),
                                   ],
                                 ),
                               ),
@@ -270,10 +300,6 @@ class _PoTransactionState extends State<PoTransaction>
 }
 
 // Custom focus node that always prevents keyboard opening
-class AlwaysDisabledFocusNode extends FocusNode {
-  @override
-  bool get hasFocus => false;
-}
 
 class _HeaderTab extends StatefulWidget {
   @override
@@ -283,7 +309,6 @@ class _HeaderTab extends StatefulWidget {
 class _HeaderTabState extends State<_HeaderTab> {
   late quill.QuillController _remarkQuillCtrl;
   // Custom focus node that always prevents keyboard opening
-  static final FocusNode _alwaysDisabledFocusNode = AlwaysDisabledFocusNode();
 
   @override
   void initState() {
@@ -1656,7 +1681,7 @@ class _HeaderTabState extends State<_HeaderTab> {
               child: CommonTextFormField(
                 label: label,
                 controller: controller,
-                focusNode: _alwaysDisabledFocusNode,
+                // focusNode: true,
                 enabled: false,
                 readOnly: true,
                 height: dH * 0.05,
@@ -1678,10 +1703,13 @@ class _HeaderTabState extends State<_HeaderTab> {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: GestureDetector(
         onTap: () {
-          // Dismiss keyboard when tapping outside text fields
-          FocusScope.of(context).unfocus();
+          // Dismiss keyboard when tapping outside text fields, but not on Quill editor
+          final focusNode = FocusScope.of(context).focusedChild;
+          if (focusNode != null && !focusNode.hasPrimaryFocus) {
+            FocusScope.of(context).unfocus();
+          }
         },
-        behavior: HitTestBehavior.opaque,
+        behavior: HitTestBehavior.deferToChild,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1772,7 +1800,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                           child: CommonTextFormField(
                             label: 'Ref Doc Code',
                             controller: vm.refDocCodeCtrl,
-                            focusNode: _alwaysDisabledFocusNode,
+                            // focusNode: _alwaysDisabledFocusNode,
                             enabled: false,
                             height: dH * 0.05,
                             hintFontSize: tS * 0.75,
@@ -1805,7 +1833,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                           child: CommonTextFormField(
                             label: 'Ref Doc No',
                             controller: vm.refDocNoCtrl,
-                            focusNode: _alwaysDisabledFocusNode,
+                            // focusNode: _alwaysDisabledFocusNode,
                             enabled: false,
                             height: dH * 0.05,
                             hintFontSize: tS * 0.75,
@@ -1857,7 +1885,7 @@ class _HeaderTabState extends State<_HeaderTab> {
               field: CommonTextFormField(
                 label: 'Exchange Rate*',
                 controller: vm.exchangeRateCtrl,
-                focusNode: _alwaysDisabledFocusNode,
+                // focusNode: _alwaysDisabledFocusNode,
                 enabled: false,
                 readOnly: true,
                 height: dH * 0.05,
@@ -1903,7 +1931,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                   child: CommonTextFormField(
                     label: 'Payment Term*',
                     controller: vm.paymentTermCtrl,
-                    focusNode: _alwaysDisabledFocusNode,
+                    // focusNode: _alwaysDisabledFocusNode,
                     enabled: false,
                     readOnly: true,
                     suffixWidget: const Icon(Icons.search),
@@ -1925,7 +1953,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                   child: CommonTextFormField(
                     label: 'Mode of Shipment*',
                     controller: vm.modeShipmentCtrl,
-                    focusNode: _alwaysDisabledFocusNode,
+                    // focusNode: _alwaysDisabledFocusNode,
                     enabled: false,
                     readOnly: true,
                     suffixWidget: const Icon(Icons.search),
@@ -1947,7 +1975,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                   child: CommonTextFormField(
                     label: 'Mode of Payment*',
                     controller: vm.modePaymentCtrl,
-                    focusNode: _alwaysDisabledFocusNode,
+                    // focusNode: _alwaysDisabledFocusNode,
                     enabled: false,
                     readOnly: true,
                     suffixWidget: const Icon(Icons.search),
@@ -1960,32 +1988,32 @@ class _HeaderTabState extends State<_HeaderTab> {
           combinedSearchField(
               label: 'Charge Type*',
               code: vm.chargeTypeCodeCtrl,
-              desc: vm.chargeTypeDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           combinedSearchField(
               label: 'Charge To*',
               code: vm.chargeToCodeCtrl,
-              desc: vm.chargeToDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           combinedSearchField(
               label: 'Ship to Store Loc*',
               code: vm.shipToStoreCodeCtrl,
-              desc: vm.shipToStoreDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           combinedSearchField(
               label: 'Purchase Type*',
               code: vm.purchaseTypeCodeCtrl,
-              desc: vm.purchaseTypeDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           combinedSearchField(
               label: 'Petty Cash No*',
               code: vm.pettyCashCodeCtrl,
-              desc: vm.pettyCashDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           combinedSearchField(
               label: 'Buyer ID*',
               code: vm.buyerCodeCtrl,
-              desc: vm.buyerDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           // labelWithField(
           //     label: 'ETA*',
@@ -2001,7 +2029,7 @@ class _HeaderTabState extends State<_HeaderTab> {
           combinedSearchField(
               label: 'Delivery Term*',
               code: vm.deliveryTermCodeCtrl,
-              desc: vm.deliveryTermDescCtrl,
+              desc: TextEditingController(),
               showSearch: true),
           // labelWithField(
           //     label: 'Need By Date*',
@@ -2024,14 +2052,19 @@ class _HeaderTabState extends State<_HeaderTab> {
               overFlow: TextOverflow.ellipsis,
             ),
           ),
-          QuillTextField(
-            controller: Provider.of<PoApplicationVm>(context, listen: false)
-                .remarkQuillController,
-            onChange: (_) {
-              Provider.of<PoApplicationVm>(context, listen: false)
-                  .setRemarkFromQuill();
+          GestureDetector(
+            onTap: () {
+              // Allow Quill editor to handle its own focus
             },
-            height: MediaQuery.of(context).size.height * 0.4,
+            child: QuillTextField(
+              controller: Provider.of<PoApplicationVm>(context, listen: false)
+                  .remarkQuillController,
+              onChange: (_) {
+                Provider.of<PoApplicationVm>(context, listen: false)
+                    .setRemarkFromQuill();
+              },
+              height: MediaQuery.of(context).size.height * 0.4,
+            ),
           ),
         ]),
       ),
@@ -2056,7 +2089,13 @@ class _HeaderSummary extends StatelessWidget {
           child: TransactionStart(
             label: 'Doc. No.*',
             labelVal: "${vm.docNoTypeCtrl.text} - ${vm.docNoCtrl.text}",
-            label2: vm.statusCtrl.text.isEmpty ? 'New' : vm.statusCtrl.text,
+            label2: () {
+              print(
+                  '🔍 UI Status check - statusCtrl.text: "${vm.statusCtrl.text}"');
+              print(
+                  '🔍 UI Status check - isEmpty: ${vm.statusCtrl.text.isEmpty}');
+              return vm.statusCtrl.text.isEmpty ? 'New' : vm.statusCtrl.text;
+            }(),
             label2Color: Colors.green,
           ),
         ),
