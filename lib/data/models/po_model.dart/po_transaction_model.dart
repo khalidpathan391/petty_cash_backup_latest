@@ -1,6 +1,7 @@
 // ignore_for_file: unnecessary_this, unnecessary_new, prefer_collection_literals
 
 import 'package:flutter/material.dart';
+import 'package:petty_cash/data/models/common/common_transaction_models.dart';
 import 'package:petty_cash/data/models/common/common_work_flow_model.dart';
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 
@@ -997,54 +998,54 @@ class TaxPopup {
   }
 }
 
-class HeaderAttchLst {
-  String? docAttachCode;
-  int? docAttachId;
-  String? docAttachName;
-  String? docAttachUrl;
-  String? docType;
-  int? docTypeId;
-  String? docTitle;
-  int type = 0;
-  String url = '';
-  String? lineId;
+// class HeaderAttchLst {
+//   String? docAttachCode;
+//   int? docAttachId;
+//   String? docAttachName;
+//   String? docAttachUrl;
+//   String? docType;
+//   int? docTypeId;
+//   String? docTitle;
+//   int type = 0;
+//   String url = '';
+//   String? lineId;
 
-  HeaderAttchLst(
-      {this.docAttachCode,
-      this.docAttachId,
-      this.docAttachName,
-      this.docAttachUrl,
-      this.docType,
-      this.docTypeId,
-      this.docTitle,
-      type,
-      url,
-      this.lineId});
+//   HeaderAttchLst(
+//       {this.docAttachCode,
+//       this.docAttachId,
+//       this.docAttachName,
+//       this.docAttachUrl,
+//       this.docType,
+//       this.docTypeId,
+//       this.docTitle,
+//       type,
+//       url,
+//       this.lineId});
 
-  HeaderAttchLst.fromJson(Map<String, dynamic> json) {
-    docAttachCode = json['doc_attach_code'];
-    docAttachId = json['doc_attach_id'];
-    docAttachName = json['doc_attach_name'];
-    docAttachUrl = json['doc_attach_url'];
-    docType = json['doc_type'];
-    docTypeId = json['doc_type_id'];
-    docTitle = json['doc_title'];
-    lineId = json['line_id'];
-  }
+//   HeaderAttchLst.fromJson(Map<String, dynamic> json) {
+//     docAttachCode = json['doc_attach_code'];
+//     docAttachId = json['doc_attach_id'];
+//     docAttachName = json['doc_attach_name'];
+//     docAttachUrl = json['doc_attach_url'];
+//     docType = json['doc_type'];
+//     docTypeId = json['doc_type_id'];
+//     docTitle = json['doc_title'];
+//     lineId = json['line_id'];
+//   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['doc_attach_code'] = docAttachCode;
-    data['doc_attach_id'] = docAttachId;
-    data['doc_attach_name'] = docAttachName;
-    data['doc_attach_url'] = docAttachUrl;
-    data['doc_type'] = docType;
-    data['doc_type_id'] = docTypeId;
-    data['doc_title'] = docTitle;
-    data['line_id'] = lineId;
-    return data;
-  }
-}
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = <String, dynamic>{};
+//     data['doc_attach_code'] = docAttachCode;
+//     data['doc_attach_id'] = docAttachId;
+//     data['doc_attach_name'] = docAttachName;
+//     data['doc_attach_url'] = docAttachUrl;
+//     data['doc_type'] = docType;
+//     data['doc_type_id'] = docTypeId;
+//     data['doc_title'] = docTitle;
+//     data['line_id'] = lineId;
+//     return data;
+//   }
+// }
 
 class LineItemAttachment {
   String? docAttachCode;

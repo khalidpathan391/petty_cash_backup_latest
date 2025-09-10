@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/HomePage/DashBoardModel.dart';
 import 'package:petty_cash/data/models/common/common_work_flow_model.dart';
+
 import 'package:petty_cash/data/models/po_model.dart/get_reefernce_pr.dart';
 import 'package:petty_cash/data/models/po_model.dart/supplier_type_model.dart'
     as supplier_type;
@@ -15,6 +16,7 @@ import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:petty_cash/utils/app_utils.dart';
 import 'package:petty_cash/view/base/BaseGestureTouchSafeArea.dart';
 import 'package:petty_cash/view/common/transaction_common/common_header_transactions.dart';
+
 import 'package:petty_cash/view/common_annotated_region.dart';
 import 'package:petty_cash/view/po_transaction/WorkFlow/common_workflow_bottom_bar.dart';
 import 'package:petty_cash/view/po_transaction/WorkFlow/new_wf_common.dart';
@@ -1614,6 +1616,10 @@ class _HeaderTabState extends State<_HeaderTab> {
     });
   }
 
+  /// --- Attachments Bottom Sheet ---
+
+  /// Add attachment functionality
+
   @override
   Widget build(BuildContext context) {
     dW = MediaQuery.of(context).size.width;
@@ -1711,6 +1717,23 @@ class _HeaderTabState extends State<_HeaderTab> {
         },
         behavior: HitTestBehavior.deferToChild,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          // Header Attachment Widget - Right aligned
+
+          SizedBox(height: dH * 0.01),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: [
+          //     HeaderAttachmentWidget(
+          //       themeColor: context.resources.color.themeColor,
+          //       onAttachment: () {
+          //         AppUtils.showToastGreenBg(context, 'Under Development');
+          //         // vm.headerAttachment(context);
+          //       },
+          //       listData: vm.purchaseOrderModel?.headerAttachmentLst ?? [],
+          //       pageDir: Global.menuData?.txnCode ?? '',
+          //     ),
+          //   ],
+          // ), // Add some spacing
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1742,6 +1765,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                     _showNetValueSheet();
                   } else if (value == 'terms') {
                     _showTermsSheet();
+                  } else if (value == 'attachments') {
+                    AppUtils.showToastGreenBg(context, 'Under Development');
+                    // _showTermsSheet();
                   }
                 },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -1766,10 +1792,18 @@ class _HeaderTabState extends State<_HeaderTab> {
                       fontSize: tS * 0.9,
                     ),
                   ),
+                  PopupMenuItem<String>(
+                    value: 'attachments',
+                    child: CommonTextView(
+                      label: 'Attachments',
+                      fontSize: tS * 0.9,
+                    ),
+                  ),
                 ],
               )
             ],
           ),
+
           combinedSearchField(
               label: 'Doc. Loc.*',
               code: vm.docLocCodeCtrl,
@@ -2260,6 +2294,8 @@ class _ItemDetailsTab extends StatelessWidget {
                         onSelected: (String result) {
                           switch (result) {
                             case 'Attachments':
+                              AppUtils.showToastGreenBg(
+                                  context, 'Under Development');
                               // provider
                               //     .onAccountPopUpAttachment(
                               //         context,

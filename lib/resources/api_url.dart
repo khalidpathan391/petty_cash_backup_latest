@@ -82,4 +82,8 @@ class ApiUrl {
   static var wfRejectAmend = 'erp_api/amend_reject_wf/';
   static var wfReply = 'erp_api/reply_wf/';
   static var wfMultiRFI = 'erp_api/multi_rfi_wf/';
+
+  static var commonAddAttachments = 'erp_api/add_common_attachment/';
+  static var commonGetAttachmentList = 'erp_api/view_common_attachment/';
+  static var commonAttachmentTypeList = 'erp_api/get_attachment_docu_list/';
 }

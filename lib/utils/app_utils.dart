@@ -730,6 +730,18 @@ class AppUtils {
     return data;
   }
 
+  static void showLocalImage(BuildContext context, String filePath) {
+    List<String> parts = filePath.split('.');
+    String extension =
+        parts.last.toLowerCase(); // Return the last part as lowercase
+    if (extension == 'jpg' || extension == 'jpeg' || extension == 'png') {
+      AppUtils.showPhotoDialog(context, 'Selected Image', filePath,
+          isOnline: false);
+    } else {
+      AppUtils.showToastRedBg(context, 'File View Not Supported');
+    }
+  }
+
   static List<Locale> getLangList() {
     return const [
       Locale('en', 'US'), // English

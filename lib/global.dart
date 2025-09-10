@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/Authentication/AuthenticationModel.dart';
 import 'package:petty_cash/data/models/HomePage/MenuResponse.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:petty_cash/data/models/common/common_transaction_models.dart';
 import 'package:petty_cash/data/models/custom/custom_loader_model.dart';
 import 'package:petty_cash/data/sources/local/shared_preference.dart';
 import 'package:petty_cash/resources/api_url.dart';
@@ -32,7 +33,7 @@ class Global {
   static String subTxnType = '';
   static String transactionHeaderId = '';
   static int attachmentsLength = 0;
-  // static List<HeaderAttchLst> headerAttachmentList = [];
+  static List<HeaderAttchLst> headerAttachmentList = [];
   static SearchListType commonSearchType = SearchListType.defaultType;
   static PackageInfo packageInfo = PackageInfo(
     appName: 'Unknown',

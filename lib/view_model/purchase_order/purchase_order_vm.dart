@@ -15,6 +15,7 @@ import 'package:petty_cash/resources/api_url.dart';
 import 'package:petty_cash/global.dart';
 
 import 'package:petty_cash/data/repository/general_rep.dart';
+import 'package:petty_cash/view/common/transaction_common/common_attachments.dart';
 import 'package:petty_cash/view/po_transaction/common_pagination/CommonPaginationSearching.dart';
 import 'package:petty_cash/view/po_transaction/pagination_searching/create_supplier_pagination.dart';
 import 'package:petty_cash/view/po_transaction/pagination_searching/supplier_code_pagination.dart';
@@ -3230,5 +3231,31 @@ class PoApplicationVm extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  void headerAttachment(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CommonAttachment(
+          txnType: Global.subTxnType,
+          docNo: docNo,
+          tab: '',
+          //  purchaseOrderModel!.headerAttachmentLst![0].tab,
+          uniqueVal: purchaseOrderModel?.uniqueVal ?? '72801757444041',
+
+          headerId: myHeaderId == -1 ? '0' : myHeaderId.toString(),
+          lineId: '', //for header it is empty
+        ),
+      ),
+    ).then((value) {
+      if (value != null) {
+        // headerAttachmentLength = value[0];
+        if (Global.headerAttachmentList.isNotEmpty) {
+          purchaseOrderModel!.headerAttachmentLst = value[1];
+        }
+        notifyListeners();
+      }
+    });
   }
 }
