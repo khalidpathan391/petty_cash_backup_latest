@@ -1719,20 +1719,7 @@ class _HeaderTabState extends State<_HeaderTab> {
           // Header Attachment Widget - Right aligned
 
           SizedBox(height: dH * 0.01),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.end,
-          //   children: [
-          //     HeaderAttachmentWidget(
-          //       themeColor: context.resources.color.themeColor,
-          //       onAttachment: () {
-          //         AppUtils.showToastGreenBg(context, 'Under Development');
-          //         // vm.headerAttachment(context);
-          //       },
-          //       listData: vm.purchaseOrderModel?.headerAttachmentLst ?? [],
-          //       pageDir: Global.menuData?.txnCode ?? '',
-          //     ),
-          //   ],
-          // ), // Add some spacing
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -1803,10 +1790,6 @@ class _HeaderTabState extends State<_HeaderTab> {
             ],
           ),
 
-          // combinedSearchField(
-          //     label: 'Doc. Loc.*',
-          //     code: vm.docLocCodeCtrl,
-          //     desc: vm.docLocDescCtrl),
           combinedSearchField(
               label: 'Reference*',
               code: vm.referenceCtrl,
@@ -1890,47 +1873,10 @@ class _HeaderTabState extends State<_HeaderTab> {
               ])),
           combinedSearchField(
               label: 'Supplier*',
-              code: vm.supplierCtrl,
-              desc: TextEditingController(),
+              code: vm.supplierHeaderCodeCtrl,
+              desc: vm.supplierHeaderDescCtrl,
               showSearch: true),
-          // labelWithField(
-          //     label: 'Sup Offer No.',
-          //     field: CommonTextFormField(
-          //       label: 'Sup Offer No.',
-          //       controller: vm.supOfferNoCtrl,
-          //       enabled: false,
-          //       height: dH * 0.05,
-          //       hintFontSize: tS * 0.75,
-          //       fontSize: tS * 0.75,
-          //     )),
-          // labelWithField(
-          //     label: 'Sup Offer Date*',
-          //     field: CommonTextFormField(
-          //       label: 'Sup Offer Date*',
-          //       controller: vm.supOfferDateCtrl,
-          //       enabled: false,
-          //       suffixWidget: const Icon(Icons.calendar_month),
-          //       height: dH * 0.05,
-          //       hintFontSize: tS * 0.75,
-          //       fontSize: tS * 0.75,
-          //     )),
-          // combinedSearchField(
-          //     label: 'Currency*',
-          //     code: vm.currencyCodeCtrl,
-          //     desc: vm.currencyDescCtrl,
-          //     showSearch: true),
-          // labelWithField(
-          //     label: 'Exchange Rate*',
-          //     field: CommonTextFormField(
-          //       label: 'Exchange Rate*',
-          //       controller: vm.exchangeRateCtrl,
-          //       // focusNode: _alwaysDisabledFocusNode,
-          //       enabled: false,
-          //       readOnly: true,
-          //       height: dH * 0.05,
-          //       hintFontSize: tS * 0.75,
-          //       fontSize: tS * 0.75,
-          //     )),
+
           labelWithField(
               label: 'Discount / Value',
               field: Row(children: [
@@ -1964,129 +1910,34 @@ class _HeaderTabState extends State<_HeaderTab> {
                   onChanged: vm.onValueChanged,
                 )),
               ])),
-          // labelWithField(
-          //     label: 'Payment Term*',
-          //     field: GestureDetector(
-          //       behavior: HitTestBehavior.opaque,
-          //       onTap: () =>
-          //           Provider.of<PoApplicationVm>(context, listen: false)
-          //               .searchField(context, 'Payment Term*'),
-          //       child: AbsorbPointer(
-          //         absorbing: true,
-          //         child: CommonTextFormField(
-          //           label: 'Payment Term*',
-          //           controller: vm.paymentTermCtrl,
-          //           // focusNode: _alwaysDisabledFocusNode,
-          //           enabled: false,
-          //           readOnly: true,
-          //           suffixWidget: const Icon(Icons.search),
-          //           height: dH * 0.05,
-          //           hintFontSize: tS * 0.75,
-          //           fontSize: tS * 0.75,
-          //         ),
-          //       ),
-          //     )),
-          // labelWithField(
-          //     label: 'Mode of Shipment*',
-          //     field: GestureDetector(
-          //       behavior: HitTestBehavior.opaque,
-          //       onTap: () =>
-          //           Provider.of<PoApplicationVm>(context, listen: false)
-          //               .searchField(context, 'Mode of Shipment*'),
-          //       child: AbsorbPointer(
-          //         absorbing: true,
-          //         child: CommonTextFormField(
-          //           label: 'Mode of Shipment*',
-          //           controller: vm.modeShipmentCtrl,
-          //           // focusNode: _alwaysDisabledFocusNode,
-          //           enabled: false,
-          //           readOnly: true,
-          //           suffixWidget: const Icon(Icons.search),
-          //           height: dH * 0.05,
-          //           hintFontSize: tS * 0.75,
-          //           fontSize: tS * 0.75,
-          //         ),
-          //       ),
-          //     )),
-          // labelWithField(
-          //     label: 'Mode of Payment*',
-          //     field: GestureDetector(
-          //       behavior: HitTestBehavior.opaque,
-          //       onTap: () =>
-          //           Provider.of<PoApplicationVm>(context, listen: false)
-          //               .searchField(context, 'Mode of Payment*'),
-          //       child: AbsorbPointer(
-          //         absorbing: true,
-          //         child: CommonTextFormField(
-          //           label: 'Mode of Payment*',
-          //           controller: vm.modePaymentCtrl,
-          //           // focusNode: _alwaysDisabledFocusNode,
-          //           enabled: false,
-          //           readOnly: true,
-          //           suffixWidget: const Icon(Icons.search),
-          //           height: dH * 0.05,
-          //           hintFontSize: tS * 0.75,
-          //           fontSize: tS * 0.75,
-          //         ),
-          //       ),
-          //     )),
+
           combinedSearchField(
               label: 'Charge Type*',
               code: vm.chargeTypeCodeCtrl,
-              desc: TextEditingController(),
+              desc: vm.chargeTypeDescCtrl,
               showSearch: true),
           combinedSearchField(
               label: 'Charge To*',
               code: vm.chargeToCodeCtrl,
-              desc: TextEditingController(),
+              desc: vm.chargeToDescCtrl,
               showSearch: true),
           combinedSearchField(
               label: 'Ship to Store Loc*',
               code: vm.shipToStoreCodeCtrl,
-              desc: TextEditingController(),
+              desc: vm.shipToStoreDescCtrl,
               showSearch: true),
-          // combinedSearchField(
-          //     label: 'Purchase Type*',
-          //     code: vm.purchaseTypeCodeCtrl,
-          //     desc: TextEditingController(),
-          //     showSearch: true),
+
           combinedSearchField(
               label: 'Petty Cash No*',
               code: vm.pettyCashCodeCtrl,
-              desc: TextEditingController(),
+              desc: vm.pettyCashDescCtrl,
               showSearch: true),
           combinedSearchField(
               label: 'Buyer ID*',
               code: vm.buyerCodeCtrl,
-              desc: TextEditingController(),
+              desc: vm.buyerDescCtrl,
               showSearch: true),
-          // labelWithField(
-          //     label: 'ETA*',
-          //     field: CommonTextFormField(
-          //       label: 'ETA*',
-          //       controller: vm.etaCtrl,
-          //       enabled: false,
-          //       suffixWidget: const Icon(Icons.calendar_month),
-          //       height: dH * 0.05,
-          //       hintFontSize: tS * 0.75,
-          //       fontSize: tS * 0.75,
-          //     )),
-          // combinedSearchField(
-          //     label: 'Delivery Term*',
-          //     code: vm.deliveryTermCodeCtrl,
-          //     desc: TextEditingController(),
-          //     showSearch: true),
-          // labelWithField(
-          //     label: 'Need By Date*',
-          //     field: CommonTextFormField(
-          //       label: 'Need By Date*',
-          //       controller: vm.needByDateCtrl,
-          //       enabled: false,
-          //       suffixWidget: const Icon(Icons.calendar_month),
-          //       height: dH * 0.05,
-          //       hintFontSize: tS * 0.75,
-          //       fontSize: tS * 0.75,
-          //     )),
+
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: CommonTextView(

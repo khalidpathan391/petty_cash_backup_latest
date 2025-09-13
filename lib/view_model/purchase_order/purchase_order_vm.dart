@@ -48,7 +48,8 @@ class PoApplicationVm extends ChangeNotifier {
   String referenceSelectedCode = 'DIRECT';
 
   /// Supplier Information Controllers
-  final TextEditingController supplierCtrl = TextEditingController();
+  final TextEditingController supplierHeaderCodeCtrl = TextEditingController();
+  final TextEditingController supplierHeaderDescCtrl = TextEditingController();
   final TextEditingController supOfferNoCtrl = TextEditingController();
   final TextEditingController supOfferDateCtrl = TextEditingController();
 
@@ -302,7 +303,8 @@ class PoApplicationVm extends ChangeNotifier {
     List<String> missingFields = [];
 
     // 2. Supplier (MANDATORY)
-    if (supplierCtrl.text.isEmpty || supp_id == 0) {
+    if (supplierHeaderCodeCtrl.text.isEmpty ||
+        supplierHeaderDescCtrl.text.isEmpty) {
       missingFields.add("Supplier");
     }
 
@@ -436,7 +438,8 @@ class PoApplicationVm extends ChangeNotifier {
 
     // Supplier
     headerTab.supplierId = supp_id;
-    headerTab.supplierName = supplierCtrl.text;
+    headerTab.supplierCode = supplierHeaderCodeCtrl.text;
+    headerTab.supplierName = supplierHeaderDescCtrl.text;
     headerTab.supplierOfferNo =
         supOfferNoCtrl.text.isEmpty ? '' : supOfferNoCtrl.text;
     headerTab.supplierOfferDate = formatDateForBackend(supOfferDateCtrl.text);
@@ -495,8 +498,8 @@ class PoApplicationVm extends ChangeNotifier {
     saveTermsData();
 
     // Supplier creation data
-    headerTab.supplierCode = supplierCode.text;
-    headerTab.supplierDesc = supplierDesc.text;
+    headerTab.supplierCode = supplierHeaderCodeCtrl.text;
+    headerTab.supplierDesc = supplierHeaderDescCtrl.text;
     headerTab.supplierType = supplierType.text;
     headerTab.supplierTypeDesc = supplierTypeDesc.text;
     headerTab.supplierAddress = supplierAddress.text;
@@ -1393,25 +1396,11 @@ class PoApplicationVm extends ChangeNotifier {
   }
 
   void _applyHeaderData(Map<String, dynamic> h) {
-    print('🔍 _applyHeaderData called with data: $h');
-    print(
-        '🔍 _applyHeaderData - status_description: "${h['status_description']}"');
-
     docDateCtrl.text = _s(h['doc_date']);
     docLocCodeCtrl.text = _s(h['doc_loc_code']);
     docLocDescCtrl.text = _s(h['doc_loc_desc']);
     docNoTypeCtrl.text = _s(h['txn_type']);
     docNoCtrl.text = _s(h['txn_no']);
-    print('🔍 Raw status_description from API: "${h['status_description']}"');
-    print(
-        '🔍 Type of status_description: ${h['status_description'].runtimeType}');
-    print('🔍 Is status_description null: ${h['status_description'] == null}');
-    print(
-        '🔍 Is status_description empty: ${h['status_description']?.toString().isEmpty}');
-
-    statusCtrl.text = _s(h['status_description']);
-    print('🔍 Status loaded from API: "${statusCtrl.text}"');
-    print('🔍 Status controller text length: ${statusCtrl.text.length}');
 
     referenceCtrl.text = _s(h['reference']);
     referenceDescCtrl.text = _s(h['reference_desc']);
@@ -1419,13 +1408,17 @@ class PoApplicationVm extends ChangeNotifier {
         referenceDescCtrl.text.isEmpty ? 'DIRECT' : referenceDescCtrl.text;
 
     // Supplier - concatenate code and description
-    final supplierCode = _s(h['supplier_code']);
-    final supplierDesc = _s(h['supplier_name']);
-    supplierCtrl.text = supplierCode.isNotEmpty && supplierDesc.isNotEmpty
-        ? '$supplierCode - $supplierDesc'
-        : supplierDesc.isNotEmpty
-            ? supplierDesc
-            : supplierCode;
+    // final supplierHeadCode = _s(h['supplier_code']);
+    // final supplierHeadDesc = _s(h['supplier_name']);
+    supplierHeaderCodeCtrl.text = _s(h['supplier_code']);
+    supplierHeaderDescCtrl.text = _s(h['supplier_name']);
+
+    // supplierHeaderCodeCtrl.text =
+    //     supplierHeadCode.isNotEmpty && supplierHeadDesc.isNotEmpty
+    //         ? '$supplierHeadCode - $supplierHeadDesc'
+    //         : supplierHeadDesc.isNotEmpty
+    //             ? supplierHeadDesc
+    //             : supplierHeadCode;
 
     supOfferNoCtrl.text = _s(h['supplier_offer_no']);
     supOfferDateCtrl.text = _s(h['supplier_offer_date']);
@@ -1438,12 +1431,12 @@ class PoApplicationVm extends ChangeNotifier {
     // Payment Term - concatenate code and description
     final paymentTermCode = _s(h['payment_term_code']);
     final paymentTermDesc = _s(h['payment_term_desc']);
-    paymentTermCtrl.text =
-        paymentTermCode.isNotEmpty && paymentTermDesc.isNotEmpty
-            ? '$paymentTermCode - $paymentTermDesc'
-            : paymentTermDesc.isNotEmpty
-                ? paymentTermDesc
-                : paymentTermCode;
+    // paymentTermCtrl.text =
+    //     paymentTermCode.isNotEmpty && paymentTermDesc.isNotEmpty
+    //         ? '$paymentTermCode - $paymentTermDesc'
+    //         : paymentTermDesc.isNotEmpty
+    //             ? paymentTermDesc
+    //             : paymentTermCode;
 
     // Mode of Shipment - concatenate code and description
     final modeShipmentCode = _s(h['mode_of_shipment_code']);
@@ -1466,40 +1459,38 @@ class PoApplicationVm extends ChangeNotifier {
                 : modePaymentCode;
 
     // Charge Type - concatenate code and description
-    final chargeTypeCode = _s(h['charge_type_code']);
-    final chargeTypeDesc = _s(h['charge_type_description']);
-    chargeTypeCodeCtrl.text =
-        chargeTypeCode.isNotEmpty && chargeTypeDesc.isNotEmpty
-            ? '$chargeTypeCode - $chargeTypeDesc'
-            : chargeTypeDesc.isNotEmpty
-                ? chargeTypeDesc
-                : chargeTypeCode;
-    chargeTypeDescCtrl.text = chargeTypeDesc;
+    chargeTypeCodeCtrl.text = _s(h['charge_type_code']);
+    chargeTypeDescCtrl.text = _s(h['charge_type_description']);
+    // chargeTypeCodeCtrl.text =
+    //     chargeTypeCode.isNotEmpty && chargeTypeDesc.isNotEmpty
+    //         ? '$chargeTypeCode - $chargeTypeDesc'
+    //         : chargeTypeDesc.isNotEmpty
+    //             ? chargeTypeDesc
+    //             : chargeTypeCode;
+    // chargeTypeDescCtrl.text = chargeTypeDesc;
     // Set chargeTypeCode variable for charge to search functionality
-    this.chargeTypeCode = chargeTypeCode;
+    // this.chargeTypeCode = chargeTypeCode;
 
     // Charge To - concatenate code and description
-    final chargeToCode = _s(h['charge_to_code']);
-    final chargeToDesc = _s(h['charge_to_description']);
-    chargeToCodeCtrl.text = chargeToCode.isNotEmpty && chargeToDesc.isNotEmpty
-        ? '$chargeToCode - $chargeToDesc'
-        : chargeToDesc.isNotEmpty
-            ? chargeToDesc
-            : chargeToCode;
-    chargeToDescCtrl.text = chargeToDesc;
+    chargeToCodeCtrl.text = _s(h['charge_to_code']);
+    chargeToDescCtrl.text = _s(h['charge_to_description']);
+    // chargeToCodeCtrl.text = chargeToCode.isNotEmpty && chargeToDesc.isNotEmpty
+    //     ? '$chargeToCode - $chargeToDesc'
+    //     : chargeToDesc.isNotEmpty
+    //         ? chargeToDesc
+    //         : chargeToCode;
+    // chargeToDescCtrl.text = chargeToDesc;
 
     // Ship To Store - concatenate code and description
-    final shipToStoreCode = _s(h['ship_to_store_loc_code']);
-    final shipToStoreDesc = _s(h['ship_to_store_loc_description']);
-    shipToStoreCodeCtrl.text =
-        shipToStoreCode.isNotEmpty && shipToStoreDesc.isNotEmpty
-            ? '$shipToStoreCode - $shipToStoreDesc'
-            : shipToStoreDesc.isNotEmpty
-                ? shipToStoreDesc
-                : shipToStoreCode;
-    shipToStoreDescCtrl.text = shipToStoreDesc;
-    print(
-        '🔍 Ship To Store - Code: "$shipToStoreCode", Desc: "$shipToStoreDesc", Final: "${shipToStoreCodeCtrl.text}"');
+    shipToStoreCodeCtrl.text = _s(h['ship_to_store_loc_code']);
+    shipToStoreDescCtrl.text = _s(h['ship_to_store_loc_description']);
+    // shipToStoreCodeCtrl.text =
+    //     shipToStoreCode.isNotEmpty && shipToStoreDesc.isNotEmpty
+    //         ? '$shipToStoreCode - $shipToStoreDesc'
+    //         : shipToStoreDesc.isNotEmpty
+    //             ? shipToStoreDesc
+    //             : shipToStoreCode;
+    // shipToStoreDescCtrl.text = shipToStoreDesc;
 
     // Purchase Type - concatenate code and description
     final purchaseTypeCode = _s(h['purchase_type_code']);
@@ -1511,31 +1502,27 @@ class PoApplicationVm extends ChangeNotifier {
                 ? purchaseTypeDesc
                 : purchaseTypeCode;
     purchaseTypeDescCtrl.text = purchaseTypeDesc;
-    print(
-        '🔍 Purchase Type - Code: "$purchaseTypeCode", Desc: "$purchaseTypeDesc", Final: "${purchaseTypeCodeCtrl.text}"');
 
     // Petty Cash - concatenate code and description
-    final pettyCashCode = _s(h['petty_cash_code']);
-    final pettyCashDesc = _s(h['petty_cash_desc']);
-    pettyCashCodeCtrl.text =
-        pettyCashCode.isNotEmpty && pettyCashDesc.isNotEmpty
-            ? '$pettyCashCode - $pettyCashDesc'
-            : pettyCashDesc.isNotEmpty
-                ? pettyCashDesc
-                : pettyCashCode;
-    pettyCashDescCtrl.text = pettyCashDesc;
-    print(
-        '🔍 Petty Cash - Code: "$pettyCashCode", Desc: "$pettyCashDesc", Final: "${pettyCashCodeCtrl.text}"');
+    pettyCashCodeCtrl.text = _s(h['petty_cash_code']);
+    pettyCashDescCtrl.text = _s(h['petty_cash_desc']);
+    // pettyCashCodeCtrl.text =
+    //     pettyCashCode.isNotEmpty && pettyCashDesc.isNotEmpty
+    //         ? '$pettyCashCode - $pettyCashDesc'
+    //         : pettyCashDesc.isNotEmpty
+    //             ? pettyCashDesc
+    //             : pettyCashCode;
+    // pettyCashDescCtrl.text = pettyCashDesc;
 
     // Buyer - concatenate code and description
-    final buyerCode = _s(h['buyer_code']);
-    final buyerDesc = _s(h['buyer_desc']);
-    buyerCodeCtrl.text = buyerCode.isNotEmpty && buyerDesc.isNotEmpty
-        ? '$buyerCode - $buyerDesc'
-        : buyerDesc.isNotEmpty
-            ? buyerDesc
-            : buyerCode;
-    buyerDescCtrl.text = buyerDesc;
+    buyerCodeCtrl.text = _s(h['buyer_code']);
+    buyerDescCtrl.text = _s(h['buyer_desc']);
+    // buyerCodeCtrl.text = buyerCode.isNotEmpty && buyerDesc.isNotEmpty
+    //     ? '$buyerCode - $buyerDesc'
+    //     : buyerDesc.isNotEmpty
+    //         ? buyerDesc
+    //         : buyerCode;
+    // buyerDescCtrl.text = buyerDesc;
 
     etaCtrl.text = _s(h['header_eta']);
 
@@ -1552,8 +1539,6 @@ class PoApplicationVm extends ChangeNotifier {
     needByDateCtrl.text = _s(h['need_by_date']);
     remarkCtrl.text = _s(h['remark']);
     termsCtrl.text = _s(h['header_term_popup']);
-    print('🔍 Terms loaded from API: "${termsCtrl.text}"');
-    print('🔍 Raw header_term_popup from API: "${h['header_term_popup']}"');
 
     // Update header values from header_net_val_popup if available
     if (purchaseOrderModel?.headerNetValPopup != null &&
@@ -1788,7 +1773,9 @@ class PoApplicationVm extends ChangeNotifier {
 
           break;
         case 'Supplier*':
-          supplierCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+          supplierHeaderCodeCtrl.text = result.code ?? '';
+          supplierHeaderDescCtrl.text = result.desc ?? '';
+
           supp_id = result.id ?? 0;
           break;
         case 'Supplier Code':
@@ -2708,17 +2695,17 @@ class PoApplicationVm extends ChangeNotifier {
       supp_id = responseData['supplier_id'];
     }
     if (responseData['supplier_code'] != null) {
-      supplierCode.text = responseData['supplier_code'];
+      supplierHeaderCodeCtrl.text = responseData['supplier_code'];
     }
     if (responseData['supplier_name'] != null) {
-      supplierCtrl.text = responseData['supplier_name'];
+      supplierHeaderDescCtrl.text = responseData['supplier_name'];
     }
 
     // Update the purchase order model if needed
     if (purchaseOrderModel?.headerTab != null) {
       purchaseOrderModel!.headerTab!.supplierId = supp_id;
-      purchaseOrderModel!.headerTab!.supplierCode = supplierCode.text;
-      purchaseOrderModel!.headerTab!.supplierName = supplierCtrl.text;
+      purchaseOrderModel!.headerTab!.supplierCode = supplierHeaderCodeCtrl.text;
+      purchaseOrderModel!.headerTab!.supplierName = supplierHeaderDescCtrl.text;
     }
 
     notifyListeners();
@@ -2765,7 +2752,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Dispose Supplier Information Controllers
   void _disposeSupplierControllers() {
-    supplierCtrl.dispose();
+    supplierCode.dispose();
     supOfferNoCtrl.dispose();
     supOfferDateCtrl.dispose();
     supplierCode.dispose();
@@ -2872,7 +2859,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Clear all supplier information controllers
   void clearSupplierControllers() {
-    supplierCtrl.clear();
+    supplierCode.clear();
     supOfferNoCtrl.clear();
     supOfferDateCtrl.clear();
     supplierCode.clear();
