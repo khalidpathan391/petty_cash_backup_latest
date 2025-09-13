@@ -1687,7 +1687,6 @@ class _HeaderTabState extends State<_HeaderTab> {
               child: CommonTextFormField(
                 label: label,
                 controller: controller,
-                // focusNode: true,
                 enabled: false,
                 readOnly: true,
                 height: dH * 0.05,
@@ -1804,10 +1803,10 @@ class _HeaderTabState extends State<_HeaderTab> {
             ],
           ),
 
-          combinedSearchField(
-              label: 'Doc. Loc.*',
-              code: vm.docLocCodeCtrl,
-              desc: vm.docLocDescCtrl),
+          // combinedSearchField(
+          //     label: 'Doc. Loc.*',
+          //     code: vm.docLocCodeCtrl,
+          //     desc: vm.docLocDescCtrl),
           combinedSearchField(
               label: 'Reference*',
               code: vm.referenceCtrl,
@@ -1836,6 +1835,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                             controller: vm.refDocCodeCtrl,
                             // focusNode: _alwaysDisabledFocusNode,
                             enabled: false,
+                            readOnly: true,
+                            showCursor: false,
+                            preventKeyboard: true,
                             height: dH * 0.05,
                             hintFontSize: tS * 0.75,
                             fontSize: tS * 0.75,
@@ -1869,6 +1871,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                             controller: vm.refDocNoCtrl,
                             // focusNode: _alwaysDisabledFocusNode,
                             enabled: false,
+                            readOnly: true,
+                            showCursor: false,
+                            preventKeyboard: true,
                             height: dH * 0.05,
                             hintFontSize: tS * 0.75,
                             fontSize: tS * 0.75,
@@ -1909,23 +1914,23 @@ class _HeaderTabState extends State<_HeaderTab> {
           //       hintFontSize: tS * 0.75,
           //       fontSize: tS * 0.75,
           //     )),
-          combinedSearchField(
-              label: 'Currency*',
-              code: vm.currencyCodeCtrl,
-              desc: vm.currencyDescCtrl,
-              showSearch: true),
-          labelWithField(
-              label: 'Exchange Rate*',
-              field: CommonTextFormField(
-                label: 'Exchange Rate*',
-                controller: vm.exchangeRateCtrl,
-                // focusNode: _alwaysDisabledFocusNode,
-                enabled: false,
-                readOnly: true,
-                height: dH * 0.05,
-                hintFontSize: tS * 0.75,
-                fontSize: tS * 0.75,
-              )),
+          // combinedSearchField(
+          //     label: 'Currency*',
+          //     code: vm.currencyCodeCtrl,
+          //     desc: vm.currencyDescCtrl,
+          //     showSearch: true),
+          // labelWithField(
+          //     label: 'Exchange Rate*',
+          //     field: CommonTextFormField(
+          //       label: 'Exchange Rate*',
+          //       controller: vm.exchangeRateCtrl,
+          //       // focusNode: _alwaysDisabledFocusNode,
+          //       enabled: false,
+          //       readOnly: true,
+          //       height: dH * 0.05,
+          //       hintFontSize: tS * 0.75,
+          //       fontSize: tS * 0.75,
+          //     )),
           labelWithField(
               label: 'Discount / Value',
               field: Row(children: [
@@ -1935,6 +1940,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                   controller: vm.discountCtrl,
                   enabled: vm.hasItemDetailsFilled(),
                   height: dH * 0.05,
+                  readOnly: false,
+                  showCursor: true,
+                  preventKeyboard: false,
                   hintFontSize: tS * 0.75,
                   fontSize: tS * 0.75,
                   keyboardType: TextInputType.number,
@@ -1946,6 +1954,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                   label: 'Value',
                   controller: vm.valueCtrl,
                   enabled: vm.hasItemDetailsFilled(),
+                  readOnly: false,
+                  showCursor: true,
+                  preventKeyboard: false,
                   height: dH * 0.05,
                   hintFontSize: tS * 0.75,
                   fontSize: tS * 0.75,
@@ -1953,72 +1964,72 @@ class _HeaderTabState extends State<_HeaderTab> {
                   onChanged: vm.onValueChanged,
                 )),
               ])),
-          labelWithField(
-              label: 'Payment Term*',
-              field: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () =>
-                    Provider.of<PoApplicationVm>(context, listen: false)
-                        .searchField(context, 'Payment Term*'),
-                child: AbsorbPointer(
-                  absorbing: true,
-                  child: CommonTextFormField(
-                    label: 'Payment Term*',
-                    controller: vm.paymentTermCtrl,
-                    // focusNode: _alwaysDisabledFocusNode,
-                    enabled: false,
-                    readOnly: true,
-                    suffixWidget: const Icon(Icons.search),
-                    height: dH * 0.05,
-                    hintFontSize: tS * 0.75,
-                    fontSize: tS * 0.75,
-                  ),
-                ),
-              )),
-          labelWithField(
-              label: 'Mode of Shipment*',
-              field: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () =>
-                    Provider.of<PoApplicationVm>(context, listen: false)
-                        .searchField(context, 'Mode of Shipment*'),
-                child: AbsorbPointer(
-                  absorbing: true,
-                  child: CommonTextFormField(
-                    label: 'Mode of Shipment*',
-                    controller: vm.modeShipmentCtrl,
-                    // focusNode: _alwaysDisabledFocusNode,
-                    enabled: false,
-                    readOnly: true,
-                    suffixWidget: const Icon(Icons.search),
-                    height: dH * 0.05,
-                    hintFontSize: tS * 0.75,
-                    fontSize: tS * 0.75,
-                  ),
-                ),
-              )),
-          labelWithField(
-              label: 'Mode of Payment*',
-              field: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () =>
-                    Provider.of<PoApplicationVm>(context, listen: false)
-                        .searchField(context, 'Mode of Payment*'),
-                child: AbsorbPointer(
-                  absorbing: true,
-                  child: CommonTextFormField(
-                    label: 'Mode of Payment*',
-                    controller: vm.modePaymentCtrl,
-                    // focusNode: _alwaysDisabledFocusNode,
-                    enabled: false,
-                    readOnly: true,
-                    suffixWidget: const Icon(Icons.search),
-                    height: dH * 0.05,
-                    hintFontSize: tS * 0.75,
-                    fontSize: tS * 0.75,
-                  ),
-                ),
-              )),
+          // labelWithField(
+          //     label: 'Payment Term*',
+          //     field: GestureDetector(
+          //       behavior: HitTestBehavior.opaque,
+          //       onTap: () =>
+          //           Provider.of<PoApplicationVm>(context, listen: false)
+          //               .searchField(context, 'Payment Term*'),
+          //       child: AbsorbPointer(
+          //         absorbing: true,
+          //         child: CommonTextFormField(
+          //           label: 'Payment Term*',
+          //           controller: vm.paymentTermCtrl,
+          //           // focusNode: _alwaysDisabledFocusNode,
+          //           enabled: false,
+          //           readOnly: true,
+          //           suffixWidget: const Icon(Icons.search),
+          //           height: dH * 0.05,
+          //           hintFontSize: tS * 0.75,
+          //           fontSize: tS * 0.75,
+          //         ),
+          //       ),
+          //     )),
+          // labelWithField(
+          //     label: 'Mode of Shipment*',
+          //     field: GestureDetector(
+          //       behavior: HitTestBehavior.opaque,
+          //       onTap: () =>
+          //           Provider.of<PoApplicationVm>(context, listen: false)
+          //               .searchField(context, 'Mode of Shipment*'),
+          //       child: AbsorbPointer(
+          //         absorbing: true,
+          //         child: CommonTextFormField(
+          //           label: 'Mode of Shipment*',
+          //           controller: vm.modeShipmentCtrl,
+          //           // focusNode: _alwaysDisabledFocusNode,
+          //           enabled: false,
+          //           readOnly: true,
+          //           suffixWidget: const Icon(Icons.search),
+          //           height: dH * 0.05,
+          //           hintFontSize: tS * 0.75,
+          //           fontSize: tS * 0.75,
+          //         ),
+          //       ),
+          //     )),
+          // labelWithField(
+          //     label: 'Mode of Payment*',
+          //     field: GestureDetector(
+          //       behavior: HitTestBehavior.opaque,
+          //       onTap: () =>
+          //           Provider.of<PoApplicationVm>(context, listen: false)
+          //               .searchField(context, 'Mode of Payment*'),
+          //       child: AbsorbPointer(
+          //         absorbing: true,
+          //         child: CommonTextFormField(
+          //           label: 'Mode of Payment*',
+          //           controller: vm.modePaymentCtrl,
+          //           // focusNode: _alwaysDisabledFocusNode,
+          //           enabled: false,
+          //           readOnly: true,
+          //           suffixWidget: const Icon(Icons.search),
+          //           height: dH * 0.05,
+          //           hintFontSize: tS * 0.75,
+          //           fontSize: tS * 0.75,
+          //         ),
+          //       ),
+          //     )),
           combinedSearchField(
               label: 'Charge Type*',
               code: vm.chargeTypeCodeCtrl,
@@ -2034,11 +2045,11 @@ class _HeaderTabState extends State<_HeaderTab> {
               code: vm.shipToStoreCodeCtrl,
               desc: TextEditingController(),
               showSearch: true),
-          combinedSearchField(
-              label: 'Purchase Type*',
-              code: vm.purchaseTypeCodeCtrl,
-              desc: TextEditingController(),
-              showSearch: true),
+          // combinedSearchField(
+          //     label: 'Purchase Type*',
+          //     code: vm.purchaseTypeCodeCtrl,
+          //     desc: TextEditingController(),
+          //     showSearch: true),
           combinedSearchField(
               label: 'Petty Cash No*',
               code: vm.pettyCashCodeCtrl,
@@ -2060,11 +2071,11 @@ class _HeaderTabState extends State<_HeaderTab> {
           //       hintFontSize: tS * 0.75,
           //       fontSize: tS * 0.75,
           //     )),
-          combinedSearchField(
-              label: 'Delivery Term*',
-              code: vm.deliveryTermCodeCtrl,
-              desc: TextEditingController(),
-              showSearch: true),
+          // combinedSearchField(
+          //     label: 'Delivery Term*',
+          //     code: vm.deliveryTermCodeCtrl,
+          //     desc: TextEditingController(),
+          //     showSearch: true),
           // labelWithField(
           //     label: 'Need By Date*',
           //     field: CommonTextFormField(

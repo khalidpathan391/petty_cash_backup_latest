@@ -28,16 +28,16 @@ class GeneralRepository {
   Future<dynamic> postApi(String url, dynamic data) async {
     AppUtils.errorMessage = '';
     log("hii" + data.toString());
-    try {
-      dynamic response = await _apiServices.postApiResponse(url, data);
-      if (response['error_code'] == 100) {
-        AppUtils.errorMessage = response['error_description'].toString();
-      }
-      return response;
-    } catch (error) {
-      AppUtils.errorMessage = error.toString();
-      rethrow;
+    // try {
+    dynamic response = await _apiServices.postApiResponse(url, data);
+    if (response['error_code'] == 100) {
+      AppUtils.errorMessage = response['error_description'].toString();
     }
+    return response;
+    // } catch (error) {
+    //   AppUtils.errorMessage = error.toString();
+    //   rethrow;
+    // }
   }
 
   Future<dynamic> postApiMultiLanguage(String url, dynamic data) async {

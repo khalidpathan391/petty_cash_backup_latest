@@ -221,6 +221,8 @@ class PoApplicationVm extends ChangeNotifier {
     isWorkFlow = false;
     isWFTab = false;
     myHeaderId = -1;
+    isSubmit = false;
+    isApproved = false;
     notifyListeners();
   }
 
@@ -299,39 +301,9 @@ class PoApplicationVm extends ChangeNotifier {
 
     List<String> missingFields = [];
 
-    // 1. Document Location (MANDATORY)
-    if (docLocCodeCtrl.text.isEmpty || doc_id == 0) {
-      missingFields.add("Document Location");
-    }
-
     // 2. Supplier (MANDATORY)
     if (supplierCtrl.text.isEmpty || supp_id == 0) {
       missingFields.add("Supplier");
-    }
-
-    // 3. Supplier Offer Date (MANDATORY)
-    if (supOfferDateCtrl.text.isEmpty) {
-      missingFields.add("Supplier Offer Date");
-    }
-
-    // 4. Currency (MANDATORY)
-    if (currencyCodeCtrl.text.isEmpty || currency_id == 0) {
-      missingFields.add("Currency");
-    }
-
-    // 5. Payment Terms (MANDATORY)
-    if (paymentTermCtrl.text.isEmpty || paymentTermId == 0) {
-      missingFields.add("Payment Terms");
-    }
-
-    // 6. Mode of Shipment (MANDATORY)
-    if (modeShipmentCtrl.text.isEmpty || modeOfShipId == 0) {
-      missingFields.add("Mode of Shipment");
-    }
-
-    // 7. Mode of Payment (MANDATORY)
-    if (modePaymentCtrl.text.isEmpty || modePaymentId == 0) {
-      missingFields.add("Mode of Payment");
     }
 
     // 8. Charge Type (MANDATORY)
@@ -349,11 +321,6 @@ class PoApplicationVm extends ChangeNotifier {
       missingFields.add("Ship To Store Location");
     }
 
-    // 11. Purchase Type (MANDATORY)
-    if (purchaseTypeCodeCtrl.text.isEmpty || purchaseTypeId == 0) {
-      missingFields.add("Purchase Type");
-    }
-
     // 12. Petty Cash (MANDATORY)
     if (pettyCashCodeCtrl.text.isEmpty || pettyCashId == 0) {
       missingFields.add("Petty Cash");
@@ -362,11 +329,6 @@ class PoApplicationVm extends ChangeNotifier {
     // 13. Buyer (MANDATORY)
     if (buyerCodeCtrl.text.isEmpty || buyerId == 0) {
       missingFields.add("Buyer");
-    }
-
-    // 14. Delivery Terms (MANDATORY)
-    if (deliveryTermCodeCtrl.text.isEmpty || deliveryTermId == 0) {
-      missingFields.add("Delivery Terms");
     }
 
     // 15. Reference Document (CONDITIONAL - only if reference is not 'D')
@@ -1276,6 +1238,17 @@ class PoApplicationVm extends ChangeNotifier {
     myHeaderId = headerId;
     Global.transactionHeaderId = headerId.toString();
 
+    // Reset submit and approval flags when loading a new transaction
+    isSubmit = false;
+    isApproved = false;
+
+    // For new transactions (headerId == -1), ensure all flags are reset
+    if (headerId == -1) {
+      isWorkFlow = false;
+      isWFTab = false;
+      tabHeaders = ['Header', 'Item Details'];
+    }
+
     String url = ApiUrl.baseUrl! + ApiUrl.getPoTransaction;
 
     try {
@@ -1293,13 +1266,26 @@ class PoApplicationVm extends ChangeNotifier {
           if (currentStatus == 'SUBMITTED') {
             isWorkFlow = true;
             isWFTab = true;
+            isSubmit = true; // Set submit flag for submitted transactions
+            isApproved = false; // Not approved yet
             if (!tabHeaders.contains('WorkFlow')) {
               tabHeaders.add('WorkFlow');
             }
             print('🔍 WorkFlow tab added for SUBMITTED status');
+          } else if (currentStatus == 'APPROVED') {
+            isWorkFlow = true;
+            isWFTab = true;
+            isSubmit = true; // Submitted
+            isApproved = true; // Approved
+            if (!tabHeaders.contains('WorkFlow')) {
+              tabHeaders.add('WorkFlow');
+            }
+            print('🔍 WorkFlow tab added for APPROVED status');
           } else {
             isWorkFlow = false;
             isWFTab = false;
+            isSubmit = false; // Not submitted
+            isApproved = false; // Not approved
             tabHeaders.removeWhere((tab) => tab == 'WorkFlow');
             print('🔍 WorkFlow tab removed for status: $currentStatus');
           }
@@ -1405,18 +1391,6 @@ class PoApplicationVm extends ChangeNotifier {
     }
     return data;
   }
-  // Map<String, String> getData(int myHeaderId) {
-  //   return {
-  //     'company_id': Global.empData!.companyId.toString(),
-  //     'user_id': Global.empData!.userId.toString(),
-  //     'default': myHeaderId != -1 ? '0' : '1',
-  //     'is_view': '1',
-  //     'header_id': myHeaderId != -1 ? myHeaderId.toString() : '0',
-  //     'is_submit': '0',
-  //   };
-  // }
-
-  /// Return data map for API call depending on myHeaderId
 
   void _applyHeaderData(Map<String, dynamic> h) {
     print('🔍 _applyHeaderData called with data: $h');
