@@ -1706,19 +1706,19 @@ class PoApplicationVm extends ChangeNotifier {
       case 'Supplier Type':
         searchType = 'SUPPLIER_TYPE';
         break;
-      case 'Currency*':
-        searchType = 'Currency';
+      // case 'Currency*':
+      //   searchType = 'Currency';
 
-        break;
-      case 'Payment Term*':
-        searchType = 'PAYMENT_TERM';
-        break;
-      case 'Mode of Shipment*':
-        searchType = 'MODE_OF_SHIPMENT';
-        break;
-      case 'Mode of Payment*':
-        searchType = 'MODE_OF_PAYMENT';
-        break;
+      //   break;
+      // case 'Payment Term*':
+      //   searchType = 'PAYMENT_TERM';
+      //   break;
+      // case 'Mode of Shipment*':
+      //   searchType = 'MODE_OF_SHIPMENT';
+      //   break;
+      // case 'Mode of Payment*':
+      //   searchType = 'MODE_OF_PAYMENT';
+      //   break;
       case 'Charge Type*':
         searchType = 'CHARGE_TYPE';
         break;
@@ -1728,18 +1728,18 @@ class PoApplicationVm extends ChangeNotifier {
       case 'Ship to Store Loc*':
         searchType = 'STORE_LOCATION';
         break;
-      case 'Purchase Type*':
-        searchType = 'PURCHASE_TYPE';
-        break;
+      // case 'Purchase Type*':
+      //   searchType = 'PURCHASE_TYPE';
+      //   break;
       case 'Petty Cash No*':
         searchType = 'PETTY_CASH_NO';
         break;
       case 'Buyer ID*':
         searchType = 'BUYER_ID';
         break;
-      case 'Delivery Term*':
-        searchType = 'DELIVERY_TERM';
-        break;
+      // case 'Delivery Term*':
+      //   searchType = 'DELIVERY_TERM';
+      //   break;
       default:
         searchType = '';
     }
@@ -1765,13 +1765,13 @@ class PoApplicationVm extends ChangeNotifier {
 
     if (result != null && result is SearchList) {
       switch (fieldName) {
-        case 'Doc. Loc.*':
-          docLocCodeCtrl.text = result.code ?? '';
-          docLocDescCtrl.text = result.desc ?? '';
-          doc_id = result.id ?? doc_id;
-          purchaseOrderModel?.headerTab?.docLocId = doc_id;
+        // case 'Doc. Loc.*':
+        //   docLocCodeCtrl.text = result.code ?? '';
+        //   docLocDescCtrl.text = result.desc ?? '';
+        //   doc_id = result.id ?? doc_id;
+        //   purchaseOrderModel?.headerTab?.docLocId = doc_id;
 
-          break;
+        //   break;
         case 'Supplier*':
           supplierHeaderCodeCtrl.text = result.code ?? '';
           supplierHeaderDescCtrl.text = result.desc ?? '';
@@ -1782,25 +1782,25 @@ class PoApplicationVm extends ChangeNotifier {
           // Handle supplier code search result - this case is handled by callSupplierCodeSearch method
           // No need to handle here as it's a separate flow
           break;
-        case 'Currency*':
-          currencyCodeCtrl.text = result.code ?? '';
-          currencyDescCtrl.text = result.desc ?? '';
-          currency_id = result.id ?? currency_id; // update local variable
-          purchaseOrderModel?.headerTab?.currencyId = currency_id;
+        // case 'Currency*':
+        //   currencyCodeCtrl.text = result.code ?? '';
+        //   currencyDescCtrl.text = result.desc ?? '';
+        //   currency_id = result.id ?? currency_id; // update local variable
+        //   purchaseOrderModel?.headerTab?.currencyId = currency_id;
 
-          break;
-        case 'Payment Term*':
-          paymentTermCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
-          paymentTermId = result.id ?? 0;
-          break;
-        case 'Mode of Shipment*':
-          modeShipmentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
-          modeOfShipId = result.id ?? 0;
-          break;
-        case 'Mode of Payment*':
-          modePaymentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
-          modePaymentId = result.id ?? 0;
-          break;
+        //   break;
+        // case 'Payment Term*':
+        //   paymentTermCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+        //   paymentTermId = result.id ?? 0;
+        //   break;
+        // case 'Mode of Shipment*':
+        //   modeShipmentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+        //   modeOfShipId = result.id ?? 0;
+        //   break;
+        // case 'Mode of Payment*':
+        //   modePaymentCtrl.text = '${result.code ?? ''} - ${result.desc ?? ''}';
+        //   modePaymentId = result.id ?? 0;
+        //   break;
         case 'Charge Type*':
           chargeTypeCodeCtrl.text = result.code ?? '';
           chargeTypeDescCtrl.text = result.desc ?? '';
@@ -1847,11 +1847,11 @@ class PoApplicationVm extends ChangeNotifier {
           shipToStoreDescCtrl.text = result.desc ?? '';
           shipToStoreId = result.id ?? 0;
           break;
-        case 'Purchase Type*':
-          purchaseTypeCodeCtrl.text = result.code ?? '';
-          purchaseTypeDescCtrl.text = result.desc ?? '';
-          purchaseTypeId = result.id ?? 0;
-          break;
+        // case 'Purchase Type*':
+        //   purchaseTypeCodeCtrl.text = result.code ?? '';
+        //   purchaseTypeDescCtrl.text = result.desc ?? '';
+        //   purchaseTypeId = result.id ?? 0;
+        //   break;
         case 'Petty Cash No*':
           pettyCashCodeCtrl.text = result.code ?? '';
           pettyCashDescCtrl.text = result.desc ?? '';
@@ -1864,11 +1864,11 @@ class PoApplicationVm extends ChangeNotifier {
           purchaseOrderModel?.headerTab?.buyerId = buyerId; // update model
           chargeTypeCode = result.code ?? '';
           break;
-        case 'Delivery Term*':
-          deliveryTermCodeCtrl.text = result.code ?? '';
-          deliveryTermDescCtrl.text = result.desc ?? '';
-          deliveryTermId = result.id ?? 0;
-          break;
+        // case 'Delivery Term*':
+        //   deliveryTermCodeCtrl.text = result.code ?? '';
+        //   deliveryTermDescCtrl.text = result.desc ?? '';
+        //   deliveryTermId = result.id ?? 0;
+        //   break;
       }
       if (!_isDisposed) notifyListeners();
     }
