@@ -1237,6 +1237,10 @@ class _HeaderTabState extends State<_HeaderTab> {
 
   /// --- Net Value Bottom Sheet ---
   void _showNetValueSheet() {
+    // Save current item data before showing net value popup
+    final vm = Provider.of<PoApplicationVm>(context, listen: false);
+    vm.saveCurrentItemData();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1247,7 +1251,6 @@ class _HeaderTabState extends State<_HeaderTab> {
         final dW = MediaQuery.of(context).size.width;
         final dH = MediaQuery.of(context).size.height;
         final tS = dW * 0.035; // Dynamic text size
-        final vm = Provider.of<PoApplicationVm>(context, listen: false);
 
         Widget labelWithField({required String label, required Widget field}) {
           return Padding(
@@ -1353,15 +1356,102 @@ class _HeaderTabState extends State<_HeaderTab> {
                   color: Colors.black,
                 ),
                 const SizedBox(height: 5),
-                // Item Details fields
-                valueField("Gross Value", vm.getTotalGrossValue()),
-                valueField("Discount", vm.getTotalDiscountValue()),
-                valueField("Gross Value after Discount",
-                    vm.getTotalGrossValue() - vm.getTotalDiscountValue()),
-                valueField("Tax (Add to Cost)", 0.0),
-                valueField("Tax (Recoverable)", 0.0),
-                valueField("Expense", 0.0),
-                valueField("Net Value", vm.getTotalNetValue()),
+
+                // Individual Line Items
+                if (vm.purchaseOrderModel?.itemDetailsTab != null &&
+                    vm.purchaseOrderModel!.itemDetailsTab!.isNotEmpty)
+                  ...vm.purchaseOrderModel!.itemDetailsTab!
+                      .asMap()
+                      .entries
+                      .map((entry) {
+                    final index = entry.key;
+                    final item = entry.value;
+
+                    return Container(
+                      margin: EdgeInsets.only(bottom: dH * 0.01),
+                      padding: EdgeInsets.all(dW * 0.02),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CommonTextView(
+                            label:
+                                "Item ${index + 1}: ${item.itemDesc ?? 'N/A'}",
+                            fontWeight: FontWeight.bold,
+                            fontSize: tS * 1.0,
+                            color: Colors.black,
+                          ),
+                          SizedBox(height: dH * 0.005),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CommonTextView(
+                                      label: "Qty: ${item.quantity ?? '0'}",
+                                      fontSize: tS * 0.8,
+                                      color: Colors.grey[600],
+                                    ),
+                                    CommonTextView(
+                                      label:
+                                          "Rate: ${item.unitPrice ?? '0.00'}",
+                                      fontSize: tS * 0.8,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    CommonTextView(
+                                      label:
+                                          "Gross: ${item.grossValue ?? '0.00'}",
+                                      fontSize: tS * 0.8,
+                                      color: Colors.grey[600],
+                                    ),
+                                    CommonTextView(
+                                      label:
+                                          "Discount: ${item.discountVal ?? '0.00'}",
+                                      fontSize: tS * 0.8,
+                                      color: Colors.grey[600],
+                                    ),
+                                    CommonTextView(
+                                      label: "Net: ${item.netValue ?? '0.00'}",
+                                      fontSize: tS * 0.8,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+
+                const Divider(),
+                const SizedBox(height: 5),
+
+                // Summary totals
+                CommonTextView(
+                  label: "Summary Totals",
+                  alignment: Alignment.topCenter,
+                  fontWeight: FontWeight.bold,
+                  fontSize: tS * 1.1,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 5),
+                valueField("Total Gross Value", vm.getTotalGrossValue()),
+                valueField("Total Discount", vm.getTotalDiscountValue()),
+                valueField("Total Net Value", vm.getTotalNetValue()),
 
                 const Divider(),
                 const SizedBox(height: 5),

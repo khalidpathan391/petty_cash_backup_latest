@@ -913,49 +913,76 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Calculate total net value from all item details
   double _calculateTotalItemNetValue() {
-    if (purchaseOrderModel?.itemDetailsTab == null) return 0.0;
+    if (purchaseOrderModel?.itemDetailsTab == null) {
+      print('🔍 _calculateTotalItemNetValue: itemDetailsTab is null');
+      return 0.0;
+    }
 
+    print(
+        '🔍 _calculateTotalItemNetValue: itemDetailsTab has ${purchaseOrderModel!.itemDetailsTab!.length} items');
     double total = 0.0;
-    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+    for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+      final item = purchaseOrderModel!.itemDetailsTab![i];
       try {
         final netValue = double.tryParse(item.netValue ?? '0') ?? 0.0;
+        print(
+            '🔍 Item $i: netValue = "${item.netValue}" -> parsed = $netValue');
         total += netValue;
       } catch (e) {
         print('Error parsing net value: $e');
       }
     }
+    print('🔍 _calculateTotalItemNetValue: total = $total');
     return total;
   }
 
   /// Get total gross value from all item details
   double getTotalGrossValue() {
-    if (purchaseOrderModel?.itemDetailsTab == null) return 0.0;
+    if (purchaseOrderModel?.itemDetailsTab == null) {
+      print('🔍 getTotalGrossValue: itemDetailsTab is null');
+      return 0.0;
+    }
 
+    print(
+        '🔍 getTotalGrossValue: itemDetailsTab has ${purchaseOrderModel!.itemDetailsTab!.length} items');
     double total = 0.0;
-    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+    for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+      final item = purchaseOrderModel!.itemDetailsTab![i];
       try {
         final grossValue = double.tryParse(item.grossValue ?? '0') ?? 0.0;
+        print(
+            '🔍 Item $i: grossValue = "${item.grossValue}" -> parsed = $grossValue');
         total += grossValue;
       } catch (e) {
         print('Error parsing gross value: $e');
       }
     }
+    print('🔍 getTotalGrossValue: total = $total');
     return total;
   }
 
   /// Get total discount value from all item details
   double getTotalDiscountValue() {
-    if (purchaseOrderModel?.itemDetailsTab == null) return 0.0;
+    if (purchaseOrderModel?.itemDetailsTab == null) {
+      print('🔍 getTotalDiscountValue: itemDetailsTab is null');
+      return 0.0;
+    }
 
+    print(
+        '🔍 getTotalDiscountValue: itemDetailsTab has ${purchaseOrderModel!.itemDetailsTab!.length} items');
     double total = 0.0;
-    for (final item in purchaseOrderModel!.itemDetailsTab!) {
+    for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+      final item = purchaseOrderModel!.itemDetailsTab![i];
       try {
         final discountValue = double.tryParse(item.discountVal ?? '0') ?? 0.0;
+        print(
+            '🔍 Item $i: discountVal = "${item.discountVal}" -> parsed = $discountValue');
         total += discountValue;
       } catch (e) {
         print('Error parsing discount value: $e');
       }
     }
+    print('🔍 getTotalDiscountValue: total = $total');
     return total;
   }
 
@@ -986,7 +1013,46 @@ class PoApplicationVm extends ChangeNotifier {
   double getFinalNetValue() {
     final itemNetValue = getTotalNetValue();
     final headerValue = getHeaderValue();
-    return itemNetValue - headerValue;
+    final finalValue = itemNetValue - headerValue;
+    print(
+        '🔍 getFinalNetValue: itemNetValue = $itemNetValue, headerValue = $headerValue, final = $finalValue');
+    return finalValue;
+  }
+
+  /// Save current item data to ensure calculations are up to date
+  void saveCurrentItemData() {
+    print('🔍 saveCurrentItemData: Saving current item data');
+    if (purchaseOrderModel?.itemDetailsTab == null) {
+      print('🔍 saveCurrentItemData: No item details tab');
+      return;
+    }
+
+    // Force recalculation of all items
+    for (int i = 0; i < purchaseOrderModel!.itemDetailsTab!.length; i++) {
+      final item = purchaseOrderModel!.itemDetailsTab![i];
+      print(
+          '🔍 Item $i: quantity=${item.quantity}, unitPrice=${item.unitPrice}, grossValue=${item.grossValue}, discountVal=${item.discountVal}, netValue=${item.netValue}');
+
+      // Recalculate gross value if needed
+      if (item.quantity != null && item.unitPrice != null) {
+        final quantity = double.tryParse(item.quantity ?? '0') ?? 0.0;
+        final unitPrice = double.tryParse(item.unitPrice ?? '0') ?? 0.0;
+        final grossValue = quantity * unitPrice;
+        item.grossValue = grossValue.toStringAsFixed(2);
+        print('🔍 Recalculated gross value for item $i: $grossValue');
+      }
+
+      // Recalculate net value if needed
+      if (item.grossValue != null && item.discountVal != null) {
+        final grossValue = double.tryParse(item.grossValue ?? '0') ?? 0.0;
+        final discountVal = double.tryParse(item.discountVal ?? '0') ?? 0.0;
+        final netValue = grossValue - discountVal;
+        item.netValue = netValue.toStringAsFixed(2);
+        print('🔍 Recalculated net value for item $i: $netValue');
+      }
+    }
+
+    notifyListeners();
   }
 
   // ==================== ITEM CALCULATION METHODS ====================
