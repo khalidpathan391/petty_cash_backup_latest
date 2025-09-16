@@ -72,6 +72,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Fallback Validation Controllers (when no dynamic validation data)
   bool fallbackValidationSelected = false;
+  int fallbackValidationTypeId = 0;
   final TextEditingController fallbackValidationType = TextEditingController();
   final TextEditingController fallbackValidationNumber =
       TextEditingController();
@@ -590,11 +591,48 @@ class PoApplicationVm extends ChangeNotifier {
     }
 
     // ================= CREATE SUPPLIER =================
+    // Prepare validation data for supplier creation
+    List<SuppValidation> validationList = [];
+
+    // Add fallback validation if selected
+    if (fallbackValidationSelected && fallbackValidationType.text.isNotEmpty) {
+      validationList.add(SuppValidation(
+        validationTypeId: fallbackValidationTypeId,
+        validationTypeName: fallbackValidationType.text,
+        validationNumber: fallbackValidationNumber.text,
+        validationExpyDate: fallbackValidationExpiry.text,
+      ));
+    }
+
+    // Add dynamic validations if any
+    for (var entry in dynamicValidationSelected.entries) {
+      if (entry.value && dynamicValidationNumbers.containsKey(entry.key)) {
+        // Find the validation type ID from selectedSupplierValidation
+        int validationTypeId = 0;
+        if (selectedSupplierValidation != null) {
+          for (var validation in selectedSupplierValidation!) {
+            if (validation.fieldCode == entry.key ||
+                validation.fieldName == entry.key) {
+              validationTypeId = validation.fieldId ?? 0;
+              break;
+            }
+          }
+        }
+
+        validationList.add(SuppValidation(
+          validationTypeId: validationTypeId,
+          validationTypeName: entry.key,
+          validationNumber: dynamicValidationNumbers[entry.key]?.text ?? '',
+          validationExpyDate: dynamicValidationExpiry[entry.key]?.text ?? '',
+        ));
+      }
+    }
+
     purchaseOrderModel!.createSupplier = [
       CreateSupplier(
         crSuppCode: supplierCode.text.isEmpty ? '' : supplierCode.text,
         crSuppDesc: supplierDesc.text.isEmpty ? '' : supplierDesc.text,
-        crSuppTypeId: supplierTypeId,
+        crSuppTypeId: ceateSupplierTypeId,
         crSuppTypeCode: supplierType.text.isEmpty ? '' : supplierType.text,
         crSuppTypeDesc:
             supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text,
@@ -603,6 +641,7 @@ class PoApplicationVm extends ChangeNotifier {
             supplierAddress.text.isEmpty ? '' : supplierAddress.text,
         crSuppAddressDesc:
             supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text,
+        suppValidation: validationList.isNotEmpty ? validationList : null,
       )
     ];
 
@@ -2073,6 +2112,7 @@ class PoApplicationVm extends ChangeNotifier {
     ).then((value) {
       if (value != null && value is supplier_type.SearchList) {
         // Handle supplier address search result
+        supplierAddressId = value.id ?? 0;
         supplierAddress.text = value.code ?? '';
         supplierAddressDesc.text = value.desc ?? '';
         supplierAddress2.text = value.name ?? '';
@@ -2596,148 +2636,61 @@ class PoApplicationVm extends ChangeNotifier {
         // Handle validation type search result
         fallbackValidationType.text = value.name ?? '';
 
+        // Store the validation type ID for API call
+        fallbackValidationTypeId = value.id ?? 0;
+
         // Update the validation type field with selected value
         notifyListeners();
       }
     });
   }
 
-  /// Create Supplier Directly - Save data to model without API call
-  void createSupplierDirectly(BuildContext context) {
+  /// Create Supplier Directly - Call CreateSupplierFromPo API
+  Future<void> createSupplierDirectly(BuildContext context) async {
     try {
-      // Always save all fields (empty if not filled)
-      _saveCreateSupplierDataToModel();
+      // Show loading indicator
+      AppUtils.customLoader(context);
 
-      // Show success message
-      AppUtils.showToastGreenBg(context, 'Supplier created successfully');
-
-      // Clear all supplier controllers
-      clearSupplierControllers();
-
-      // Close the popup
-      Navigator.pop(context);
-
-      // Ensure all line items have at least one empty tax popup entry
-      _ensureAllLineItemsHaveTaxPopup();
-
-      // Notify listeners to update UI
-      notifyListeners();
-    } catch (e) {
-      AppUtils.showToastRedBg(context, 'Error creating supplier: $e');
-    }
-  }
-
-  /// Save Create Supplier API call (kept for backward compatibility)
-  Future<void> callCreateSupplierSave(BuildContext context) async {
-    // Show the loader while the operation is in progress
-    AppUtils.customLoader(context);
-
-    try {
-      // Prepare all data for save
+      // Prepare all data from UI controllers
       prepareAllDataForSave();
 
       // Prepare data for API
       Map<String, String> data = {
         'company_id': '2',
-        'user_id': '20413',
+        'user_id': Global.empData!.userId.toString(),
         'po_detail_all_data': jsonEncode(purchaseOrderModel),
       };
 
       String url = ApiUrl.baseUrl! + ApiUrl.createSupplier;
 
-      await _myRepo.postApi(url, data).then((value) async {
-        if (value['error_code'] == 200) {
-          AppUtils.showToastGreenBg(
-              context, value['error_description'].toString());
+      await _myRepo.postApi(url, data).then((response) {
+        Navigator.pop(context); // Hide loader
 
-          // Update the model with the response data if needed
-          if (value['data'] != null) {
-            // Update any returned data from the API
-            _updateModelFromCreateSupplierResponse(value['data']);
-          }
+        if (response != null && response['error'] == false) {
+          // Show success message
+          AppUtils.showToastGreenBg(context,
+              response['error_description'] ?? 'Supplier created successfully');
+
+          // Clear all supplier controllers
+          clearSupplierControllers();
+
+          // Close the popup
+          Navigator.pop(context);
+
+          // Ensure all line items have at least one empty tax popup entry
+          _ensureAllLineItemsHaveTaxPopup();
+
+          // Notify listeners to update UI
+          notifyListeners();
         } else {
-          AppUtils.showToastRedBg(
-              context, value['error_description'].toString());
+          AppUtils.showToastRedBg(context,
+              response['error_description'] ?? 'Failed to create supplier');
         }
-      }).onError((error, stackTrace) {
-        if (AppUtils.errorMessage.isEmpty) {
-          AppUtils.errorMessage = error.toString();
-        }
-        AppUtils.showToastRedBg(context, 'Error: $error');
-      }).whenComplete(() {
-        Navigator.pop(context);
       });
     } catch (e) {
-      AppUtils.showToastRedBg(context, 'Error: $e');
-      Navigator.pop(context);
+      Navigator.pop(context); // Hide loader
+      AppUtils.showToastRedBg(context, 'Error creating supplier: $e');
     }
-  }
-
-  /// Save Create Supplier Data to Model - Always saves all fields (empty if not filled)
-  void _saveCreateSupplierDataToModel() {
-    if (purchaseOrderModel == null) {
-      throw Exception('Purchase Order Model is null');
-    }
-
-    // Always create/update create supplier data with all fields
-    // Send empty strings for fields that are not filled
-    final createSupplierData = CreateSupplier(
-      crSuppCode: supplierCode.text.isEmpty ? '' : supplierCode.text,
-      crSuppDesc: supplierDesc.text.isEmpty ? '' : supplierDesc.text,
-      crSuppTypeCode: supplierType.text.isEmpty ? '' : supplierType.text,
-      crSuppTypeDesc:
-          supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text,
-      crSuppAddressCode:
-          supplierAddress.text.isEmpty ? '' : supplierAddress.text,
-      crSuppAddressDesc:
-          supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text,
-    );
-
-    // Update or create the create supplier data
-    purchaseOrderModel!.createSupplier = [createSupplierData];
-
-    // Also update the header tab with supplier creation data
-    if (purchaseOrderModel!.headerTab != null) {
-      final headerTab = purchaseOrderModel!.headerTab!;
-      headerTab.supplierCode =
-          supplierCode.text.isEmpty ? '' : supplierCode.text;
-      headerTab.supplierDesc =
-          supplierDesc.text.isEmpty ? '' : supplierDesc.text;
-      headerTab.supplierType =
-          supplierType.text.isEmpty ? '' : supplierType.text;
-      headerTab.supplierTypeDesc =
-          supplierTypeDesc.text.isEmpty ? '' : supplierTypeDesc.text;
-      headerTab.supplierAddress =
-          supplierAddress.text.isEmpty ? '' : supplierAddress.text;
-      headerTab.supplierAddressDesc =
-          supplierAddressDesc.text.isEmpty ? '' : supplierAddressDesc.text;
-      headerTab.supplierAddress2 =
-          supplierAddress2.text.isEmpty ? '' : supplierAddress2.text;
-    }
-  }
-
-  /// Update model from create supplier API response
-  void _updateModelFromCreateSupplierResponse(
-      Map<String, dynamic> responseData) {
-    // Update any fields that might be returned from the API
-    if (responseData['supplier_id'] != null) {
-      supp_id = responseData['supplier_id'];
-    }
-    if (responseData['supplier_code'] != null) {
-      supplierHeaderCodeCtrl.text = responseData['supplier_code'];
-    }
-    if (responseData['supplier_name'] != null) {
-      supplierHeaderDescCtrl.text = responseData['supplier_name'];
-    }
-
-    // Update the purchase order model if needed
-    if (purchaseOrderModel?.headerTab != null) {
-      purchaseOrderModel!.headerTab!.supplierId = supp_id;
-      purchaseOrderModel!.headerTab!.supplierCode = supplierHeaderCodeCtrl.text;
-      purchaseOrderModel!.headerTab!.supplierName = supplierHeaderDescCtrl.text;
-    }
-
-    notifyListeners();
   }
 
   @override

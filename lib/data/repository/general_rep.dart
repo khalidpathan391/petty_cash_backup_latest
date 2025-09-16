@@ -27,7 +27,7 @@ class GeneralRepository {
 
   Future<dynamic> postApi(String url, dynamic data) async {
     AppUtils.errorMessage = '';
-    log("hii" + data.toString());
+    log("hiiii" + data.toString());
     // try {
     dynamic response = await _apiServices.postApiResponse(url, data);
     if (response['error_code'] == 100) {
