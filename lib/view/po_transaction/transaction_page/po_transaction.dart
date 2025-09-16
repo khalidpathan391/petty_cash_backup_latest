@@ -289,6 +289,7 @@ class _HeaderTab extends StatefulWidget {
 
 class _HeaderTabState extends State<_HeaderTab> {
   late quill.QuillController _remarkQuillCtrl;
+  late ScrollController _scrollController;
   // Custom focus node that always prevents keyboard opening
 
   @override
@@ -296,6 +297,7 @@ class _HeaderTabState extends State<_HeaderTab> {
     super.initState();
     final vm = Provider.of<PoApplicationVm>(context, listen: false);
     _remarkQuillCtrl = quill.QuillController.basic();
+    _scrollController = ScrollController();
 
     if (vm.remarkCtrl.text.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -308,6 +310,12 @@ class _HeaderTabState extends State<_HeaderTab> {
         vm.remarkCtrl.text = _remarkQuillCtrl.document.toPlainText().trim();
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   double dW = 0.0;
@@ -1479,6 +1487,9 @@ class _HeaderTabState extends State<_HeaderTab> {
                     maxLines: null,
                     expands: true,
                     textAlignVertical: TextAlignVertical.top,
+                    onChanged: (value) {
+                      print('🔍 Terms text changed: "$value"');
+                    },
                     decoration: InputDecoration(
                       hintText: 'Enter terms and conditions...',
                       hintStyle: TextStyle(
@@ -1506,6 +1517,8 @@ class _HeaderTabState extends State<_HeaderTab> {
                     fontSize: tS * 1.0,
                     onPressed: () {
                       // Save terms data
+                      print(
+                          '🔍 Save button clicked - termsCtrl.text: "${vm.termsCtrl.text}"');
                       vm.saveTermsData();
                       AppUtils.showToastGreenBg(
                           context, 'Terms saved successfully');
@@ -1629,266 +1642,266 @@ class _HeaderTabState extends State<_HeaderTab> {
     }
 
     return SingleChildScrollView(
+      controller: _scrollController,
       padding: EdgeInsets.all(dW * 0.04),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      child: GestureDetector(
-        onTap: () {
-          // Dismiss keyboard when tapping outside text fields, but not on Quill editor
-          final focusNode = FocusScope.of(context).focusedChild;
-          if (focusNode != null && !focusNode.hasPrimaryFocus) {
-            FocusScope.of(context).unfocus();
-          }
-        },
-        behavior: HitTestBehavior.deferToChild,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // Header Attachment Widget - Right aligned
+      physics: ClampingScrollPhysics(),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        // Header Attachment Widget - Right aligned
 
-          SizedBox(height: dH * 0.01),
+        SizedBox(height: dH * 0.01),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: CommonButton(
-                  width: dW / 2.5,
-                  height: dH * 0.05,
-                  text: "Reference PR",
-                  fontSize: tS * 0.7,
-                  onPressed: () {
-                    _showReferencePRSheet();
-                  },
-                  borderRadius: dW * 0.02,
-                  disable: false,
-                  // color: themeColor, // Use the locally defined themeColor
-                ),
-              ),
-              PopupMenuButton<String>(
-                icon: Icon(
-                  Icons.more_vert,
-                  // color: themeColor,
-                  size: tS * 1.5,
-                ),
-                onSelected: (value) {
-                  if (value == 'create_supplier') {
-                    _showCreateSupplierSheet();
-                  } else if (value == 'net_value') {
-                    _showNetValueSheet();
-                  } else if (value == 'terms') {
-                    _showTermsSheet();
-                  } else if (value == 'attachments') {
-                    AppUtils.showToastGreenBg(context, 'Under Development');
-                    // _showTermsSheet();
-                  }
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: CommonButton(
+                width: dW / 2.5,
+                height: dH * 0.05,
+                text: "Reference PR",
+                fontSize: tS * 0.7,
+                onPressed: () {
+                  _showReferencePRSheet();
                 },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  PopupMenuItem<String>(
-                    value: 'create_supplier',
-                    child: CommonTextView(
-                      label: 'Create Supplier',
-                      fontSize: tS * 0.9,
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'net_value',
-                    child: CommonTextView(
-                      label: 'Net Value',
-                      fontSize: tS * 0.9,
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'terms',
-                    child: CommonTextView(
-                      label: 'Terms',
-                      fontSize: tS * 0.9,
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'attachments',
-                    child: CommonTextView(
-                      label: 'Attachments',
-                      fontSize: tS * 0.9,
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-
-          combinedSearchField(
-              label: 'Reference*',
-              code: vm.referenceCtrl,
-              desc: vm.referenceDescCtrl,
-              showSearch: true),
-          labelWithField(
-              label: 'Ref. Doc.*',
-              field: Row(children: [
-                Expanded(
-                    flex: 2,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: vm.isReferenceDirect
-                          ? null
-                          : () {
-                              Provider.of<PoApplicationVm>(context,
-                                      listen: false)
-                                  .searchRefTxnCode(context);
-                            },
-                      child: AbsorbPointer(
-                        absorbing: true,
-                        child: Opacity(
-                          opacity: vm.isReferenceDirect ? 0.5 : 1.0,
-                          child: CommonTextFormField(
-                            label: 'Ref Doc Code',
-                            controller: vm.refDocCodeCtrl,
-                            // focusNode: _alwaysDisabledFocusNode,
-                            enabled: false,
-                            readOnly: true,
-                            showCursor: false,
-                            preventKeyboard: true,
-                            height: dH * 0.05,
-                            hintFontSize: tS * 0.75,
-                            fontSize: tS * 0.75,
-                            suffixWidget: Icon(
-                              Icons.search,
-                              size: tS * 1.2,
-                              color: vm.isReferenceDirect ? Colors.grey : null,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )),
-                const SizedBox(width: 4),
-                Expanded(
-                    flex: 3,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: vm.isReferenceDirect
-                          ? null
-                          : () {
-                              Provider.of<PoApplicationVm>(context,
-                                      listen: false)
-                                  .searchRefDocNo(context);
-                            },
-                      child: AbsorbPointer(
-                        absorbing: true,
-                        child: Opacity(
-                          opacity: vm.isReferenceDirect ? 0.5 : 1.0,
-                          child: CommonTextFormField(
-                            label: 'Ref Doc No',
-                            controller: vm.refDocNoCtrl,
-                            // focusNode: _alwaysDisabledFocusNode,
-                            enabled: false,
-                            readOnly: true,
-                            showCursor: false,
-                            preventKeyboard: true,
-                            height: dH * 0.05,
-                            hintFontSize: tS * 0.75,
-                            fontSize: tS * 0.75,
-                            suffixWidget: vm.isReferenceDirect
-                                ? null
-                                : Icon(
-                                    Icons.search,
-                                    size: tS * 1.2,
-                                  ),
-                          ),
-                        ),
-                      ),
-                    )),
-              ])),
-          combinedSearchField(
-              label: 'Supplier*',
-              code: vm.supplierHeaderCodeCtrl,
-              desc: vm.supplierHeaderDescCtrl,
-              showSearch: true),
-
-          labelWithField(
-              label: 'Discount / Value',
-              field: Row(children: [
-                Expanded(
-                    child: CommonTextFormField(
-                  label: 'Discount',
-                  controller: vm.discountCtrl,
-                  enabled: vm.hasItemDetailsFilled(),
-                  height: dH * 0.05,
-                  readOnly: false,
-                  showCursor: true,
-                  preventKeyboard: false,
-                  hintFontSize: tS * 0.75,
-                  fontSize: tS * 0.75,
-                  keyboardType: TextInputType.number,
-                  onChanged: vm.onDiscountChanged,
-                )),
-                const SizedBox(width: 8),
-                Expanded(
-                    child: CommonTextFormField(
-                  label: 'Value',
-                  controller: vm.valueCtrl,
-                  enabled: vm.hasItemDetailsFilled(),
-                  readOnly: false,
-                  showCursor: true,
-                  preventKeyboard: false,
-                  height: dH * 0.05,
-                  hintFontSize: tS * 0.75,
-                  fontSize: tS * 0.75,
-                  keyboardType: TextInputType.number,
-                  onChanged: vm.onValueChanged,
-                )),
-              ])),
-
-          combinedSearchField(
-              label: 'Charge Type*',
-              code: vm.chargeTypeCodeCtrl,
-              desc: vm.chargeTypeDescCtrl,
-              showSearch: true),
-          combinedSearchField(
-              label: 'Charge To*',
-              code: vm.chargeToCodeCtrl,
-              desc: vm.chargeToDescCtrl,
-              showSearch: true),
-          combinedSearchField(
-              label: 'Ship to Store Loc*',
-              code: vm.shipToStoreCodeCtrl,
-              desc: vm.shipToStoreDescCtrl,
-              showSearch: true),
-
-          combinedSearchField(
-              label: 'Petty Cash No*',
-              code: vm.pettyCashCodeCtrl,
-              desc: vm.pettyCashDescCtrl,
-              showSearch: true),
-          combinedSearchField(
-              label: 'Buyer ID*',
-              code: vm.buyerCodeCtrl,
-              desc: vm.buyerDescCtrl,
-              showSearch: true),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: CommonTextView(
-              label: 'Remark',
-              height: dH * 0.03,
-              fontSize: tS * 0.75,
-              maxLine: 1,
-              overFlow: TextOverflow.ellipsis,
+                borderRadius: dW * 0.02,
+                disable: false,
+                // color: themeColor, // Use the locally defined themeColor
+              ),
             ),
-          ),
-          GestureDetector(
-            onTap: () {
-              // Allow Quill editor to handle its own focus
-            },
-            child: QuillTextField(
-              controller: Provider.of<PoApplicationVm>(context, listen: false)
-                  .remarkQuillController,
-              onChange: (_) {
-                Provider.of<PoApplicationVm>(context, listen: false)
-                    .setRemarkFromQuill();
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.more_vert,
+                // color: themeColor,
+                size: tS * 1.5,
+              ),
+              onSelected: (value) {
+                if (value == 'create_supplier') {
+                  _showCreateSupplierSheet();
+                } else if (value == 'net_value') {
+                  _showNetValueSheet();
+                } else if (value == 'terms') {
+                  _showTermsSheet();
+                } else if (value == 'attachments') {
+                  AppUtils.showToastGreenBg(context, 'Under Development');
+                  // _showTermsSheet();
+                }
               },
-              height: MediaQuery.of(context).size.height * 0.4,
-            ),
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'create_supplier',
+                  child: CommonTextView(
+                    label: 'Create Supplier',
+                    fontSize: tS * 0.9,
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'net_value',
+                  child: CommonTextView(
+                    label: 'Net Value',
+                    fontSize: tS * 0.9,
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'terms',
+                  child: CommonTextView(
+                    label: 'Terms',
+                    fontSize: tS * 0.9,
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'attachments',
+                  child: CommonTextView(
+                    label: 'Attachments',
+                    fontSize: tS * 0.9,
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+
+        combinedSearchField(
+            label: 'Reference*',
+            code: vm.referenceCtrl,
+            desc: vm.referenceDescCtrl,
+            showSearch: true),
+        labelWithField(
+            label: 'Ref. Doc.*',
+            field: Row(children: [
+              Expanded(
+                  flex: 2,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: vm.isReferenceDirect
+                        ? null
+                        : () {
+                            Provider.of<PoApplicationVm>(context, listen: false)
+                                .searchRefTxnCode(context);
+                          },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Opacity(
+                        opacity: vm.isReferenceDirect ? 0.5 : 1.0,
+                        child: CommonTextFormField(
+                          label: 'Ref Doc Code',
+                          controller: vm.refDocCodeCtrl,
+                          // focusNode: _alwaysDisabledFocusNode,
+                          enabled: false,
+                          readOnly: true,
+                          showCursor: false,
+                          preventKeyboard: true,
+                          height: dH * 0.05,
+                          hintFontSize: tS * 0.75,
+                          fontSize: tS * 0.75,
+                          suffixWidget: Icon(
+                            Icons.search,
+                            size: tS * 1.2,
+                            color: vm.isReferenceDirect ? Colors.grey : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )),
+              const SizedBox(width: 4),
+              Expanded(
+                  flex: 3,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: vm.isReferenceDirect
+                        ? null
+                        : () {
+                            Provider.of<PoApplicationVm>(context, listen: false)
+                                .searchRefDocNo(context);
+                          },
+                    child: AbsorbPointer(
+                      absorbing: true,
+                      child: Opacity(
+                        opacity: vm.isReferenceDirect ? 0.5 : 1.0,
+                        child: CommonTextFormField(
+                          label: 'Ref Doc No',
+                          controller: vm.refDocNoCtrl,
+                          // focusNode: _alwaysDisabledFocusNode,
+                          enabled: false,
+                          readOnly: true,
+                          showCursor: false,
+                          preventKeyboard: true,
+                          height: dH * 0.05,
+                          hintFontSize: tS * 0.75,
+                          fontSize: tS * 0.75,
+                          suffixWidget: vm.isReferenceDirect
+                              ? null
+                              : Icon(
+                                  Icons.search,
+                                  size: tS * 1.2,
+                                ),
+                        ),
+                      ),
+                    ),
+                  )),
+            ])),
+        combinedSearchField(
+            label: 'Supplier*',
+            code: vm.supplierHeaderCodeCtrl,
+            desc: vm.supplierHeaderDescCtrl,
+            showSearch: true),
+
+        labelWithField(
+            label: 'Discount / Value',
+            field: Row(children: [
+              Expanded(
+                  child: CommonTextFormField(
+                label: 'Discount',
+                controller: vm.discountCtrl,
+                enabled: vm.hasItemDetailsFilled(),
+                height: dH * 0.05,
+                readOnly: false,
+                showCursor: true,
+                preventKeyboard: false,
+                hintFontSize: tS * 0.75,
+                fontSize: tS * 0.75,
+                keyboardType: TextInputType.number,
+                onChanged: vm.onDiscountChanged,
+              )),
+              const SizedBox(width: 8),
+              Expanded(
+                  child: CommonTextFormField(
+                label: 'Value',
+                controller: vm.valueCtrl,
+                enabled: vm.hasItemDetailsFilled(),
+                readOnly: false,
+                showCursor: true,
+                preventKeyboard: false,
+                height: dH * 0.05,
+                hintFontSize: tS * 0.75,
+                fontSize: tS * 0.75,
+                keyboardType: TextInputType.number,
+                onChanged: vm.onValueChanged,
+              )),
+            ])),
+
+        combinedSearchField(
+            label: 'Charge Type*',
+            code: vm.chargeTypeCodeCtrl,
+            desc: vm.chargeTypeDescCtrl,
+            showSearch: true),
+        combinedSearchField(
+            label: 'Charge To*',
+            code: vm.chargeToCodeCtrl,
+            desc: vm.chargeToDescCtrl,
+            showSearch: true),
+        combinedSearchField(
+            label: 'Ship to Store Loc*',
+            code: vm.shipToStoreCodeCtrl,
+            desc: vm.shipToStoreDescCtrl,
+            showSearch: true),
+
+        combinedSearchField(
+            label: 'Petty Cash No*',
+            code: vm.pettyCashCodeCtrl,
+            desc: vm.pettyCashDescCtrl,
+            showSearch: true),
+        combinedSearchField(
+            label: 'Buyer ID*',
+            code: vm.buyerCodeCtrl,
+            desc: vm.buyerDescCtrl,
+            showSearch: true),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: CommonTextView(
+            label: 'Remark',
+            height: dH * 0.03,
+            fontSize: tS * 0.75,
+            maxLine: 1,
+            overFlow: TextOverflow.ellipsis,
           ),
-        ]),
-      ),
+        ),
+        QuillTextField(
+          controller: Provider.of<PoApplicationVm>(context, listen: false)
+              .remarkQuillController,
+          onChange: (text) {
+            Provider.of<PoApplicationVm>(context, listen: false)
+                .setRemarkFromQuill();
+          },
+        ),
+        const SizedBox()
+
+        // GestureDetector(
+        //   onTap: () {
+        //     // Allow Quill editor to handle its own focus
+        //   },
+        //   child: QuillTextField(
+        //     controller: Provider.of<PoApplicationVm>(context, listen: false)
+        //         .remarkQuillController,
+        //     onChange: (_) {
+        //       Provider.of<PoApplicationVm>(context, listen: false)
+        //           .setRemarkFromQuill();
+        //     },
+        //     height: MediaQuery.of(context).size.height * 0.4,
+        //   ),
+        // ),
+      ]),
     );
   }
 }

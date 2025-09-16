@@ -5,13 +5,11 @@ import 'package:petty_cash/resources/app_extension_context.dart';
 class QuillTextField extends StatefulWidget {
   final QuillController controller;
   final void Function(String)? onChange;
-  final double? height;
 
   const QuillTextField({
     super.key,
     required this.controller,
     this.onChange,
-    this.height,
   });
 
   @override
@@ -19,34 +17,35 @@ class QuillTextField extends StatefulWidget {
 }
 
 class _QuillTextFieldState extends State<QuillTextField> {
+  late FocusNode _focusNode;
+
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
+    // Add a listener to detect changes
     widget.controller.addListener(_onContentChange);
   }
 
   @override
   void dispose() {
+    // Remove the listener when the widget is disposed
     widget.controller.removeListener(_onContentChange);
+    _focusNode.dispose();
     super.dispose();
   }
 
   void _onContentChange() {
     if (widget.onChange != null) {
       final plainText = widget.controller.document.toPlainText();
-      widget.onChange!(plainText);
+      widget.onChange!(plainText); // Trigger the callback with the updated text
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final containerHeight = widget.height ?? screenHeight * 0.3;
-
-    print(
-        '🔍 QuillTextField building with controller: ${widget.controller.hashCode}');
-    print(
-        '🔍 QuillTextField document length: ${widget.controller.document.length}');
+    final containerHeight = screenHeight * 0.4; // 40% of the screen height
 
     return Container(
       height: containerHeight,
@@ -109,68 +108,26 @@ class _QuillTextFieldState extends State<QuillTextField> {
             ),
           ),
           Expanded(
-            child: Builder(
-              builder: (context) {
-                try {
-                  return QuillEditor.basic(
-                    configurations: QuillEditorConfigurations(
-                      controller: widget.controller,
-                      enableSelectionToolbar: true,
-                      autoFocus: false,
-                      expands: true,
-                      scrollable: true,
-                      sharedConfigurations: const QuillSharedConfigurations(
-                        locale: Locale('en'),
-                      ),
-                      placeholder: 'Add Text Here',
-                      onTapOutside: (event, focusNode) {
-                        // Clear selection when tapping outside
-                        try {
-                          widget.controller.updateSelection(
-                            const TextSelection.collapsed(offset: 0),
-                            ChangeSource.local,
-                          );
-                        } catch (e) {
-                          // Ignore selection errors
-                        }
-                      },
-                    ),
-                  );
-                } catch (e) {
-                  print('QuillEditor error: $e');
-                  // Fallback UI if QuillEditor fails
-                  return Container(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: TextEditingController(
-                        text: widget.controller.document.toPlainText(),
-                      ),
-                      maxLines: null,
-                      expands: true,
-                      textAlignVertical: TextAlignVertical.top,
-                      decoration: const InputDecoration(
-                        hintText: 'Add Text Here',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                      ),
-                      onChanged: (value) {
-                        // Update the Quill controller when text changes
-                        try {
-                          final len = widget.controller.document.length;
-                          if (len > 0) {
-                            widget.controller.document.delete(0, len);
-                          }
-                          if (value.isNotEmpty) {
-                            widget.controller.document.insert(0, value);
-                          }
-                        } catch (e) {
-                          // Ignore update errors
-                        }
-                      },
-                    ),
-                  );
-                }
-              },
+            child: Focus(
+              focusNode: _focusNode,
+              child: QuillEditor.basic(
+                configurations: QuillEditorConfigurations(
+                  controller: widget.controller,
+                  enableSelectionToolbar: true,
+                  sharedConfigurations: const QuillSharedConfigurations(
+                    locale: Locale('en'),
+                  ),
+                  placeholder: 'Add Text Here',
+                  onTapOutside: (event, focusNode) {
+                    // Prevent keyboard from closing when tapping outside
+                    focusNode.unfocus();
+                  },
+                  autoFocus: false,
+                  scrollable: true,
+                  expands: true,
+                  padding: const EdgeInsets.all(8),
+                ),
+              ),
             ),
           ),
         ],

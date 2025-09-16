@@ -129,7 +129,7 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Remarks & Comments Controllers
   final TextEditingController remarkCtrl = TextEditingController();
-  late final quill.QuillController remarkQuillController;
+  quill.QuillController remarkQuillController = quill.QuillController.basic();
   final TextEditingController submitRemarksCtrl = TextEditingController();
   final TextEditingController termsCtrl = TextEditingController();
 
@@ -497,6 +497,7 @@ class PoApplicationVm extends ChangeNotifier {
     headerTab.needByDate = formatDateForBackend(needByDateCtrl.text);
     headerTab.remark = remarkCtrl.text;
     headerTab.terms = termsCtrl.text;
+    headerTab.headerTermPopup = termsCtrl.text;
     saveTermsData();
 
     // Supplier creation data
@@ -2386,10 +2387,17 @@ class PoApplicationVm extends ChangeNotifier {
 
   /// Save terms data to header tab
   void saveTermsData() {
+    print('🔍 saveTermsData called - termsCtrl.text: "${termsCtrl.text}"');
     if (purchaseOrderModel?.headerTab != null) {
       purchaseOrderModel!.headerTab!.terms = termsCtrl.text;
-
+      purchaseOrderModel!.headerTab!.headerTermPopup = termsCtrl.text;
+      print(
+          '🔍 Terms saved to headerTab.terms: "${purchaseOrderModel!.headerTab!.terms}"');
+      print(
+          '🔍 Terms saved to headerTab.headerTermPopup: "${purchaseOrderModel!.headerTab!.headerTermPopup}"');
       notifyListeners();
+    } else {
+      print('❌ purchaseOrderModel or headerTab is null');
     }
   }
 

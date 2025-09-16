@@ -4,9 +4,10 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:petty_cash/globalSize.dart';
 import 'package:petty_cash/resources/app_extension_context.dart';
-import 'package:petty_cash/view/widget/QuillTextField.dart';
+
 import 'package:petty_cash/view/widget/common_text.dart';
 import 'package:petty_cash/view/widget/erp_text_field.dart';
+import 'package:petty_cash/view/widget/quill_text_field.dart';
 import 'package:readmore/readmore.dart';
 
 class TransactionHeaderRows extends StatelessWidget {
