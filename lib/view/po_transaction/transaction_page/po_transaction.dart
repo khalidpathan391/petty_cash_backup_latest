@@ -266,27 +266,6 @@ class _PoTransactionState extends State<PoTransaction>
                                             listData: provider
                                                 .purchaseOrderModel!
                                                 .apprvlLvlStatus!),
-                                    // if (provider.isWorkFlow)
-                                    //   provider.purchaseOrderModel
-                                    //                   ?.apprvlLvlStatus !=
-                                    //               null &&
-                                    //           provider.purchaseOrderModel!
-                                    //               .apprvlLvlStatus!.isNotEmpty
-                                    //       ? NewWFCommon(
-                                    //           listData: provider
-                                    //               .purchaseOrderModel!
-                                    //               .apprvlLvlStatus!)
-                                    //       : Container(
-                                    //           padding: EdgeInsets.all(20),
-                                    //           child: Center(
-                                    //             child: CommonTextView(
-                                    //               label:
-                                    //                   'No WorkFlow data available',
-                                    //               fontSize: 16,
-                                    //               color: Colors.grey[600],
-                                    //             ),
-                                    //           ),
-                                    //         ),
                                   ],
                                 ),
                               ),
