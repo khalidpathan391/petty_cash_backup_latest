@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable, prefer_conditional_assignment, no_logic_in_create_state, unnecessary_null_comparison
+// ignore_for_file: avoid_print, unused_element, use_build_context_synchronously, unused_local_variable, must_be_immutable, prefer_conditional_assignment, no_logic_in_create_state, unnecessary_null_comparison, unnecessary_to_list_in_spreads, avoid_unnecessary_containers
 
 import 'package:flutter/material.dart';
 import 'package:petty_cash/data/models/HomePage/DashBoardModel.dart';
@@ -906,7 +906,6 @@ class _HeaderTabState extends State<_HeaderTab> {
               child: CommonTextView(
                 label: 'Cancel',
                 fontSize: tS * 0.75,
-                color: Colors.grey,
               ),
             ),
           ],
