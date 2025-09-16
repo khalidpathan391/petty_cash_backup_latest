@@ -870,65 +870,12 @@ class _HeaderTabState extends State<_HeaderTab> {
     );
   }
 
-  /// Show validation type search dialog
+  /// Show validation type search dialog - Now calls API
   void _showValidationTypeSearch() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        final dW = MediaQuery.of(context).size.width;
-        final tS = dW * 0.035;
-        final vm = Provider.of<PoApplicationVm>(context, listen: false);
+    final vm = Provider.of<PoApplicationVm>(context, listen: false);
 
-        return AlertDialog(
-          title: CommonTextView(
-            label: 'Select Validation Type',
-            fontSize: tS * 1.0,
-            fontWeight: FontWeight.bold,
-          ),
-          content: SizedBox(
-            width: dW * 0.8,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Common validation types
-                _buildValidationTypeOption('VAT', vm),
-                _buildValidationTypeOption('Zakat', vm),
-                _buildValidationTypeOption('CR Number', vm),
-                _buildValidationTypeOption('Tax Certificate', vm),
-                _buildValidationTypeOption('Trade License', vm),
-                _buildValidationTypeOption('Other', vm),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: CommonTextView(
-                label: 'Cancel',
-                fontSize: tS * 0.75,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// Build validation type option
-  Widget _buildValidationTypeOption(String type, PoApplicationVm vm) {
-    final dW = MediaQuery.of(context).size.width;
-    final tS = dW * 0.035;
-
-    return ListTile(
-      title: CommonTextView(
-        label: type,
-        fontSize: tS * 0.75,
-      ),
-      onTap: () {
-        vm.updateFallbackValidationType(type);
-        Navigator.pop(context);
-      },
-    );
+    // Call the API to get validation types
+    vm.callSupplierValidationTypeSearch(context);
   }
 
   /// --- Create Supplier Bottom Sheet ---

@@ -213,6 +213,7 @@ class PoApplicationVm extends ChangeNotifier {
   int deliveryTermCodeId = 0;
   int supplierTypeId = 0;
   int supplierAddressId = 0;
+  int ceateSupplierTypeId = 0;
   String chargeTypeCode = '';
   // List<TaxPopup> taxPopups = [];
 
@@ -2026,11 +2027,13 @@ class PoApplicationVm extends ChangeNotifier {
           searchType: '',
           searchKeyWord: '',
           txnType: 'PO',
+          crSuppId: ceateSupplierTypeId.toString(),
         ),
       ),
     ).then((value) {
       if (value != null && value is supplier_type.SearchList) {
         // Handle supplier type search result
+        ceateSupplierTypeId = value.id ?? 0;
         supplierType.text = value.code ?? '';
         supplierTypeDesc.text = value.name ?? '';
         // Note: This is for supplier type, not supplier code, so we don't update supp_id here
@@ -2573,6 +2576,32 @@ class PoApplicationVm extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ===================== Supplier Validation Type Search API =====================
+
+  /// Call CreateSupplierValidationTypeSearch API to get validation types
+  void callSupplierValidationTypeSearch(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateSupplierCodePagination(
+          url: ApiUrl.baseUrl! + ApiUrl.createSupplierValidationTypeSearch,
+          searchType: '',
+          searchKeyWord: '',
+          txnType: 'PO',
+          crSuppId: ceateSupplierTypeId.toString(),
+        ),
+      ),
+    ).then((value) {
+      if (value != null && value is supplier_type.SearchList) {
+        // Handle validation type search result
+        fallbackValidationType.text = value.name ?? '';
+
+        // Update the validation type field with selected value
+        notifyListeners();
+      }
+    });
+  }
+
   /// Create Supplier Directly - Save data to model without API call
   void createSupplierDirectly(BuildContext context) {
     try {
@@ -3004,22 +3033,6 @@ class PoApplicationVm extends ChangeNotifier {
 
     notifyListeners();
   }
-
-  /// Add new tax row
-  // void onTaxPopupAddRow(int parentIndex) {
-  //   if (purchaseOrderModel?.itemDetailsTab == null ||
-  //       parentIndex < 0 ||
-  //       parentIndex >= purchaseOrderModel!.itemDetailsTab!.length) return;
-
-  //   final newTax = TaxPopup.empty();
-  //   newTax.isSelected = false;
-
-  //   purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup ??= [];
-  //   purchaseOrderModel!.itemDetailsTab![parentIndex].taxPopup!.add(newTax);
-
-  //   print("New Tax Row Added for Item $parentIndex");
-  //   notifyListeners();
-  // }
 
   TaxPopup onTaxPopupAddRow(int index) {
     var taxPopupLine = TaxPopup();

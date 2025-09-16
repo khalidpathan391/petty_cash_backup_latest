@@ -71,6 +71,8 @@ class ApiUrl {
   static var getSupplierCodeSearchList = 'erp_api/CreateSupplierType/';
   static var getSupplierAdddressSearchList = 'erp_api/CreateSupplierAddress/';
   static var createSupplier = 'erp_api/CreateSupplierFromPo/';
+  static var createSupplierValidationTypeSearch =
+      'erp_api/CreateSupplierValidationTypeSearch/';
 
   static var wfApprove = 'erp_api/approve_wf/';
   static var wfReject = 'erp_api/reject_wf/';

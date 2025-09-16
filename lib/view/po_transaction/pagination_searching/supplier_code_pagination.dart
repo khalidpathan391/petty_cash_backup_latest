@@ -31,22 +31,24 @@ class CreateSupplierCodePagination extends StatefulWidget {
   final bool isUsedBy;
   final bool isItem;
   final String? supp_id;
+  final String? crSuppId;
 
-  const CreateSupplierCodePagination({
-    Key? key,
-    required this.url,
-    required this.searchType,
-    required this.txnType,
-    required this.searchKeyWord,
-    this.refTxntype,
-    this.isMenuId = false,
-    this.isAsset = false,
-    this.isUsedBy = false,
-    this.actvityId,
-    this.categoryId,
-    this.isItem = false,
-    this.supp_id,
-  }) : super(key: key);
+  const CreateSupplierCodePagination(
+      {Key? key,
+      required this.url,
+      required this.searchType,
+      required this.txnType,
+      required this.searchKeyWord,
+      this.refTxntype,
+      this.isMenuId = false,
+      this.isAsset = false,
+      this.isUsedBy = false,
+      this.actvityId,
+      this.categoryId,
+      this.isItem = false,
+      this.supp_id,
+      this.crSuppId})
+      : super(key: key);
 
   @override
   WorkOrdeSrearchingState createState() =>
@@ -91,6 +93,7 @@ class WorkOrdeSrearchingState extends State<CreateSupplierCodePagination> {
       'user_id': Global.empData!.userId.toString(),
       'mid': widget.isMenuId ? Global.menuData!.id.toString() : '',
       'supplier_id': widget.supp_id ?? '',
+      'supplier_type_id': widget.crSuppId ?? '',
     };
     return data;
   }
