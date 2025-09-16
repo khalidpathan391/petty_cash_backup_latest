@@ -1003,13 +1003,13 @@ class _HeaderTabState extends State<_HeaderTab> {
                               children: [
                                 SizedBox(height: tS * 0.5),
 
-                                // Supplier Code (Disabled - No keyboard, no controller)
+                                // Supplier Code (Editable text field)
                                 labelWithField(
                                   label: 'Supplier Code*',
                                   field: CommonTextFormField(
                                     label: 'Supplier Code*',
-                                    controller: TextEditingController(text: ''),
-                                    enabled: false,
+                                    controller: vm.supplierCode,
+                                    enabled: true,
                                     height: dH * 0.05,
                                     fontSize: tS * 0.75,
                                   ),
@@ -1021,7 +1021,7 @@ class _HeaderTabState extends State<_HeaderTab> {
                                   field: CommonTextFormField(
                                     label: 'Supplier Description*',
                                     controller: vm.supplierDesc,
-                                    enabled: false,
+                                    enabled: true,
                                     height: dH * 0.05,
                                     fontSize: tS * 0.75,
                                   ),
